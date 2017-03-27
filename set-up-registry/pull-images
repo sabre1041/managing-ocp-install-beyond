@@ -1,15 +1,15 @@
 #!/bin/bash
 
-docker pull registry.access.redhat.com/openshift3/ose-docker-builder:v3.4.1.10-3
-docker pull registry.access.redhat.com/openshift3/ose-sti-builder:v3.4.1.10-3
-docker pull registry.access.redhat.com/openshift3/ose-keepalived-ipfailover:v3.4.1.10-3
-docker pull registry.access.redhat.com/openshift3/ose:v3.4.1.10-3
-docker pull registry.access.redhat.com/openshift3/node:v3.4.1.10-3
-docker pull registry.access.redhat.com/openshift3/ose-pod:v3.4.1.10-3
-docker pull registry.access.redhat.com/openshift3/metrics-deployer:v3.4.1.10-3
-docker pull registry.access.redhat.com/openshift3/ose-pod:v3.4.1.10-3
-docker pull registry.access.redhat.com/openshift3/ose-haproxy-router:v3.4.1.10-3
-docker pull registry.access.redhat.com/openshift3/ose-deployer:v3.4.1.10-3
-docker pull registry.access.redhat.com/openshift3/ose-docker-registry:v3.4.1.10-3
+docker pull registry.access.redhat.com/openshift3/ose-docker-builder:v3.4.1.10-1
+docker pull registry.access.redhat.com/openshift3/ose-sti-builder:v3.4.1.10-1
+docker pull registry.access.redhat.com/openshift3/ose-keepalived-ipfailover:v3.4.1.10-1
+docker pull registry.access.redhat.com/openshift3/ose:v3.4.1.10-1
+docker pull registry.access.redhat.com/openshift3/node:v3.4.1.10-1
+docker pull registry.access.redhat.com/openshift3/ose-pod:v3.4.1.10-1
+docker pull registry.access.redhat.com/openshift3/metrics-deployer:v3.4.1.10-1
+docker pull registry.access.redhat.com/openshift3/ose-pod:v3.4.1.10-1
+docker pull registry.access.redhat.com/openshift3/ose-haproxy-router:v3.4.1.10-1
+docker pull registry.access.redhat.com/openshift3/ose-deployer:v3.4.1.10-1
+docker pull registry.access.redhat.com/openshift3/ose-docker-registry:v3.4.1.10-1
 docker pull registry.access.redhat.com/openshift3/metrics-heapster:3.4.0
-docker pull registry.access.redhat.com/openshift3/metrics-heapster:v3.4.1.10-3
+docker pull registry.access.redhat.com/openshift3/metrics-heapster:v3.4.1.10-1
