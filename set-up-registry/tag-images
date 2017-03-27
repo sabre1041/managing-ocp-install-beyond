@@ -1,0 +1,14 @@
+#!/bin/bash
+
+docker tag registry.access.redhat.com/openshift3/node:v3.4.1.10-3 summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/node:v3.4.1.10-3 
+docker tag registry.access.redhat.com/openshift3/metrics-deployer:v3.4.1.10-3 summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/metrics-deployer:v3.4.1.10-3
+docker tag registry.access.redhat.com/openshift3/metrics-deployer:v3.4.1.10-3 summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/metrics-deployer:v3.4.1.10-3
+docker tag registry.access.redhat.com/openshift3/ose-docker-builder:v3.4.1.10-3 summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/ose-docker-builder:v3.4.1.10-3
+docker tag registry.access.redhat.com/openshift3/ose-sti-builder:v3.4.1.10-3 summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/ose-sti-builder:v3.4.1.10-3
+docker tag registry.access.redhat.com/openshift3/ose-haproxy-router:v3.4.1.10-3 summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/ose-haproxy-router:v3.4.1.10-3
+docker tag registry.access.redhat.com/openshift3/ose-deployer:v3.4.1.10-3 summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/ose-deployer:v3.4.1.10-3
+docker tag registry.access.redhat.com/openshift3/ose-keepalived-ipfailover:v3.4.1.10-3 summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/ose-keepalived-ipfailover:v3.4.1.10-3
+docker tag registry.access.redhat.com/openshift3/ose-docker-registry:v3.4.1.10-3 summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/ose-docker-registry:v3.4.1.10-3
+docker tag registry.access.redhat.com/openshift3/ose:v3.4.1.10-3 summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/ose:v3.4.1.10-3
+docker tag registry.access.redhat.com/openshift3/ose-pod:v3.4.1.10-3 summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/ose-pod:v3.4.1.10-3
+docker tag registry.access.redhat.com/openshift3/metrics-heapster:3.4.0 summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/metrics-heapster:3.4.0
