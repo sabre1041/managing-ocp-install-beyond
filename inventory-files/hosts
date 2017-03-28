@@ -12,7 +12,7 @@ nfs
 ansible_ssh_user=root
 
 # Set version of images
-openshift_pkg_version=3.4.1.10-1
+openshift_pkg_version=3.4.1.2
 
 openshift_docker_additional_registries=summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000
 openshift_docker_insecure_registries=summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000
