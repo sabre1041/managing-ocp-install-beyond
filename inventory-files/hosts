@@ -12,10 +12,10 @@ nfs
 ansible_ssh_user=root
 
 # Set version of images
-# openshift_pkg_version=3.4.1.10-3
+openshift_pkg_version=3.4.1.10-1
 
-openshift_docker_additional_registries=
-openshift_docker_insecure_registries=
+openshift_docker_additional_registries=summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000
+openshift_docker_insecure_registries=summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000
 openshift_additional_repos=[{'id': 'ose-devel', 'name': 'ose-devel', 'baseurl': 'http://10.19.115.56/pub/rhel-7-server-ose-3.4-rpms', 'enabled': 1, 'gpgcheck': 0}]
 
 osn_storage_plugin_deps=''
