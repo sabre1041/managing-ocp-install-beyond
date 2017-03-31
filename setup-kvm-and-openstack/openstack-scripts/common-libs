@@ -1,0 +1,65 @@
+echo INFO: Loading common-libs
+
+# Determine whether running on an interactive tty (or a pipe)
+isatty(){
+    stdin="$(ls -l /proc/self/fd/0)"
+    stdin="${stdin/*-> /}"
+
+    if [[ "$stdin" =~ ^/dev/pts/[0-9] ]]; then
+        return 0 # terminal
+    else
+        return 1 # pipe
+    fi
+}
+
+# Run specified command and parameters through a error checking loop
+run_cmd() {
+	do_cmd=$1 ; shift
+	if [ "${DEBUG}" = true ]
+	then
+		echo -en "\nPress ENTER for: '${do_cmd} $@' "
+		read
+	fi
+    	if [ "$VERBOSE" = true ]
+	then
+		echo "INFO: Running: '${do_cmd} $@'"
+		echo -en "$do_cmd "
+		for arg in "$@" ; do
+		    if [[ $arg =~ [[:space:]] ]]; then
+			echo -n "\"$arg\" "
+		    else
+			echo -n "$arg "
+		    fi
+		done
+		echo # print newline
+	fi
+    	if [ "$VERBOSE" = true ]
+	then
+		time $do_cmd "$@"
+		rc=$?
+		echo "INFO: Return code is: ${rc}"
+		echo ""
+	else
+		$do_cmd "$@"
+		rc=$?
+	fi
+	# added to debug RC failing
+	if [[ "$rc" -ne "0" ]]
+	then
+		echo -n "ERROR: ($rc) on ($do_cmd $@).\nRetry (r), Continue (c), Stop (s)? "
+		if isatty ; then
+		    read YESNO
+		    if [[ $YESNO == [cC] ]]; then
+			return # just leave the function (allowing caller to proceed)
+		    elif [[ $YESNO == [rR] ]]; then
+			run_cmd $do_cmd "$@"
+		    else
+			exit $rc
+		    fi
+		fi
+	fi
+}
+
+cmd() {
+	run_cmd "$@"
+}
