@@ -1,5 +1,14 @@
 #!/bin/bash
 
+# Set variable for unique SSH key
+SSH_KEY_OPTS="$0"
+
+# Set up sshpass for non-interactive deployment
+yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+yum -y install sshpass
+yum-config-manager --disable "Extra Packages for Enterprise Linux 7 - x86_64"
+
+
 # Using internal rhos-release so no dependency on Satellite or Hosted
 yum -y install http://rhos-release.virt.bos.redhat.com/repos/rhos-release/rhos-release-latest.noarch.rpm
 rhos-release rhel-7.3
@@ -26,23 +35,13 @@ cat > /tmp/L104353.xml <<EOF
 </network>
 EOF
 
-# Setup SSH config to prevent prompting
-mkdir ~/.ssh
-chmod 600 ~/.ssh
-cat > ~/.ssh/config << EOF
-host 192.168.122.10
-StrictHostKeyChecking no 
-UserKnownHostsFile /dev/null
-LogLevel QUIET
-EOF
-
 # Create OpenStack network
 virsh net-define /tmp/L104353.xml
 virsh net-autostart L104353
 virsh net-start L104353
 
 # Copy the rhel-guest-image from the NFS location to /tmp
-rsync -avP /fileshare/images/rhel-guest-image-7.3-35.x86_64.qcow2 /tmp/rhel-guest-image-7.3-35.x86_64.qcow2
+rsync -e "ssh -i ~/.ssh/${SSH_KEY_OPTS%.*}" -avP /fileshare/images/rhel-guest-image-7.3-35.x86_64.qcow2 /tmp/rhel-guest-image-7.3-35.x86_64.qcow2
 
 # Create empty image which will be used for the virt-resize
 qemu-img create -f qcow2 /var/lib/libvirt/images/L104353-rhel7-rhosp10.qcow2 100G
@@ -83,30 +82,47 @@ virt-install --ram 32768 --vcpus 8 --os-variant rhel7 \
   --network network:L104353 \
   --name rhelosp
 
-# Create keys if needed
-if [ ! -e ~/.ssh/id_rsa ]
+# Setup SSH config to prevent prompting
+mkdir ~/.ssh
+chmod 600 ~/.ssh
+cat > ~/.ssh/config << EOF
+host 192.168.122.10
+StrictHostKeyChecking no 
+UserKnownHostsFile /dev/null
+LogLevel QUIET
+EOF
+
+# Create unique key for this project
+if [ ! -e ~/.ssh/${SSH_KEY_OPTS%.*} ]
 then
-  ssh-keygen -b 2048 -t rsa -f ~/.ssh/id_rsa -q -N ""
+  ssh-keygen -b 2048 -t rsa -f ~/.ssh/${SSH_KEY_OPTS%.*} -q -N ""
+  eval `ssh-agent`
+  ssh-add ~/.ssh/${SSH_KEY_OPTS%.*}
 fi
 
+echo
+echo "Waiting on VM to come online"
+echo
+
 # Wait for VM to come online
-sleep 20
+sleep 40
 
 # Remove any existing entries for static IP
 sed -i /192.168.122.10/d ~/.ssh/known_hosts
 
-# Copie SSH public key (TODO: Automate this)
-ssh-copy-id root@192.168.122.10
+# Copy SSH public key (TODO: Automate this)
+sshpass -p summit2017 ssh-copy-id -i ~/.ssh/${SSH_KEY_OPTS%.*} root@192.168.122.10
 
 # Copy guest image to VM
-scp /fileshare/images/rhel-guest-image-7.3-35.x86_64.qcow2 root@192.168.122.10:/tmp/.
+sshpass -p summit2017 scp /fileshare/images/rhel-guest-image-7.3-35.x86_64.qcow2 root@192.168.122.10:/tmp/.
 # Copy openstack-scripts to VM
-rsync -avP /fileshare/scripts/summit2017/openstack-scripts/ root@192.168.122.10:/root/openstack-scripts/
+sshpass -p summit2017 rsync -e "ssh -i ~/.ssh/${SSH_KEY_OPTS%.*}" -avP /fileshare/scripts/summit2017/openstack-scripts/ root@192.168.122.10:/root/openstack-scripts/
 # Disable NetworkManager and firewalld
-ssh root@192.168.122.10 "systemctl disable NetworkManager && systemctl stop NetworkManager && systemctl disable firewalld && systemctl stop firewalld && systemctl enable network && systemctl start network"
+sshpass -p summit2017 ssh root@192.168.122.10 "systemctl disable NetworkManager && systemctl stop NetworkManager && systemctl disable firewalld && systemctl stop firewalld && systemctl enable network && systemctl start network"
 # Install Packstack and utils
-ssh root@192.168.122.10 "yum -y install openstack-packstack openstack-utils"
+sshpass -p summit2017 ssh root@192.168.122.10 "yum -y install openstack-packstack openstack-utils"
 # Run Packstack using a pseudo terminal
-ssh -t root@192.168.122.10 "packstack --answer-file=/root/openstack-scripts/answers.txt"
+sshpass -p summit2017 ssh -t root@192.168.122.10 "packstack --answer-file=/root/openstack-scripts/answers.txt"
 # Configure the OpenStack environment for the lab (create user, project, fix Cinder to use LVM, etc)
-ssh root@192.168.122.10 /root/openstack-scripts/openstack-env-config.sh
+sshpass -p summit2017 ssh root@192.168.122.10 /root/openstack-scripts/openstack-env-config.sh
+
