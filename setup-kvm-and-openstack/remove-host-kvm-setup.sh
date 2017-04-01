@@ -3,8 +3,15 @@
 
 virsh destroy rhelosp
 virsh undefine rhelosp
+virsh net-destroy L104353
+virsh net-undefine L104353
 rm -f /var/lib/libvirt/images/L104353-rhel7-rhosp10.qcow2
-sed -i /192.168.122.10/d ~/.ssh/known_hosts
+
+# There shouldn't be any entries for this VM, but just in case remove it
+if grep 192.168.122.10 ~/.ssh/known_hosts
+then
+  sed -i /192.168.122.10/d ~/.ssh/known_hosts
+fi
 
 # Remove SSH keys
 if [ -f ~/.ssh/host-kvm-setup ]
@@ -12,9 +19,3 @@ then
   rm -rf ~/.ssh/host-kvm-setup*
 fi
 
-# Remove SSH config if it exists
-if [ -f ~/.ssh/config ]
-then
-  cp ~/.ssh/config{,.orig}
-  rm -rf ~/.ssh/config
-fi

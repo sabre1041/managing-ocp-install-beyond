@@ -16,22 +16,14 @@ then
   exit 1
 fi
 
-prepare-host() {
-	cmd echo "INFO: Starting function 'prepare-host'"
-	# Disable NetworkManager
-	systemctl disable NetworkManager
-	systemctl stop NetworkManager
-	systemctl disable firewalld
-	systemctl stop firewalld
-	systemctl enable network
-	systemctl start network
-	# Install internal repos and enable specific version
-	#cmd yum -y install http://rhos-release.virt.bos.redhat.com/repos/rhos-release/rhos-release-latest.noarch.rpm
-	#cmd yum-config-manager --disable core-0 --disable core-1 --disable core-2
-	#cmd rhos-release ${RHELOSP_VERSION}
-	cmd yum -y install openstack-packstack openstack-utils
-	#cmd yum -y update
+# Install Packstack and utils
+cmd yum -y install openstack-packstack openstack-utils
 
+# Run Packstack 
+cmd packstack --answer-file=/root/openstack-scripts/answers.txt
+
+post-install-config() {
+	cmd echo "INFO: Starting function 'prepare-host'"
 	# Remove cinder loopback device and enable lvm on second partition
 	CINDER_LODEVICE=$(losetup -l | awk '/cinder-volumes/ { print $1 }')
 	losetup -d ${CINDER_LODEVICE}
@@ -41,12 +33,8 @@ prepare-host() {
 	vgchange -ay
 	systemctl disable openstack-losetup.service
 	systemctl stop openstack-losetup.service
-	openstack-service restart openstack-cinder-volume
 	openstack-config --set /etc/cinder/cinder.conf DEFAULT lvm_type thin
-}
-
-packstack-install() {
-	cmd echo "INFO: 'packstack-install' has already been completed"
+	openstack-service restart openstack-cinder-volume
 }
 
 post-install-admin-tasks() {
@@ -295,14 +283,12 @@ verify-networking() {
 }
 
 # Main
-prepare-host 2>&1 | tee -a ${LOGFILE}
-packstack-install 2>&1 | tee -a ${LOGFILE}
+post-install-config 2>&1 | tee -a ${LOGFILE}
 post-install-admin-tasks 2>&1 | tee -a ${LOGFILE}
 # Image creation can't be redirected to a log file or the --progress option doesn't work
 create-images
 post-install-user-tasks 2>&1 | tee -a ${LOGFILE}
 build-instances 2>&1 | tee -a ${LOGFILE}
-# Check for ERROR in build, if so change virt_type to qemu and retry
 source /root/keystonerc_${USERNAME}
 if nova list | grep ERROR
 then
