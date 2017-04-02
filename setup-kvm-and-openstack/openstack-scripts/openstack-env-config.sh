@@ -68,6 +68,11 @@ post-install-admin-tasks() {
 		  external \
 		  ${EXTERNAL_NETWORK}
 	fi
+  TENANT_ID=$(openstack project show ${TENANT_NAME} -f value -c id)
+  EXTERNAL_SUBNET_ID=$(openstack subnet show external -f value -c id)
+
+  #Create port for openshift master
+  cmd neutron port-create external --name openshift-master --tenant-id ${TENANT_ID} --allowed-address-pairs type=dict list=true ip_address=172.20.17.5 --fixed-ip subnet_id=${EXTERNAL_SUBNET_ID},ip_address=172.20.17.5
 
 	# User keystonerc file
 cat > /root/keystonerc_${USERNAME} << EOF
