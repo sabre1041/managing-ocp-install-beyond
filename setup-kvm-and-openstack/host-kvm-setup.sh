@@ -43,6 +43,48 @@ cmd yum -y install libvirt qemu-kvm virt-manager virt-install libguestfs-tools x
 # Enable and start libvirt services
 cmd systemctl enable libvirtd && systemctl start libvirtd
 
+# Check for and attempt to enable nested virt support
+if ! egrep -q '^flags.*(vmx|svm)' /proc/cpuinfo
+then
+  echo "ERROR: Inetl VT or AMD-V was not detected, check BIOS to enable this feature."
+  exit 1
+fi
+
+# Determine CPU Vendor
+if grep -qi intel /proc/cpuinfo
+then
+  CPU_VENDOR=intel
+elif grep -qi amd /proc/cpuinfo
+then
+  CPU_VENDOR=amd
+else
+  echo "ERROR: Unable to determine CPU Vendor, try rebooting or ??"
+  exit 1
+fi
+
+# Check and attempt to enable nested virt
+echo "Checking for nested virt support"
+if ! egrep -q 'Y|1' /sys/module/kvm_${CPU_VENDOR}/parameters/nested
+then
+  echo "WARN: Nested virt not enabled, attempting to enable. This may require a reboot if other VMs are running."
+  rmmod kvm-${CPU_VENDOR}
+  echo "options kvm-${CPU_VENDOR} nested=Y" > /etc/modprobe.d/kvm_${CPU_VENDOR}.conf
+  echo "options kvm-${CPU_VENDOR} enable_shadow_vmcs=1" >> /etc/modprobe.d/kvm_${CPU_VENDOR}.conf
+  echo "options kvm-${CPU_VENDOR} enable_apicv=1" >> /etc/modprobe.d/kvm_${CPU_VENDOR}.conf
+  echo "options kvm-${CPU_VENDOR} ept=1" >> /etc/modprobe.d/kvm_${CPU_VENDOR}.conf
+  modprobe kvm-${CPU_VENDOR}
+  RC=$?
+  if [ grep -q -e "N" -e "0" /sys/module/kvm_${CPU_VENDOR}/parameters/nested ] || [ $RC != 0 ]
+  then
+    echo "WARN: Could not dynamically enable nested virt, reboot and re-run this script."
+    exit 1
+  fi
+fi
+if ! lsmod | grep -q -e kvm_intel -e kvm_amd
+then
+  echo "ERROR: CPU Virt extensions not loaded, try rebooting and re-run this script."
+fi
+
 # For this specific lab environment, mount the fileshare containing images and scripts
 if [ ! -d /fileshare ]
 then
