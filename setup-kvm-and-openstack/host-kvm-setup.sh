@@ -6,7 +6,7 @@ source /fileshare/scripts/summit2017/setup-kvm-and-openstack/openstack-scripts/c
 SSH_KEY_FILENAME=~/.ssh/host-kvm-setup
 SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${SSH_KEY_FILENAME}"
 PASSWORD=summit2017
-OSP_VM_IP=192.168.122.10
+OSP_VM_HOSTNAME=rhosp.admin.example.com
 TIMEOUT=45
 TIMEOUT_WARN=15
 
@@ -35,7 +35,7 @@ fi
 cmd rhos-release rhel-7.3
 
 # Disable lab-specific cobble repos
-cmd yum-config-manager --disable core-1 --disable core-2 
+cmd yum-config-manager --disable core-1 --disable core-2
 
 # Install required rpms
 cmd yum -y install libvirt qemu-kvm virt-manager virt-install libguestfs-tools xorg-x11-apps xauth virt-viewer libguestfs-xfs dejavu-sans-fonts nfs-utils vim-enhanced rsync nmap
@@ -53,20 +53,54 @@ then
   cmd mount 10.11.169.10:/exports/fileshare /fileshare/
 fi
 
-# Create OpenStack network without DHCP, as OpenStack will provide that via dnsmasq
-cmd cat > /tmp/L104353.xml <<EOF
+# Create Admin Network
+cmd cat > /tmp/L104353-admin.xml <<EOF
 <network>
   <forward mode='nat'/>
-  <name>L104353</name>
+  <name>L104353-admin</name>
+  <domain name='admin.example.com' localOnly='yes'/>
+  <ip address="192.168.144.1" netmask="255.255.255.0">
+    <dhcp>
+      <range start='192.168.144.2' end='192.168.144.254'/>
+    </dhcp>
+  </ip>
+</network>
+EOF
+
+# Create OpenStack network without DHCP, as OpenStack will provide that via dnsmasq
+cmd cat > /tmp/L104353-osp.xml <<EOF
+<network>
+  <forward mode='nat'/>
+  <name>L104353-osp</name>
   <ip address="172.20.17.1" netmask="255.255.255.0"/>
 </network>
 EOF
 
 # Create OpenStack network
-cmd virsh net-define /tmp/L104353.xml
-cmd virsh net-autostart L104353
-echo "INFO: If this libvirt network fails to start try restarting libvirtd."
-cmd virsh net-start L104353
+for network in admin osp; do
+  cmd virsh net-define /tmp/L104353-${network}.xml
+  cmd virsh net-autostart L104353-${network}
+  echo "INFO: If this libvirt network fails to start try restarting libvirtd."
+  cmd virsh net-start L104353-${network}
+done
+
+# Ensure the dnsmasq plugin is enabled for NetworkManager
+cmd cat > /etc/NetworkManager/conf.d/L104353.conf <<EOF
+[main]
+dns=dnsmasq
+EOF
+
+# Add dnsmasq config for admin network
+cmd cat > /etc/NetworkManager/dnsmasq.d/L104353.conf <<EOF
+no-negcache
+strict-order
+server=/admin.example.com/192.168.144.1
+server=/osp.example.com/172.20.17.100
+server=/.apps.example.com/172.20.17.5
+EOF
+
+# Restart NetworkManager to pick up the changes
+cmd systemctl restart NetworkManager
 
 # Copy the rhel-guest-image from the NFS location to /tmp
 cmd rsync -e "ssh ${SSH_OPTS}" -avP /fileshare/images/rhel-guest-image-7.3-35.x86_64.qcow2 /tmp/rhel-guest-image-7.3-35.x86_64.qcow2
@@ -81,56 +115,33 @@ cmd virt-resize --resize /dev/sda1=30G /tmp/rhel-guest-image-7.3-35.x86_64.qcow2
 cmd virt-filesystems --partitions -h --long -a /var/lib/libvirt/images/L104353-rhel7-rhosp10.qcow2
 # Show disk spac eon new image
 cmd virt-df -a /var/lib/libvirt/images/L104353-rhel7-rhosp10.qcow2
-# Set password
-cmd virt-customize -a /var/lib/libvirt/images/L104353-rhel7-rhosp10.qcow2 --root-password password:${PASSWORD}
-# Remove cloud-init, configure rhos-release, and setup static IPs
-cmd virt-customize -a /var/lib/libvirt/images/L104353-rhel7-rhosp10.qcow2 --run-command '\
-yum remove cloud-init* -y && \
-rpm -ivh http://rhos-release.virt.bos.redhat.com/repos/rhos-release/rhos-release-latest.noarch.rpm && \
-rhos-release 10 && \
-rhos-release rhel-7.3 && \
-yum-config-manager --disable rhelosp-rhel-7.2-extras --disable rhelosp-rhel-7.2-ha --disable rhelosp-rhel-7.2-server --disable rhelosp-rhel-7.2-z --disable rhelosp-rhel-7.3-pre-release && \
-echo "DEVICE=eth0" > /etc/sysconfig/network-scripts/ifcfg-eth0 && \
-echo "BOOTPROTO=static" >> /etc/sysconfig/network-scripts/ifcfg-eth0 && \
-echo "ONBOOT=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth0 && \
-echo "IPADDR=192.168.122.10" >> /etc/sysconfig/network-scripts/ifcfg-eth0 && \
-echo "NETMASK=255.255.255.0" >> /etc/sysconfig/network-scripts/ifcfg-eth0 && \
-echo "DNS1=192.168.122.1" >> /etc/sysconfig/network-scripts/ifcfg-eth0 && \
-cp /etc/sysconfig/network-scripts/ifcfg-eth{0,1} && \
-echo "GATEWAY=192.168.122.1" >> /etc/sysconfig/network-scripts/ifcfg-eth0 && \
-sed -i s/eth0/eth1/g /etc/sysconfig/network-scripts/ifcfg-eth1 && \
-sed -i s/192.168.122/172.20.17/g /etc/sysconfig/network-scripts/ifcfg-eth1 && \
-systemctl disable NetworkManager'
+# Set password, set hostname, remove cloud-init, configure rhos-release, and setup networking
+cmd virt-customize -a /var/lib/libvirt/images/L104353-rhel7-rhosp10.qcow2 \
+  --root-password password:${PASSWORD} \
+  --hostname ${OSP_VM_HOSTNAME} \
+  --run-command 'yum remove cloud-init* -y && \
+    rpm -ivh http://rhos-release.virt.bos.redhat.com/repos/rhos-release/rhos-release-latest.noarch.rpm && \
+    rhos-release 10 && \
+    echo "DEVICE=eth1" > /etc/sysconfig/network-scripts/ifcfg-eth1 && \
+    echo "BOOTPROTO=static" >> /etc/sysconfig/network-scripts/ifcfg-eth1 && \
+    echo "ONBOOT=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth1 && \
+    echo "IPADDR=172.20.17.10" >> /etc/sysconfig/network-scripts/ifcfg-eth1 && \
+    echo "NETMASK=255.255.255.0" >> /etc/sysconfig/network-scripts/ifcfg-eth1 && \
+    systemctl disable NetworkManager'
 
 # Install image as VM
 cmd virt-install --ram 32768 --vcpus 8 --os-variant rhel7 \
   --disk path=/var/lib/libvirt/images/L104353-rhel7-rhosp10.qcow2,device=disk,bus=virtio,format=qcow2 \
   --import --noautoconsole --vnc \
   --cpu host,+vmx \
-  --network network:default \
-  --network network:L104353 \
+  --network network:L104353-admin \
+  --network network:L104353-osp \
   --name rhelosp
 
-echo -n "Waiting on VM to come online "
-counter=0
-while :
-do
-  counter=$(( $counter + 1 ))
-  if ping -c 1 ${OSP_VM_IP} 2>&1 > /dev/null
-  then
-    break
-  fi
-  if [ $counter -gt $TIMEOUT ]
-  then
-    echo ERROR: something went wrong - check console
-    exit 1
-  elif [ $counter -gt $TIMEOUT_WARN ]
-  then
-    echo WARN: this is taking longer than expected
-  fi
-  echo -n "."
-done
-echo ""
+echo -n "Sleeping for 30s to wait for the host to come online"
+sleep 30
+
+VM_IP=$(virsh domifaddr rhelosp | grep vnet0 | awk '{print $4}'| cut -d/ -f1)
 
 echo -n "Waiting for sshd to start "
 counter=0
@@ -138,7 +149,7 @@ while :
 do
   counter=$(( $counter + 1 ))
   sleep 1
-  if nmap -p22 ${OSP_VM_IP} | grep  "22/tcp.*open"
+  if nmap -p22 ${VM_IP} | grep  "22/tcp.*open"
   then
     break
   fi
@@ -169,14 +180,14 @@ fi
 
 cmd ssh-keygen -b 2048 -t rsa -f ${SSH_KEY_FILENAME} -N ""
 
-# Copy SSH public key 
-cmd sshpass -p ${PASSWORD} ssh-copy-id ${SSH_OPTS} root@${OSP_VM_IP}
+# Copy SSH public key
+cmd sshpass -p ${PASSWORD} ssh-copy-id ${SSH_OPTS} root@${VM_IP}
 
 # Copy guest image to VM
-cmd scp ${SSH_OPTS} /tmp/rhel-guest-image-7.3-35.x86_64.qcow2 root@${OSP_VM_IP}:/tmp/.
+cmd scp ${SSH_OPTS} /tmp/rhel-guest-image-7.3-35.x86_64.qcow2 root@${VM_IP}:/tmp/.
 
 # Copy openstack-scripts to VM
-cmd rsync -e "ssh ${SSH_OPTS}" -avP /fileshare/scripts/summit2017/setup-kvm-and-openstack/openstack-scripts/ root@${OSP_VM_IP}:/root/openstack-scripts/
+cmd rsync -e "ssh ${SSH_OPTS}" -avP /fileshare/scripts/summit2017/setup-kvm-and-openstack/openstack-scripts/ root@${VM_IP}:/root/openstack-scripts/
 
 # Install and configure the OpenStack environment for the lab (create user, project, fix Cinder to use LVM, etc)
-cmd ssh -t ${SSH_OPTS} root@${OSP_VM_IP} /root/openstack-scripts/openstack-env-config.sh
+cmd ssh -t ${SSH_OPTS} root@${VM_IP} /root/openstack-scripts/openstack-env-config.sh
