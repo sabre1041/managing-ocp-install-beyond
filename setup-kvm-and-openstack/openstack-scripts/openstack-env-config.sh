@@ -64,6 +64,7 @@ post-install-config() {
 	systemctl stop openstack-losetup.service
 	openstack-config --set /etc/nova/nova.conf libvirt virt_type kvm
 	openstack-config --set /etc/cinder/cinder.conf DEFAULT lvm_type thin
+	openstack-config --set /etc/cinder/cinder.conf DEFAULT volume_clear none
 	openstack-service restart openstack-cinder-volume
 }
 

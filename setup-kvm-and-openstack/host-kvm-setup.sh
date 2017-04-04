@@ -1,14 +1,16 @@
 #!/bin/bash
 
-source /fileshare/scripts/summit2017/setup-kvm-and-openstack/openstack-scripts/common-libs
+source openstack-scripts/common-libs
 
 # Set variables for unique SSH key and options
 SSH_KEY_FILENAME=~/.ssh/host-kvm-setup
 SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${SSH_KEY_FILENAME}"
 PASSWORD=summit2017
 OSP_VM_HOSTNAME=rhosp.admin.example.com
-TIMEOUT=45
+TIMEOUT=30
 TIMEOUT_WARN=15
+BASE_IMAGE_NAME=rhel-guest-image-7.3-35.x86_64.qcow2
+BASE_IMAGE_URL=http://10.11.169.10/fileshare/images/${BASE_IMAGE_NAME}
 
 # Set up sshpass for non-interactive deployment
 if ! rpm -q sshpass
@@ -84,16 +86,6 @@ then
   echo "ERROR: CPU Virt extensions not loaded, try rebooting and re-run this script."
 fi
 
-# For this specific lab environment, mount the fileshare containing images and scripts
-if [ ! -d /fileshare ]
-then
-  cmd mkdir /fileshare
-fi
-if ! mount | grep "10.11.169.10:/exports/fileshare on /fileshare"
-then
-  cmd mount 10.11.169.10:/exports/fileshare /fileshare/
-fi
-
 # Create Admin Network
 cmd cat > /tmp/L104353-admin.xml <<EOF
 <network>
@@ -144,14 +136,14 @@ EOF
 cmd systemctl restart NetworkManager
 
 # Copy the rhel-guest-image from the NFS location to /tmp
-cmd rsync -e "ssh ${SSH_OPTS}" -avP /fileshare/images/rhel-guest-image-7.3-35.x86_64.qcow2 /tmp/rhel-guest-image-7.3-35.x86_64.qcow2
+cmd wget --continue --directory-prefix=/tmp ${BASE_IMAGE_URL}
 
 # Create empty image which will be used for the virt-resize
 cmd qemu-img create -f qcow2 /var/lib/libvirt/images/L104353-rhel7-rhosp10.qcow2 100G
 # List partition on rhel-guest-image
-cmd virt-filesystems --partitions -h --long -a /tmp/rhel-guest-image-7.3-35.x86_64.qcow2
+cmd virt-filesystems --partitions -h --long -a /tmp/${BASE_IMAGE_NAME}
 # Resize rhel-guest-image sda1 to 30G into the created qcow. The remaining space will become sda2
-cmd virt-resize --resize /dev/sda1=30G /tmp/rhel-guest-image-7.3-35.x86_64.qcow2 /var/lib/libvirt/images/L104353-rhel7-rhosp10.qcow2
+cmd virt-resize --resize /dev/sda1=30G /tmp/${BASE_IMAGE_NAME} /var/lib/libvirt/images/L104353-rhel7-rhosp10.qcow2
 # List partitions on new image
 cmd virt-filesystems --partitions -h --long -a /var/lib/libvirt/images/L104353-rhel7-rhosp10.qcow2
 # Show disk spac eon new image
@@ -179,12 +171,30 @@ cmd virt-install --ram 32768 --vcpus 8 --os-variant rhel7 \
   --network network:L104353-osp \
   --name rhelosp
 
-echo -n "Sleeping for 30s to wait for the host to come online"
-sleep 30
+echo -n "Waiting for VM to come online"
+counter=0
+while :
+do
+  counter=$(( $counter + 1 ))
+  sleep 1
+  VM_IP=$(virsh domifaddr rhelosp | grep vnet0 | awk '{print $4}'| cut -d/ -f1)
+  if [ ! -z ${VM_IP} ]
+  then
+    break
+  fi
+  if [ $counter -gt $TIMEOUT ]
+  then
+    echo ERROR: something went wrong - check console
+    exit 1
+  elif [ $counter -gt $TIMEOUT_WARN ]
+  then
+    echo WARN: this is taking longer than expected
+  fi
+  echo -n "."
+done
+echo ""
 
-VM_IP=$(virsh domifaddr rhelosp | grep vnet0 | awk '{print $4}'| cut -d/ -f1)
-
-echo -n "Waiting for sshd to start "
+echo -n "Waiting for sshd to be available"
 counter=0
 while :
 do
@@ -225,10 +235,10 @@ cmd ssh-keygen -b 2048 -t rsa -f ${SSH_KEY_FILENAME} -N ""
 cmd sshpass -p ${PASSWORD} ssh-copy-id ${SSH_OPTS} root@${VM_IP}
 
 # Copy guest image to VM
-cmd scp ${SSH_OPTS} /tmp/rhel-guest-image-7.3-35.x86_64.qcow2 root@${VM_IP}:/tmp/.
+cmd scp ${SSH_OPTS} /tmp/${BASE_IMAGE_NAME} root@${VM_IP}:/tmp/.
 
 # Copy openstack-scripts to VM
-cmd rsync -e "ssh ${SSH_OPTS}" -avP /fileshare/scripts/summit2017/setup-kvm-and-openstack/openstack-scripts/ root@${VM_IP}:/root/openstack-scripts/
+cmd rsync -e "ssh ${SSH_OPTS}" -avP openstack-scripts/ root@${VM_IP}:/root/openstack-scripts/
 
 # Install and configure the OpenStack environment for the lab (create user, project, fix Cinder to use LVM, etc)
 cmd ssh -t ${SSH_OPTS} root@${VM_IP} /root/openstack-scripts/openstack-env-config.sh
