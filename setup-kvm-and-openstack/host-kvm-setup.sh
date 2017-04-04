@@ -46,7 +46,7 @@ cmd systemctl enable libvirtd && systemctl start libvirtd
 # Check for and attempt to enable nested virt support
 if ! egrep -q '^flags.*(vmx|svm)' /proc/cpuinfo
 then
-  echo "ERROR: Inetl VT or AMD-V was not detected, check BIOS to enable this feature."
+  echo "ERROR: Intel VT or AMD-V was not detected, check BIOS to enable this feature."
   exit 1
 fi
 
@@ -72,9 +72,8 @@ then
   echo "options kvm-${CPU_VENDOR} enable_shadow_vmcs=1" >> /etc/modprobe.d/kvm_${CPU_VENDOR}.conf
   echo "options kvm-${CPU_VENDOR} enable_apicv=1" >> /etc/modprobe.d/kvm_${CPU_VENDOR}.conf
   echo "options kvm-${CPU_VENDOR} ept=1" >> /etc/modprobe.d/kvm_${CPU_VENDOR}.conf
-  modprobe kvm-${CPU_VENDOR}
-  RC=$?
-  if [ grep -q -e "N" -e "0" /sys/module/kvm_${CPU_VENDOR}/parameters/nested ] || [ $RC != 0 ]
+  cmd modprobe kvm-${CPU_VENDOR}
+  if egrep -q "N|0" /sys/module/kvm_${CPU_VENDOR}/parameters/nested 
   then
     echo "WARN: Could not dynamically enable nested virt, reboot and re-run this script."
     exit 1
