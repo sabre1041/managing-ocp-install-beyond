@@ -16,6 +16,35 @@ then
   exit 1
 fi
 
+# Determine CPU Vendor
+if grep -qi intel /proc/cpuinfo
+then
+  CPU_VENDOR=intel
+elif grep -qi amd /proc/cpuinfo
+then
+  CPU_VENDOR=amd
+else
+  echo "ERROR: Unable to determine CPU Vendor, try rebooting or ??"
+  exit 1
+fi
+# Check and attempt to enable nested virt
+echo "WARN: Nested virt not enabled, attempting to enable. This may require a reboot."
+rmmod kvm-${CPU_VENDOR}
+echo "options kvm-${CPU_VENDOR} nested=Y" > /etc/modprobe.d/kvm_${CPU_VENDOR}.conf
+echo "options kvm-${CPU_VENDOR} enable_shadow_vmcs=1" >> /etc/modprobe.d/kvm_${CPU_VENDOR}.conf
+echo "options kvm-${CPU_VENDOR} enable_apicv=1" >> /etc/modprobe.d/kvm_${CPU_VENDOR}.conf
+echo "options kvm-${CPU_VENDOR} ept=1" >> /etc/modprobe.d/kvm_${CPU_VENDOR}.conf
+cmd modprobe kvm-${CPU_VENDOR}
+if egrep -q "N|0" /sys/module/kvm_${CPU_VENDOR}/parameters/nested
+then
+  echo "WARN: Could not dynamically enable nested virt, reboot to attempt to enable."
+  exit 1
+fi
+if ! lsmod | grep -q -e kvm_intel -e kvm_amd
+then
+  echo "WARN: CPU Virt extensions not loaded, try rebooting to enable."
+fi
+
 # Install Packstack and utils
 cmd yum -y install openstack-packstack openstack-utils
 
@@ -33,6 +62,7 @@ post-install-config() {
 	vgchange -ay
 	systemctl disable openstack-losetup.service
 	systemctl stop openstack-losetup.service
+	openstack-config --set /etc/nova/nova.conf libvirt virt_type kvm
 	openstack-config --set /etc/cinder/cinder.conf DEFAULT lvm_type thin
 	openstack-service restart openstack-cinder-volume
 }
