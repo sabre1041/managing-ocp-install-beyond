@@ -62,6 +62,7 @@ post-install-config() {
 	vgchange -ay
 	systemctl disable openstack-losetup.service
 	systemctl stop openstack-losetup.service
+  openstack-config --set /etc/nova/nova.conf libvirt virt_type kvm
 	openstack-config --set /etc/nova/nova.conf DEFAULT scheduler_default_filters RetryFilter,AvailabilityZoneFilter,RamFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,CoreFilter
 	openstack-config --set /etc/cinder/cinder.conf DEFAULT lvm_type thin
 	openstack-config --set /etc/cinder/cinder.conf DEFAULT volume_clear none
