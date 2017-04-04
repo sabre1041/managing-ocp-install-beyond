@@ -42,15 +42,15 @@ CONFIG_HORIZON_INSTALL=y
 CONFIG_SWIFT_INSTALL=y
 
 # Specify 'y' to install OpenStack Metering (ceilometer). ['y', 'n']
-CONFIG_CEILOMETER_INSTALL=y
+CONFIG_CEILOMETER_INSTALL=n
 
 # Specify 'y' to install OpenStack Telemetry Alarming (Aodh). Note
 # Aodh requires Ceilometer to be installed as well. ['y', 'n']
-CONFIG_AODH_INSTALL=y
+CONFIG_AODH_INSTALL=n
 
 # Specify 'y' to install OpenStack Metering as a Service (gnocchi).
 # ['y', 'n']
-CONFIG_GNOCCHI_INSTALL=y
+CONFIG_GNOCCHI_INSTALL=n
 
 # Specify 'y' to install OpenStack Data Processing (sahara). In case
 # of sahara installation packstack also installs heat.['y', 'n']
@@ -136,11 +136,11 @@ CONFIG_VCENTER_CLUSTER_NAMES=
 
 # (Unsupported!) Server on which to install OpenStack services
 # specific to storage servers such as Image or Block Storage services.
-CONFIG_STORAGE_HOST=192.168.122.10
+CONFIG_STORAGE_HOST=172.20.17.10
 
 # (Unsupported!) Server on which to install OpenStack services
 # specific to OpenStack Data Processing (sahara).
-CONFIG_SAHARA_HOST=192.168.122.10
+CONFIG_SAHARA_HOST=172.20.17.10
 
 # Specify 'y' to enable the EPEL repository (Extra Packages for
 # Enterprise Linux). ['y', 'n']
@@ -176,7 +176,7 @@ CONFIG_RH_SAT6_SERVER=
 CONFIG_RH_PW=
 
 # Specify 'y' to enable RHEL optional repositories. ['y', 'n']
-CONFIG_RH_OPTIONAL=y
+CONFIG_RH_OPTIONAL=n
 
 # HTTP proxy to use with Red Hat Subscription Manager.
 CONFIG_RH_PROXY=
@@ -346,7 +346,7 @@ CONFIG_KEYSTONE_TOKEN_FORMAT=UUID
 CONFIG_KEYSTONE_IDENTITY_BACKEND=sql
 
 # URL for the Identity service LDAP backend.
-CONFIG_KEYSTONE_LDAP_URL=ldap://192.168.122.10
+CONFIG_KEYSTONE_LDAP_URL=ldap://172.20.17.10
 
 # User DN for the Identity service LDAP backend.  Used to bind to the
 # LDAP server if the LDAP server does not allow anonymous
@@ -824,7 +824,7 @@ CONFIG_LBAAS_INSTALL=n
 
 # Specify 'y' to install OpenStack Networking's L3 Metering agent
 # ['y', 'n']
-CONFIG_NEUTRON_METERING_AGENT_INSTALL=y
+CONFIG_NEUTRON_METERING_AGENT_INSTALL=n
 
 # Specify 'y' to configure OpenStack Networking's Firewall-
 # as-a-Service (FWaaS). ['y', 'n']
@@ -1163,7 +1163,7 @@ CONFIG_HEAT_CLOUDWATCH_INSTALL=n
 
 # Specify 'y' to install the Orchestration CloudFormation API. ['y',
 # 'n']
-CONFIG_HEAT_CFN_INSTALL=y
+CONFIG_HEAT_CFN_INSTALL=n
 
 # Name of the Identity domain for Orchestration.
 CONFIG_HEAT_DOMAIN=heat
