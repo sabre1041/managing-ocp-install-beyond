@@ -62,10 +62,14 @@ post-install-config() {
 	vgchange -ay
 	systemctl disable openstack-losetup.service
 	systemctl stop openstack-losetup.service
-	openstack-config --set /etc/nova/nova.conf libvirt virt_type kvm
+	openstack-config --set /etc/nova/nova.conf DEFAULT scheduler_default_filters RetryFilter,AvailabilityZoneFilter,RamFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,CoreFilter
 	openstack-config --set /etc/cinder/cinder.conf DEFAULT lvm_type thin
 	openstack-config --set /etc/cinder/cinder.conf DEFAULT volume_clear none
-	openstack-service restart openstack-cinder-volume
+	if "${EXTERNAL_ONLY}" == "true"
+	then
+		openstack-config --set /etc/neutron/dhcp_agent.ini DEFAULT enable_isolated_metadata true
+	fi
+	openstack-service restart
 }
 
 post-install-admin-tasks() {
@@ -223,11 +227,6 @@ post-install-user-tasks() {
 			  default
 	fi
 
-	if "${EXTERNAL_ONLY}" == "true"
-	then
-		openstack-config --set /etc/neutron/dhcp_agent.ini DEFAULT enable_isolated_metadata true
-		openstack-service restart
-	fi
 }
 
 build-instances() {
@@ -312,10 +311,15 @@ verify-networking() {
 
 	# Get a VNC consolE
 	source /root/keystonerc_${USERNAME}
-	cmd nova get-vnc-console cirros-test novnc
-	cmd nova get-vnc-console rhel-test novnc
   # Create lvm cinder to ensure it is working
   cmd openstack volume create --size 1 lvm-test
+}
+
+cleanup () {
+  source /root/keystonerc_${USERNAME}
+  cmd openstack server delete cirros-test
+  cmd openstack server delete rhel-test
+  cmd openstack volume delete lvm-test
 }
 
 # Main
@@ -334,5 +338,6 @@ else
   WAIT=60
 fi
 verify-networking 2>&1 | tee -a ${LOGFILE}
+cleanup 2>&1 | tee -a ${LOGFILE}
 
 echo "INFO: All functions completed" 2>&1 | tee -a ${LOGFILE}
