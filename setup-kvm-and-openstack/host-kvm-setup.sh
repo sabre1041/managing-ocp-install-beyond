@@ -137,7 +137,8 @@ no-negcache
 strict-order
 server=/admin.example.com/192.168.144.1
 server=/osp.example.com/172.20.17.100
-server=/.apps.example.com/172.20.17.5
+address=/master.osp.example.com/172.20.17.5
+address=/.apps.example.com/172.20.17.5
 EOF
 
 # Restart NetworkManager to pick up the changes
