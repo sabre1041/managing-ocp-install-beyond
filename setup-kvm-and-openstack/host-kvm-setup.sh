@@ -1,22 +1,26 @@
 #!/bin/bash
 
-source openstack-scripts/common-libs
-
 # Set variables
 VERBOSE=true
 DEBUG=false
 LAB_NAME=L104353
+OSP_VM_TOTAL_DISK_SIZE=100G
+OSP_VM_ROOT_DISK_SIZE=30G
+OSP_VM_HOSTNAME=rhosp.admin.example.com
+OSP_IMAGE_NAME=${LAB_NAME}-rhel7-rhosp10.qcow2
 SSH_KEY_FILENAME=~/.ssh/${LAB_NAME}
 SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${SSH_KEY_FILENAME}"
 PASSWORD=summit2017
-OSP_VM_HOSTNAME=rhosp.admin.example.com
-OSP_VM_TOTAL_DISK_SIZE=100G
-OSP_VM_ROOT_DISK_SIZE=30G
-OSP_IMAGE_NAME=${LAB_NAME}-rhel7-rhosp10.qcow2
 TIMEOUT=30
 TIMEOUT_WARN=15
 BASE_IMAGE_NAME=rhel-guest-image-7.3-35.x86_64.qcow2
 BASE_IMAGE_URL=http://10.11.169.10/fileshare/images/${BASE_IMAGE_NAME}
+
+# Load common functions
+source openstack-scripts/common-libs
+
+# Run lab-specific commands
+source lab-prep.sh
 
 # Set up sshpass for non-interactive deployment
 if ! rpm -q sshpass
@@ -24,24 +28,6 @@ then
   cmd yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
   cmd yum -y install sshpass
 fi
-
-# Disable irrelevant repos
-cmd yum-config-manager \
-  --disable core-0 \
-  --disable core-1 \
-  --disable core-2 \
-  --disable rhelosp-rhel-7.2-extras \
-  --disable rhelosp-rhel-7.2-ha \
-  --disable rhelosp-rhel-7.2-server \
-  --disable rhelosp-rhel-7.2-z \
-  2>&1 > /dev/null
-
-# Using internal rhos-release so no dependency on Satellite or Hosted
-if ! rpm -q rhos-release
-then
-  cmd yum -y install http://rhos-release.virt.bos.redhat.com/repos/rhos-release/rhos-release-latest.noarch.rpm
-fi
-cmd rhos-release rhel-7.3
 
 # Install required rpms
 cmd yum -y install libvirt qemu-kvm virt-manager virt-install libguestfs-tools xorg-x11-apps xauth virt-viewer libguestfs-xfs dejavu-sans-fonts nfs-utils vim-enhanced rsync nmap
@@ -246,4 +232,4 @@ cmd scp ${SSH_OPTS} /tmp/${BASE_IMAGE_NAME} root@${VM_IP}:/tmp/.
 cmd rsync -e "ssh ${SSH_OPTS}" -avP openstack-scripts/ root@${VM_IP}:/root/openstack-scripts/
 
 # Install and configure the OpenStack environment for the lab (create user, project, fix Cinder to use LVM, etc)
-cmd ssh -t ${SSH_OPTS} root@${VM_IP} /root/openstack-scripts/openstack-env-config.sh
+ssh -t ${SSH_OPTS} root@${VM_IP} /root/openstack-scripts/openstack-env-config.sh
