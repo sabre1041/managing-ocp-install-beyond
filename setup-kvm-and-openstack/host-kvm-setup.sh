@@ -30,7 +30,7 @@ then
 fi
 
 # Install required rpms
-cmd yum -y install libvirt qemu-kvm virt-manager virt-install libguestfs-tools xorg-x11-apps xauth virt-viewer libguestfs-xfs dejavu-sans-fonts nfs-utils vim-enhanced rsync nmap
+cmd yum -y install libvirt qemu-kvm virt-manager virt-install libguestfs-tools xorg-x11-apps xauth virt-viewer libguestfs-xfs dejavu-sans-fonts nfs-utils vim-enhanced rsync nmap bash-completion
 
 # Enable and start libvirt services
 cmd systemctl enable libvirtd && systemctl start libvirtd
