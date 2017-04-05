@@ -62,10 +62,11 @@ post-install-config() {
 	vgchange -ay
 	systemctl disable openstack-losetup.service
 	systemctl stop openstack-losetup.service
-  openstack-config --set /etc/nova/nova.conf libvirt virt_type kvm
+  	openstack-config --set /etc/nova/nova.conf libvirt virt_type kvm
 	openstack-config --set /etc/nova/nova.conf DEFAULT scheduler_default_filters RetryFilter,AvailabilityZoneFilter,RamFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,CoreFilter
-	openstack-config --set /etc/cinder/cinder.conf DEFAULT lvm_type thin
-	openstack-config --set /etc/cinder/cinder.conf DEFAULT volume_clear none
+	openstack-config --set /etc/cinder/cinder.conf lvm lvm_type thin
+	openstack-config --set /etc/cinder/cinder.conf lvm volume_clear none
+	openstack-config --set /etc/cinder/cinder.conf lvm image_volume_cache_enabled True
 	if "${EXTERNAL_ONLY}" == "true"
 	then
 		openstack-config --set /etc/neutron/dhcp_agent.ini DEFAULT enable_isolated_metadata true
