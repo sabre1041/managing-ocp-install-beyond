@@ -1,0 +1,30 @@
+#!/bin/bash
+
+# Set variables
+VERBOSE=true
+DEBUG=false
+LAB_NAME=L104353
+OSP_VM_NAME=${LAB_NAME}-rhelosp
+OSP_VM_TOTAL_DISK_SIZE=100G
+OSP_VM_ROOT_DISK_SIZE=30G
+OSP_VM_HOSTNAME=rhosp.admin.example.com
+OSP_IMAGE_NAME=${LAB_NAME}-rhel7-rhosp10.qcow2
+SSH_KEY_FILENAME=~/.ssh/${LAB_NAME}
+SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${SSH_KEY_FILENAME}"
+PASSWORD=summit2017
+TIMEOUT=60
+TIMEOUT_WARN=30
+BASE_IMAGE_NAME=rhel-guest-image-7.3-35.x86_64.qcow2
+BASE_IMAGE_URL=http://10.11.169.10/fileshare/images/${BASE_IMAGE_NAME}
+REPO_IMAGE_NAME=summit-2017-rhel-repo-vm.qcow2
+REPO_IMAGE_URL=http://10.19.115.70/pub/${REPO_IMAGE_NAME}
+REPO_VM_NAME=${LAB_NAME}-repos
+# The next variable will be dynamically determined until we have a static network mapping for instructor machine
+#REPO_VM_IP=
+TOWER_IMAGE_NAME=tower.qcow2
+TOWER_IMAGE_URL=http://10.11.169.10/fileshare/scripts/summit2017/L104353-tower/${TOWER_IMAGE_NAME}
+TOWER_VM_NAME=${LAB_NAME}-tower
+#TOWER_VM_IP=
+
+# Load common functions
+source openstack-scripts/common-libs
