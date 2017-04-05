@@ -168,7 +168,7 @@ while :
 do
   counter=$(( $counter + 1 ))
   sleep 1
-  VM_IP=$(virsh domifaddr rhelosp | grep vnet0 | awk '{print $4}'| cut -d/ -f1)
+  VM_IP=$(virsh domifaddr rhelosp | grep 192.168.144 | awk '{print $4}'| cut -d/ -f1)
   if [ ! -z ${VM_IP} ]
   then
     break
