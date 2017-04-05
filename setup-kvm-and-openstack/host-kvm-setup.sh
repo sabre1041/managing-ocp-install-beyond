@@ -1,16 +1,26 @@
 #!/bin/bash
 
-source openstack-scripts/common-libs
-
-# Set variables for unique SSH key and options
-SSH_KEY_FILENAME=~/.ssh/host-kvm-setup
+# Set variables
+VERBOSE=true
+DEBUG=false
+LAB_NAME=L104353
+OSP_VM_TOTAL_DISK_SIZE=100G
+OSP_VM_ROOT_DISK_SIZE=30G
+OSP_VM_HOSTNAME=rhosp.admin.example.com
+OSP_IMAGE_NAME=${LAB_NAME}-rhel7-rhosp10.qcow2
+SSH_KEY_FILENAME=~/.ssh/${LAB_NAME}
 SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${SSH_KEY_FILENAME}"
 PASSWORD=summit2017
-OSP_VM_HOSTNAME=rhosp.admin.example.com
 TIMEOUT=30
 TIMEOUT_WARN=15
 BASE_IMAGE_NAME=rhel-guest-image-7.3-35.x86_64.qcow2
 BASE_IMAGE_URL=http://10.11.169.10/fileshare/images/${BASE_IMAGE_NAME}
+
+# Load common functions
+source openstack-scripts/common-libs
+
+# Run lab-specific commands
+source lab-prep.sh
 
 # Set up sshpass for non-interactive deployment
 if ! rpm -q sshpass
@@ -19,28 +29,8 @@ then
   cmd yum -y install sshpass
 fi
 
-# Disable irrelevant repos
-cmd yum-config-manager \
-  --disable core-0 \
-  --disable core-1 \
-  --disable core-2 \
-  --disable rhelosp-rhel-7.2-extras \
-  --disable rhelosp-rhel-7.2-ha \
-  --disable rhelosp-rhel-7.2-server \
-  --disable rhelosp-rhel-7.2-z
-
-# Using internal rhos-release so no dependency on Satellite or Hosted
-if ! rpm -q rhos-release
-then
-  cmd yum -y install http://rhos-release.virt.bos.redhat.com/repos/rhos-release/rhos-release-latest.noarch.rpm
-fi
-cmd rhos-release rhel-7.3
-
-# Disable lab-specific cobble repos
-cmd yum-config-manager --disable core-1 --disable core-2
-
 # Install required rpms
-cmd yum -y install libvirt qemu-kvm virt-manager virt-install libguestfs-tools xorg-x11-apps xauth virt-viewer libguestfs-xfs dejavu-sans-fonts nfs-utils vim-enhanced rsync nmap
+cmd yum -y install libvirt qemu-kvm virt-manager virt-install libguestfs-tools xorg-x11-apps xauth virt-viewer libguestfs-xfs dejavu-sans-fonts nfs-utils vim-enhanced rsync nmap bash-completion
 
 # Enable and start libvirt services
 cmd systemctl enable libvirtd && systemctl start libvirtd
@@ -87,10 +77,10 @@ then
 fi
 
 # Create Admin Network
-cmd cat > /tmp/L104353-admin.xml <<EOF
+cat > /tmp/${LAB_NAME}-admin.xml <<EOF
 <network>
   <forward mode='nat'/>
-  <name>L104353-admin</name>
+  <name>${LAB_NAME}-admin</name>
   <domain name='admin.example.com' localOnly='yes'/>
   <ip address="192.168.144.1" netmask="255.255.255.0">
     <dhcp>
@@ -101,30 +91,30 @@ cmd cat > /tmp/L104353-admin.xml <<EOF
 EOF
 
 # Create OpenStack network without DHCP, as OpenStack will provide that via dnsmasq
-cmd cat > /tmp/L104353-osp.xml <<EOF
+cat > /tmp/${LAB_NAME}-osp.xml <<EOF
 <network>
   <forward mode='nat'/>
-  <name>L104353-osp</name>
+  <name>${LAB_NAME}-osp</name>
   <ip address="172.20.17.1" netmask="255.255.255.0"/>
 </network>
 EOF
 
 # Create OpenStack network
 for network in admin osp; do
-  cmd virsh net-define /tmp/L104353-${network}.xml
-  cmd virsh net-autostart L104353-${network}
+  cmd virsh net-define /tmp/${LAB_NAME}-${network}.xml
+  cmd virsh net-autostart ${LAB_NAME}-${network}
   echo "INFO: If this libvirt network fails to start try restarting libvirtd."
-  cmd virsh net-start L104353-${network}
+  cmd virsh net-start ${LAB_NAME}-${network}
 done
 
 # Ensure the dnsmasq plugin is enabled for NetworkManager
-cmd cat > /etc/NetworkManager/conf.d/L104353.conf <<EOF
+cat > /etc/NetworkManager/conf.d/${LAB_NAME}.conf <<EOF
 [main]
 dns=dnsmasq
 EOF
 
 # Add dnsmasq config for admin network
-cmd cat > /etc/NetworkManager/dnsmasq.d/L104353.conf <<EOF
+cat > /etc/NetworkManager/dnsmasq.d/${LAB_NAME}.conf <<EOF
 no-negcache
 strict-order
 server=/admin.example.com/192.168.144.1
@@ -140,17 +130,17 @@ cmd systemctl restart NetworkManager
 cmd wget --continue --directory-prefix=/tmp ${BASE_IMAGE_URL}
 
 # Create empty image which will be used for the virt-resize
-cmd qemu-img create -f qcow2 /var/lib/libvirt/images/L104353-rhel7-rhosp10.qcow2 100G
+cmd qemu-img create -f qcow2 /var/lib/libvirt/images/${OSP_IMAGE_NAME} ${OSP_VM_TOTAL_DISK_SIZE}
 # List partition on rhel-guest-image
 cmd virt-filesystems --partitions -h --long -a /tmp/${BASE_IMAGE_NAME}
-# Resize rhel-guest-image sda1 to 30G into the created qcow. The remaining space will become sda2
-cmd virt-resize --resize /dev/sda1=30G /tmp/${BASE_IMAGE_NAME} /var/lib/libvirt/images/L104353-rhel7-rhosp10.qcow2
+# Resize rhel-guest-image sda1 to ${OSP_VM_ROOT_DISK_SIZE} into the created qcow. The remaining space will become sda2
+cmd virt-resize --resize /dev/sda1=${OSP_VM_ROOT_DISK_SIZE} /tmp/${BASE_IMAGE_NAME} /var/lib/libvirt/images/${OSP_IMAGE_NAME}
 # List partitions on new image
-cmd virt-filesystems --partitions -h --long -a /var/lib/libvirt/images/L104353-rhel7-rhosp10.qcow2
+cmd virt-filesystems --partitions -h --long -a /var/lib/libvirt/images/${OSP_IMAGE_NAME}
 # Show disk spac eon new image
-cmd virt-df -a /var/lib/libvirt/images/L104353-rhel7-rhosp10.qcow2
+cmd virt-df -a /var/lib/libvirt/images/${OSP_IMAGE_NAME}
 # Set password, set hostname, remove cloud-init, configure rhos-release, and setup networking
-cmd virt-customize -a /var/lib/libvirt/images/L104353-rhel7-rhosp10.qcow2 \
+cmd virt-customize -a /var/lib/libvirt/images/${OSP_IMAGE_NAME} \
   --root-password password:${PASSWORD} \
   --hostname ${OSP_VM_HOSTNAME} \
   --run-command 'yum remove cloud-init* -y && \
@@ -165,11 +155,11 @@ cmd virt-customize -a /var/lib/libvirt/images/L104353-rhel7-rhosp10.qcow2 \
 
 # Install image as VM
 cmd virt-install --ram 32768 --vcpus 8 --os-variant rhel7 \
-  --disk path=/var/lib/libvirt/images/L104353-rhel7-rhosp10.qcow2,device=disk,bus=virtio,format=qcow2 \
+  --disk path=/var/lib/libvirt/images/${OSP_IMAGE_NAME},device=disk,bus=virtio,format=qcow2 \
   --import --noautoconsole --vnc \
   --cpu host,+vmx \
-  --network network:L104353-admin \
-  --network network:L104353-osp \
+  --network network:${LAB_NAME}-admin \
+  --network network:${LAB_NAME}-osp \
   --name rhelosp
 
 echo -n "Waiting for VM to come online"
@@ -178,7 +168,7 @@ while :
 do
   counter=$(( $counter + 1 ))
   sleep 1
-  VM_IP=$(virsh domifaddr rhelosp | grep vnet0 | awk '{print $4}'| cut -d/ -f1)
+  VM_IP=$(virsh domifaddr rhelosp | grep 192.168.144 | awk '{print $4}'| cut -d/ -f1)
   if [ ! -z ${VM_IP} ]
   then
     break
@@ -242,4 +232,4 @@ cmd scp ${SSH_OPTS} /tmp/${BASE_IMAGE_NAME} root@${VM_IP}:/tmp/.
 cmd rsync -e "ssh ${SSH_OPTS}" -avP openstack-scripts/ root@${VM_IP}:/root/openstack-scripts/
 
 # Install and configure the OpenStack environment for the lab (create user, project, fix Cinder to use LVM, etc)
-cmd ssh -t ${SSH_OPTS} root@${VM_IP} /root/openstack-scripts/openstack-env-config.sh
+ssh -t ${SSH_OPTS} root@${VM_IP} /root/openstack-scripts/openstack-env-config.sh
