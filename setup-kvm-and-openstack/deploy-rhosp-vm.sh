@@ -2,6 +2,6 @@
 
 source group_vars_all
 
-prep_vm repo
+prep_vm rhosp
 
-deploy_vm repo
+deploy_vm rhosp
