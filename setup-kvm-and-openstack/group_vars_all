@@ -4,6 +4,8 @@
 VERBOSE=true
 DEBUG=false
 LAB_NAME=L104353
+BASE_IMAGE_NAME=rhel-guest-image-7.3-35.x86_64.qcow2
+BASE_IMAGE_URL=http://10.11.169.10/fileshare/images/${BASE_IMAGE_NAME}
 OSP_VM_NAME=${LAB_NAME}-rhelosp
 OSP_VM_TOTAL_DISK_SIZE=100G
 OSP_VM_ROOT_DISK_SIZE=30G
@@ -14,8 +16,6 @@ SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${SSH_K
 PASSWORD=summit2017
 TIMEOUT=60
 TIMEOUT_WARN=30
-BASE_IMAGE_NAME=rhel-guest-image-7.3-35.x86_64.qcow2
-BASE_IMAGE_URL=http://10.11.169.10/fileshare/images/${BASE_IMAGE_NAME}
 REPO_IMAGE_NAME=summit-2017-rhel-repo-vm.qcow2
 REPO_IMAGE_URL=http://10.19.115.70/pub/${REPO_IMAGE_NAME}
 REPO_VM_NAME=${LAB_NAME}-repos
@@ -28,3 +28,4 @@ TOWER_VM_NAME=${LAB_NAME}-tower
 
 # Load common functions
 source openstack-scripts/common-libs
+source common-deploy-functions
