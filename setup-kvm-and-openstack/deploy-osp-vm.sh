@@ -9,10 +9,10 @@ prep_vm BASE
 cmd qemu-img create -f qcow2 /var/lib/libvirt/images/${OSP_IMAGE_NAME} ${OSP_VM_TOTAL_DISK_SIZE}
 
 # List partition on rhel-guest-image
-cmd virt-filesystems --partitions -h --long -a /tmp/${BASE_IMAGE_NAME}
+cmd virt-filesystems --partitions -h --long -a ${IMAGE_LOCAL_DIR}/${BASE_IMAGE_NAME}
 
 # Resize rhel-guest-image sda1 to ${OSP_VM_ROOT_DISK_SIZE} into the created qcow. The remaining space will become sda2
-cmd virt-resize --resize /dev/sda1=${OSP_VM_ROOT_DISK_SIZE} /tmp/${BASE_IMAGE_NAME} /var/lib/libvirt/images/${OSP_IMAGE_NAME}
+cmd virt-resize --resize /dev/sda1=${OSP_VM_ROOT_DISK_SIZE} ${IMAGE_LOCAL_DIR}/${BASE_IMAGE_NAME} /var/lib/libvirt/images/${OSP_IMAGE_NAME}
 
 # List partitions on new image
 cmd virt-filesystems --partitions -h --long -a /var/lib/libvirt/images/${OSP_IMAGE_NAME}
@@ -24,8 +24,8 @@ cmd virt-df -a /var/lib/libvirt/images/${OSP_IMAGE_NAME}
 cmd virt-customize -a /var/lib/libvirt/images/${OSP_IMAGE_NAME} \
   --root-password password:${PASSWORD} \
   --ssh-inject root:file:${SSH_KEY_FILENAME}.pub \
+  --selinux-relabel \
   --hostname ${OSP_VM_HOSTNAME} \
-  --firstboot-command 'restorecon -Rv /root/.ssh' \
   --run-command 'yum remove cloud-init* -y && \
     rpm -ivh http://rhos-release.virt.bos.redhat.com/repos/rhos-release/rhos-release-latest.noarch.rpm && \
     rhos-release 10 && \
@@ -36,14 +36,14 @@ cmd virt-customize -a /var/lib/libvirt/images/${OSP_IMAGE_NAME} \
     echo "NETMASK=255.255.255.0" >> /etc/sysconfig/network-scripts/ifcfg-eth1 && \
     systemctl disable NetworkManager'
 
-# Remove base image to conserve space
-rm -f /var/lib/libvirt/images/${BASE_IMAGE_NAME}
-
 # Call deploy_vm function
 deploy_vm OSP 32768 8
 
 # Copy guest image to VM
-cmd scp ${SSH_OPTS} /tmp/${BASE_IMAGE_NAME} root@${OSP_VM_IP}:/tmp/.
+cmd scp ${SSH_OPTS} ${IMAGE_LOCAL_DIR}/${BASE_IMAGE_NAME} root@${OSP_VM_IP}:/tmp/.
+
+# Remove base image to conserve space
+rm -f ${IMAGE_LOCAL_DIR}/${BASE_IMAGE_NAME}
 
 # Copy openstack-scripts to VM
 cmd rsync -e "ssh ${SSH_OPTS}" -avP openstack-scripts/ root@${OSP_VM_IP}:/root/openstack-scripts/

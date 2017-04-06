@@ -36,16 +36,16 @@ prep_vm () {
     fi
 
     # Grab image from source URL and keep a local copy (OSP creates a different image from base)
-    cmd wget --continue --directory-prefix=/tmp/ ${!VM_TYPE_IMAGE_URL}
+    cmd wget --continue --directory-prefix=${IMAGE_LOCAL_DIR}/ ${!VM_TYPE_IMAGE_URL}
 
     # Copy to libvirt/images but leave in local source dir to speed up future runs
-    cmd rsync -avP /tmp/${!VM_TYPE_IMAGE_NAME} /var/lib/libvirt/images/${!VM_TYPE_IMAGE_NAME}
+    #cmd rsync -avP /tmp/${!VM_TYPE_IMAGE_NAME} /var/lib/libvirt/images/${!VM_TYPE_IMAGE_NAME}
 
     # Set password and SSH public key (OSP deploy does this already)
     cmd virt-customize -a /var/lib/libvirt/images/${!VM_TYPE_IMAGE_NAME} \
     --root-password password:${PASSWORD} \
-    --firstboot-command 'restorecon -Rv /root/.ssh' \
-    --ssh-inject root:file:${SSH_KEY_FILENAME}.pub
+    --ssh-inject root:file:${SSH_KEY_FILENAME}.pub \
+    --selinux-relabel
   else
     # Check if OSP VM is already defined
     if virsh list | grep -q "${OSP_VM_NAME}"

@@ -57,8 +57,8 @@ post-install-config() {
 	CINDER_LODEVICE=$(losetup -l | awk '/cinder-volumes/ { print $1 }')
 	losetup -d ${CINDER_LODEVICE}
   rm -f /var/lib/cinder/cinder-volumes
-	pvcreate /dev/vda2
-	vgcreate cinder-volumes /dev/vda2
+	pvcreate /dev/sda2
+	vgcreate cinder-volumes /dev/sda2
 	vgchange -ay
 	systemctl disable openstack-losetup.service
 	systemctl stop openstack-losetup.service
