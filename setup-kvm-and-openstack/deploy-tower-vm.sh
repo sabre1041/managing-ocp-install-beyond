@@ -4,4 +4,4 @@ source group_vars_all
 
 prep_vm TOWER
 
-deploy_vm TOWER 8192 4
+deploy_vm TOWER 4096 2

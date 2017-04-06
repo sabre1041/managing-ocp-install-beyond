@@ -16,9 +16,9 @@ SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${SSH_K
 PASSWORD=summit2017
 TIMEOUT=60
 TIMEOUT_WARN=30
-REPO_IMAGE_NAME=summit-2017-rhel-repo-vm.qcow2
-#REPO_IMAGE_URL=http://10.19.115.70/pub/${REPO_IMAGE_NAME}
+REPO_IMAGE_NAME=summit-2017-rhel-repo-vm-sparse.qcow2
 REPO_IMAGE_URL=http://10.11.169.10/fileshare/scripts/summit2017/L104353-repo/${REPO_IMAGE_NAME}
+#REPO_IMAGE_URL=http://10.19.115.70/pub/${REPO_IMAGE_NAME}
 REPO_VM_NAME=${LAB_NAME}-repos
 # The next variable will be dynamically determined until we have a static network mapping for instructor machine
 #REPO_VM_IP=
@@ -26,7 +26,7 @@ TOWER_IMAGE_NAME=tower.qcow2
 TOWER_IMAGE_URL=http://10.11.169.10/fileshare/scripts/summit2017/L104353-tower/${TOWER_IMAGE_NAME}
 TOWER_VM_NAME=${LAB_NAME}-tower
 #TOWER_VM_IP=
-IMAGE_LOCAL_DIR=/var/lib/libvirt/images/
+IMAGE_LOCAL_DIR=/tmp
 
 # Load common functions
 source openstack-scripts/common-libs
