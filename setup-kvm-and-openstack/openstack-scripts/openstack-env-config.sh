@@ -16,40 +16,44 @@ then
   exit 1
 fi
 
-# Determine CPU Vendor
-if grep -qi intel /proc/cpuinfo
-then
-  CPU_VENDOR=intel
-elif grep -qi amd /proc/cpuinfo
-then
-  CPU_VENDOR=amd
-else
-  echo "ERROR: Unable to determine CPU Vendor, try rebooting or ??"
-  exit 1
-fi
-# Check and attempt to enable nested virt
-echo "WARN: Nested virt not enabled, attempting to enable. This may require a reboot."
-rmmod kvm-${CPU_VENDOR}
-echo "options kvm-${CPU_VENDOR} nested=Y" > /etc/modprobe.d/kvm_${CPU_VENDOR}.conf
-echo "options kvm-${CPU_VENDOR} enable_shadow_vmcs=1" >> /etc/modprobe.d/kvm_${CPU_VENDOR}.conf
-echo "options kvm-${CPU_VENDOR} enable_apicv=1" >> /etc/modprobe.d/kvm_${CPU_VENDOR}.conf
-echo "options kvm-${CPU_VENDOR} ept=1" >> /etc/modprobe.d/kvm_${CPU_VENDOR}.conf
-cmd modprobe kvm-${CPU_VENDOR}
-if egrep -q "N|0" /sys/module/kvm_${CPU_VENDOR}/parameters/nested
-then
-  echo "WARN: Could not dynamically enable nested virt, reboot to attempt to enable."
-  exit 1
-fi
-if ! lsmod | grep -q -e kvm_intel -e kvm_amd
-then
-  echo "WARN: CPU Virt extensions not loaded, try rebooting to enable."
-fi
+prep() {
+  # Determine CPU Vendor
+  if grep -qi intel /proc/cpuinfo
+  then
+    CPU_VENDOR=intel
+  elif grep -qi amd /proc/cpuinfo
+  then
+    CPU_VENDOR=amd
+  else
+    echo "ERROR: Unable to determine CPU Vendor, try rebooting or ??"
+    exit 1
+  fi
+  # Check and attempt to enable nested virt
+  echo "WARN: Nested virt not enabled, attempting to enable. This may require a reboot."
+  rmmod kvm-${CPU_VENDOR}
+  echo "options kvm-${CPU_VENDOR} nested=Y" > /etc/modprobe.d/kvm_${CPU_VENDOR}.conf
+  echo "options kvm-${CPU_VENDOR} enable_shadow_vmcs=1" >> /etc/modprobe.d/kvm_${CPU_VENDOR}.conf
+  echo "options kvm-${CPU_VENDOR} enable_apicv=1" >> /etc/modprobe.d/kvm_${CPU_VENDOR}.conf
+  echo "options kvm-${CPU_VENDOR} ept=1" >> /etc/modprobe.d/kvm_${CPU_VENDOR}.conf
+  cmd modprobe kvm-${CPU_VENDOR}
+  if egrep -q "N|0" /sys/module/kvm_${CPU_VENDOR}/parameters/nested
+  then
+    echo "WARN: Could not dynamically enable nested virt, reboot to attempt to enable."
+    exit 1
+  fi
+  if ! lsmod | grep -q -e kvm_intel -e kvm_amd
+  then
+    echo "WARN: CPU Virt extensions not loaded, try rebooting to enable."
+  fi
+}
 
-# Install Packstack and utils
-cmd yum -y install openstack-packstack openstack-utils
+packstack-install() {
+  # Install Packstack and utils
+  cmd yum -y install openstack-packstack openstack-utils
 
-# Run Packstack 
-cmd packstack --answer-file=/root/openstack-scripts/answers.txt
+  # Run Packstack 
+  cmd packstack --answer-file=/root/openstack-scripts/answers.txt
+}
 
 post-install-config() {
 	cmd echo "INFO: Starting function 'prepare-host'"
@@ -240,40 +244,49 @@ build-instances() {
 		nova delete cirros-test
 		sleep 5
 	fi
+  cmd openstack volume create --size 1 cirros-vol-test
+  CIRROS_VOL_ID=$(openstack volume list -f value -c ID -c "Display Name" | awk '/cirros-vol-test/ { print $1 }')
 	cmd nova boot cirros-test \
-	       --flavor 1 \
-	       --image ${CIRROS_IMAGE_ID} \
-	       --key-name ${USERNAME}
+    --flavor 1 \
+    --poll \
+    --key-name ${USERNAME} \
+    --image ${CIRROS_IMAGE_ID} \
+    --block-device source=volume,id=${CIRROS_VOL_ID},dest=volume,shutdown=remove
 
 	if nova list | grep rhel-test
 	then
 		nova delete rhel-test
 		sleep 5
 	fi
+  cmd openstack volume create --size 10 rhel-vol-test
+  RHEL_VOL_ID=$(openstack volume list -f value -c ID -c "Display Name" | awk '/rhel-vol-test/ { print $1 }')
 	cmd nova boot rhel-test \
-	       --flavor 2 \
-	       --image ${RHEL_IMAGE_ID} \
-	       --key-name ${USERNAME}
-
-	if [ "${WINDOWS_BUILD}" = true ]
-	then
-		if nova list | grep windows-instance
-		then
-			nova delete windows-instance
-			sleep 5
-		fi
-		cmd nova boot windows-instance \
-		       --flavor 3 \
-		       --image ${WINDOWS_IMAGE_ID} \
-		       --key-name ${USERNAME}
-	fi
+    --flavor 2 \
+    --key-name ${USERNAME} \
+    --image ${RHEL_IMAGE_ID} \
+    --poll \
+    --block-device source=volume,id=${RHEL_VOL_ID},dest=volume,shutdown=remove
 
 	# wait for instances to build
 	echo -en "\nWaiting for instances to build "
-	while [[ $(nova list | grep BUILD) ]]
+  counter=0
+	while :
 	do
+    counter=$(( $counter + 1 ))
 		echo -n "."
-		sleep 2
+		sleep 1
+	  if nova list | grep -qv BUILD
+    then
+      break
+    fi
+    if [ $counter -gt $TIMEOUT ]
+    then
+      echo ERROR: something went wrong - check console
+      exit 1
+    elif [ $counter -gt $TIMEOUT_WARN ]
+    then
+      echo WARN: this is taking longer than expected
+    fi
 	done
 	echo ""
 }
@@ -292,15 +305,25 @@ verify-networking() {
 	# Grab the IP to ping it after instance boot
 	CIRROS_IP=$( openstack server list -f value -c Name -c Networks | awk -F= ' /cirros-test/ { print $2 }')
 	RHEL_IP=$( openstack server list -f value -c Name -c Networks | awk -F= ' /rhel-test/ { print $2 }')
-	echo "Waiting for instance networking to be available."
-	echo "(Check novnc console to verify instance is booted if this takes too long)"
+	echo -n "Waiting for instance networking to be available"
+    counter=0
 	while :
 	do
-		if ping -c 2 ${CIRROS_IP} 2>&1 > /dev/null && ping -c 2 ${RHEL_IP} 2>&1 > /dev/null
-		then
-			break
-		fi
+    counter=$(( $counter + 1 ))
 		echo -n "."
+		sleep 1
+		if ping -c 2 ${CIRROS_IP} 2>&1 > /dev/null && ping -c 2 ${RHEL_IP} 2>&1 > /dev/null
+    then
+      break
+    fi
+    if [ $counter -gt $TIMEOUT ]
+    then
+      echo ERROR: something went wrong - check console
+      exit 1
+    elif [ $counter -gt $TIMEOUT_WARN ]
+    then
+      echo WARN: this is taking longer than expected
+    fi
 	done
 	echo ""
 
@@ -313,18 +336,16 @@ verify-networking() {
 
 	# Get a VNC consolE
 	source /root/keystonerc_${USERNAME}
-  # Create lvm cinder to ensure it is working
-  cmd openstack volume create --size 1 lvm-test
 }
 
 cleanup () {
   source /root/keystonerc_${USERNAME}
-  cmd openstack server delete cirros-test
   cmd openstack server delete rhel-test
-  cmd openstack volume delete lvm-test
 }
 
 # Main
+prep 2>&1 | tee -a ${LOGFILE}
+packstack-install 2>&1 | tee -a ${LOGFILE}
 post-install-config 2>&1 | tee -a ${LOGFILE}
 post-install-admin-tasks 2>&1 | tee -a ${LOGFILE}
 # Image creation can't be redirected to a log file or the --progress option doesn't work
@@ -335,9 +356,7 @@ source /root/keystonerc_${USERNAME}
 if nova list | grep ERROR
 then
   echo "ERROR: Something went wrong, check virt capabilities of this host ..."
-  exit
-else
-  WAIT=60
+  exit 1
 fi
 verify-networking 2>&1 | tee -a ${LOGFILE}
 cleanup 2>&1 | tee -a ${LOGFILE}
