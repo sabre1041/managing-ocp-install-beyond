@@ -49,9 +49,6 @@ deploy_vm ${OSP_NAME}
 # Copy guest image to VM
 cmd scp ${SSH_OPTS} ${OSP_BASE_IMAGE_PATH} root@${OSP_VM_HOSTNAME}:/tmp/.
 
-# Remove base image to conserve space
-rm -f ${OSP_BASE_IMAGE_PATH}
-
 # Copy openstack-scripts to VM
 cmd rsync -e "ssh ${SSH_OPTS}" -avP openstack-scripts/ root@${OSP_VM_HOSTNAME}:/root/openstack-scripts/
 
@@ -68,24 +65,20 @@ counter=0
 while :
 do
   counter=$(( $counter + 1 ))
+  echo -n "."
   sleep 1
-
-  if [ -z ${OSP_VM_NAME} ]
+  if ! virsh list | grep -q ${OSP_VM_NAME}
   then
     break
   fi
-
   if [ $counter -gt $SHUTDOWN_TIMEOUT ]
   then
     echo ERROR: something went wrong - check console
     exit 1
   fi
-
-  echo -n "."
 done
 echo ""
 
-# Sparsify and copy the image to the fileshare
-cmd virt-sparsify ${OSP_VM_IMAGE_PATH} ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME}
-
+# Copy image
+cmd rsync -avP ${OSP_VM_IMAGE_PATH} ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME}
 source remove-rhosp-vm.sh

@@ -67,6 +67,8 @@ post-install-config() {
 	openstack-config --set /etc/cinder/cinder.conf lvm lvm_type thin
 	openstack-config --set /etc/cinder/cinder.conf lvm volume_clear none
 	openstack-config --set /etc/cinder/cinder.conf lvm image_volume_cache_enabled True
+	openstack-config --set /etc/nova/nova.conf DEFAULT block_device_allocate_retries 120
+	openstack-config --set /etc/nova/nova.conf DEFAULT block_device_allocate_retries_interval 10
 	if "${EXTERNAL_ONLY}" == "true"
 	then
 		openstack-config --set /etc/neutron/dhcp_agent.ini DEFAULT enable_isolated_metadata true
