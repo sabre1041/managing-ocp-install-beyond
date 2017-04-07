@@ -72,6 +72,8 @@ do
   then
     echo ERROR: something went wrong - check console
     exit 1
+  fi
+
   echo -n "."
 done
 echo ""
