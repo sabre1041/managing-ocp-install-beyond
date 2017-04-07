@@ -84,7 +84,7 @@ deploy_vm() {
     then
       echo ERROR: something went wrong - check console
       exit 1
-    elif [ $counter -eq $TIMEOUT_WARN ]
+    elif [ $counter -eq $(( $TIMEOUT / 2 )) ]
     then
       echo -n "WARN: this is taking longer than expected"
     fi
@@ -106,7 +106,7 @@ deploy_vm() {
     then
       echo ERROR: something went wrong - check console
       exit 1
-    elif [ $counter -gt $TIMEOUT_WARN ]
+    elif [ $counter -eq $(( $TIMEOUT / 2 )) ]
     then
       echo WARN: this is taking longer than expected
     fi

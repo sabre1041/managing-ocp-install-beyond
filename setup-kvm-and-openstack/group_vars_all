@@ -12,7 +12,6 @@ SSH_KEY_FILENAME=~/.ssh/${LAB_NAME}
 SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${SSH_KEY_FILENAME}"
 PASSWORD=summit2017
 TIMEOUT=90
-TIMEOUT_WARN=45
 FILESHARE_DEST_BASE=/fileshare/scripts/summit2017
 
 declare -A VM_RAM=([rhosp]=32768 [tower]=4096 [repo]=4096)
