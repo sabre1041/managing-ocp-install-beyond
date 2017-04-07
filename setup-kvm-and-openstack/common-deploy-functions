@@ -1,0 +1,139 @@
+#!/bin/bash
+
+prep_vm () {
+  VM_TYPE=$1
+
+  VM_TYPE_IMAGE_NAME=${VM_TYPE}\_IMAGE_NAME
+  VM_TYPE_IMAGE_URL=${VM_TYPE}\_IMAGE_URL
+  VM_TYPE_VM_NAME=${VM_TYPE}\_VM_NAME
+
+  echo $VM_TYPE
+  echo ${!VM_TYPE_IMAGE_NAME}
+  echo ${!VM_TYPE_IMAGE_URL}
+  echo ${!VM_TYPE_VM_NAME}
+
+  if [ "${VM_TYPE}" != "OSP" ]
+  then
+    # Check if VM is already defined
+    if virsh list | grep -q ${!VM_TYPE_VM_NAME}
+    then
+      echo "ERROR: ${!VM_TYPE_VM_NAME} already exists. To remove it run the 'remove-${VM_TYPE}.sh' script."
+      exit 1
+    fi
+
+    # Check for SSH keys
+    if [ ! -f ${SSH_KEY_FILENAME} ]
+    then
+      echo "ERROR: ${SSH_KEY_FILENAME} not present, run 'deploy-kvm-host-config.sh' first"
+      exit 1
+    fi
+
+    # If no ssh-agent is running, start one and load the private key
+    if [ -z "${SSH_AUTH_SOCK}" ]
+    then
+      eval "$(ssh-agent -s)"
+      ssh-add ${SSH_KEY_FILENAME}
+    fi
+
+    # Grab image from source URL and keep a local copy (OSP creates a different image from base)
+    echo "INFO: Downloading image to local directory in ${IMAGE_LOCAL_DIR}."
+    cmd wget --continue --directory-prefix=${IMAGE_LOCAL_DIR}/ ${!VM_TYPE_IMAGE_URL}
+
+    echo "INFO: Copying image to /var/lib/libvirt/images/ to preserve original for future runs."
+    # Copy to libvirt/images but leave in local source dir to speed up future runs
+    cmd rsync -avP ${IMAGE_LOCAL_DIR}/${!VM_TYPE_IMAGE_NAME} /var/lib/libvirt/images/${!VM_TYPE_IMAGE_NAME}
+
+    # Set password and SSH public key (OSP deploy does this already)
+    cmd virt-customize -a /var/lib/libvirt/images/${!VM_TYPE_IMAGE_NAME} \
+    --root-password password:${PASSWORD} \
+    --ssh-inject root:file:${SSH_KEY_FILENAME}.pub \
+    --selinux-relabel
+  else
+    # Check if OSP VM is already defined
+    if virsh list | grep -q "${OSP_VM_NAME}"
+    then
+      echo "ERROR: ${OSP_VM_NAME} already exists. To remove it run the 'remove-osp.sh' script."
+      exit 1
+    fi
+  fi
+}
+
+deploy_vm() {
+  VM_TYPE=$1
+  VM_RAM=$2
+  VM_VCPUS=$3
+
+  VM_TYPE_IMAGE_NAME=${VM_TYPE}\_IMAGE_NAME
+  VM_TYPE_VM_NAME=${VM_TYPE}\_VM_NAME
+  VM_NAME=${!VM_TYPE_VM_NAME}
+
+  # Bring up VM
+  cmd virt-install --ram ${VM_RAM} --vcpus ${VM_VCPUS} --os-variant rhel7 \
+    --controller type=scsi,model=virtio-scsi \
+    --disk path=/var/lib/libvirt/images/${!VM_TYPE_IMAGE_NAME},cache=none,bus=scsi,discard=unmap \
+    --import --noautoconsole --vnc \
+    --cpu host,+vmx \
+    --network network:${LAB_NAME}-admin \
+    --network network:${LAB_NAME}-osp \
+    --name ${VM_NAME}
+
+
+  echo -n "Waiting for ${VM_NAME} VM to come online"
+  counter=0
+  while :
+  do
+    counter=$(( $counter + 1 ))
+    sleep 1
+    VM_IP=$(virsh domifaddr ${VM_NAME} | grep 192.168.144 | awk '{print $4}'| cut -d/ -f1)
+    if [ ! -z ${VM_IP} ]
+    then
+      break
+    fi
+    if [ $counter -gt $TIMEOUT ]
+    then
+      echo ERROR: something went wrong - check console
+      exit 1
+    elif [ $counter -eq $TIMEOUT_WARN ]
+    then
+      echo -n "WARN: this is taking longer than expected"
+    fi
+    echo -n "."
+  done
+  echo ""
+
+  echo -n "Waiting for ${VM_NAME} to start sshd on ${VM_IP}"
+  counter=0
+  while :
+  do
+    counter=$(( $counter + 1 ))
+    sleep 1
+    if nmap -p22 ${VM_IP} | grep  "22/tcp.*open"
+    then
+      break
+    fi
+    if [ $counter -gt $TIMEOUT ]
+    then
+      echo ERROR: something went wrong - check console
+      exit 1
+    elif [ $counter -gt $TIMEOUT_WARN ]
+    then
+      echo WARN: this is taking longer than expected
+    fi
+    echo -n "."
+  done
+  echo ""
+
+  case ${VM_TYPE} in
+    OSP) OSP_VM_IP=${VM_IP}
+         echo "OSP IP: ${OSP_VM_IP}"
+      ;;
+    REPO) REPO_VM_IP=${VM_IP}
+         echo "Repo IP: ${REPO_VM_IP}"
+      ;;
+    TOWER) TOWER_VM_IP=${VM_IP}
+         echo "Tower IP: ${TOWER_VM_IP}"
+      ;;
+  esac
+
+ # cmd sshpass -p ${PASSWORD} ssh-copy-id ${SSH_OPTS} root@${VM_IP}
+}
