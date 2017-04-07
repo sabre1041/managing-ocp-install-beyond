@@ -51,8 +51,8 @@ packstack-install() {
   # Install Packstack and utils
   cmd yum -y install openstack-packstack openstack-utils
 
-  # Run Packstack 
-  cmd packstack --answer-file=/root/openstack-scripts/answers.txt
+  # Run Packstack - pulled out of function as it was hanging, called in main script
+#  cmd packstack --answer-file=/root/openstack-scripts/answers.txt
 }
 
 post-install-config() {
@@ -342,12 +342,15 @@ verify-networking() {
 
 cleanup () {
   source /root/keystonerc_${USERNAME}
-  cmd openstack server delete rhel-test
+  cmd openstack server delete cirros-test
+  #cmd openstack server delete rhel-test
 }
 
 # Main
 prep 2>&1 | tee -a ${LOGFILE}
 packstack-install 2>&1 | tee -a ${LOGFILE}
+# For some reason calling this from a function causes packstack to hang on copying puppet modules
+cmd packstack --answer-file=/root/openstack-scripts/answers.txt
 post-install-config 2>&1 | tee -a ${LOGFILE}
 post-install-admin-tasks 2>&1 | tee -a ${LOGFILE}
 # Image creation can't be redirected to a log file or the --progress option doesn't work
