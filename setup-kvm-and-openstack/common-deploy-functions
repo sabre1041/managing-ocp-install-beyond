@@ -70,7 +70,7 @@ deploy_vm() {
   # Bring up VM
   cmd virt-install --ram ${VM_RAM} --vcpus ${VM_VCPUS} --os-variant rhel7 \
     --controller type=scsi,model=virtio-scsi \
-    --disk path=/var/lib/libvirt/images/${!VM_TYPE_IMAGE_NAME},cache=none,bus=scsi,discard=unmap \
+    --disk path=/var/lib/libvirt/images/${!VM_TYPE_IMAGE_NAME},bus=scsi,discard=unmap \
     --import --noautoconsole --vnc \
     --cpu host,+vmx \
     --network network:${LAB_NAME}-admin \
