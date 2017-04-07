@@ -2,6 +2,13 @@
 
 source group_vars_all
 
+# Check for SSH keys
+if [ ! -f ${SSH_KEY_FILENAME} ]
+then
+  echo "ERROR: ${SSH_KEY_FILENAME} not present, run 'deploy-kvm-host-config.sh' first"
+  exit 1
+fi
+
 # Fetch the base image
 cmd wget --continue -O ${OSP_BASE_IMAGE_PATH} ${OSP_BASE_IMAGE_URL}
 
