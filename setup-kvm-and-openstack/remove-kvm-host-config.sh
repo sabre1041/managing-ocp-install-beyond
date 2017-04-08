@@ -4,7 +4,7 @@ source group_vars_all
 
 virsh net-destroy ${LAB_NAME}
 virsh net-undefine ${LAB_NAME}
-for network in admin osp; do
+for network in admin rhosp; do
   virsh net-destroy ${LAB_NAME}-${network}
   virsh net-undefine ${LAB_NAME}-${network}
 done

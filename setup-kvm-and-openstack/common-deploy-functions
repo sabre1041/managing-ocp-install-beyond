@@ -43,12 +43,29 @@ prep_vm () {
   # Copy to libvirt/images but leave in local source dir to speed up future runs
   cmd rsync -avP ${VM_IMAGE_STAGING_PATH} ${VM_IMAGE_PATH}
 
-  # Set password and SSH public key
-  cmd virt-customize -a ${VM_IMAGE_PATH} \
-  --hostname ${VM_TYPE}.${ADMIN_DOMAIN} \
-  --root-password password:${PASSWORD} \
-  --ssh-inject root:file:${SSH_KEY_FILENAME}.pub \
-  --selinux-relabel
+  # Customize image
+  if [ "${VM_TYPE}" == "rhosp" ]
+  then
+    cmd virt-customize -a ${OSP_VM_IMAGE_PATH} \
+    --hostname ${OSP_VM_HOSTNAME} \
+    --root-password password:${PASSWORD} \
+    --ssh-inject root:file:${SSH_KEY_FILENAME}.pub \
+    --selinux-relabel 
+  else
+    cmd virt-customize -a ${VM_IMAGE_PATH} \
+    --hostname ${VM_TYPE}.${ADMIN_DOMAIN} \
+    --root-password password:${PASSWORD} \
+    --ssh-inject root:file:${SSH_KEY_FILENAME}.pub \
+    --selinux-relabel \
+    --run-command 'echo "DEVICE=eth0"> /etc/sysconfig/network-scripts/ifcfg-eth0 && \
+      echo BOOTPROTO=static>> /etc/sysconfig/network-scripts/ifcfg-eth0 && \
+      echo ONBOOT=yes>> /etc/sysconfig/network-scripts/ifcfg-eth0 && \
+      echo IPADDR='"${VM_IP[$VM_TYPE]}"'>> /etc/sysconfig/network-scripts/ifcfg-eth0 && \
+      echo NETMASK=255.255.255.0>> /etc/sysconfig/network-scripts/ifcfg-eth0 && \
+      echo GATEWAY=172.20.17.1>> /etc/sysconfig/network-scripts/ifcfg-eth0 && \
+      echo DNS1=172.20.17.1>> /etc/sysconfig/network-scripts/ifcfg-eth0'
+    --selinux-relabel 
+  fi
 }
 
 deploy_vm() {
@@ -58,6 +75,12 @@ deploy_vm() {
   VM_IMAGE_NAME=${VM_NAME}.qcow2
   VM_IMAGE_PATH=${IMAGE_LOCAL_DIR}/${VM_IMAGE_NAME}
   VM_IMAGE_URL=${VM_IMAGE_URL_BASE}/${VM_NAME}/${VM_IMAGE_NAME}
+  if [ "${VM_TYPE}" == "rhosp" ]
+  then
+    VM_NETWORKS="--network network:${LAB_NAME}-admin --network network:${LAB_NAME}-rhosp"
+  else
+    VM_NETWORKS="--network network:${LAB_NAME}-rhosp"
+  fi
 
   # Bring up VM
   cmd virt-install --ram ${VM_RAM[$VM_TYPE]} --vcpus ${VM_VCPUS[$VM_TYPE]} --os-variant rhel7 \
@@ -65,56 +88,53 @@ deploy_vm() {
     --disk path=${VM_IMAGE_PATH},bus=scsi,discard=unmap \
     --import --noautoconsole --vnc \
     --cpu host,+vmx \
-    --network network:${LAB_NAME}-admin \
-    --network network:${LAB_NAME}-osp \
+    ${VM_NETWORKS} \
     --name ${VM_NAME}
 
-  echo -n "Waiting for ${VM_NAME} VM to come online"
+  echo -n "Waiting for ${VM_NAME} VM to come online at ${VM_IP[$VM_TYPE]}"
   counter=0
   while :
   do
     counter=$(( $counter + 1 ))
-    sleep 1
-    VM_IP=$(virsh domifaddr ${VM_NAME} | grep 192.168.144 | awk '{print $4}'| cut -d/ -f1)
-    if [ ! -z ${VM_IP} ]
+    if ping -c 1 ${VM_IP[$VM_TYPE]} 2>&1 > /dev/null
     then
       break
     fi
     if [ $counter -gt $TIMEOUT ]
     then
-      echo ERROR: something went wrong - check console
+      echo "ERROR: something went wrong - check console"
       exit 1
     elif [ $counter -eq $(( $TIMEOUT / 2 )) ]
     then
-      echo -n "WARN: this is taking longer than expected"
+      echo "WARN: this is taking longer than expected"
     fi
     echo -n "."
   done
   echo ""
 
-  echo -n "Waiting for ${VM_NAME} to start sshd on ${VM_IP}"
+  echo -n "Waiting for ${VM_NAME} to start sshd on ${VM_IP[$VM_TYPE]}"
   counter=0
   while :
   do
     counter=$(( $counter + 1 ))
     sleep 1
-    if nmap -p22 ${VM_IP} | grep  "22/tcp.*open"
+    if nmap -p22 ${VM_IP[$VM_TYPE]} | grep  "22/tcp.*open"
     then
       break
     fi
     if [ $counter -gt $TIMEOUT ]
     then
-      echo ERROR: something went wrong - check console
+      echo "ERROR: something went wrong - check console"
       exit 1
     elif [ $counter -eq $(( $TIMEOUT / 2 )) ]
     then
-      echo WARN: this is taking longer than expected
+      echo "WARN: this is taking longer than expected"
     fi
     echo -n "."
   done
   echo ""
 
-  echo "${VM_TYPE} IP: ${VM_IP}"
+  echo "INFO: ${VM_TYPE} IP: ${VM_IP[$VM_TYPE]}"
 }
 
 remove_vm () {
@@ -126,5 +146,5 @@ remove_vm () {
 
   virsh destroy ${VM_NAME}
   virsh undefine ${VM_NAME}
-  rm -f ${VM_IMAGE_PATH}
+  rm -fv ${VM_IMAGE_PATH}
 }
