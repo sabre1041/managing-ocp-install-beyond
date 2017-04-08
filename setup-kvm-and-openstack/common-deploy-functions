@@ -31,7 +31,7 @@ prep_vm () {
   # If no ssh-agent is running, start one and load the private key
   if [ -z "${SSH_AUTH_SOCK}" ]
   then
-    eval "$(ssh-agent -s)"
+   eval "$(ssh-agent -s)"
     ssh-add ${SSH_KEY_FILENAME}
   fi
 
@@ -57,13 +57,13 @@ prep_vm () {
     --root-password password:${PASSWORD} \
     --ssh-inject root:file:${SSH_KEY_FILENAME}.pub \
     --selinux-relabel \
-    --run-command 'echo "DEVICE=eth0"> /etc/sysconfig/network-scripts/ifcfg-eth0 && \
-      echo BOOTPROTO=static>> /etc/sysconfig/network-scripts/ifcfg-eth0 && \
-      echo ONBOOT=yes>> /etc/sysconfig/network-scripts/ifcfg-eth0 && \
-      echo IPADDR='"${VM_IP[$VM_TYPE]}"'>> /etc/sysconfig/network-scripts/ifcfg-eth0 && \
-      echo NETMASK=255.255.255.0>> /etc/sysconfig/network-scripts/ifcfg-eth0 && \
-      echo GATEWAY=172.20.17.1>> /etc/sysconfig/network-scripts/ifcfg-eth0 && \
-      echo DNS1=172.20.17.1>> /etc/sysconfig/network-scripts/ifcfg-eth0'
+    --write /etc/sysconfig/network-scripts/ifcfg-eth0:'DEVICE=eth0
+BOOTPROTO=static
+ONBOOT=yes
+IPADDR='"${VM_IP[$VM_TYPE]}"'
+NETMASK=255.255.255.0
+GATEWAY=172.20.17.1
+DNS1=172.20.17.1'
     --selinux-relabel 
   fi
 }
@@ -103,10 +103,12 @@ deploy_vm() {
     fi
     if [ $counter -gt $TIMEOUT ]
     then
+      echo ""
       echo "ERROR: something went wrong - check console"
       exit 1
     elif [ $counter -eq $(( $TIMEOUT / 2 )) ]
     then
+      echo ""
       echo "WARN: this is taking longer than expected"
     fi
     echo -n "."
@@ -125,10 +127,12 @@ deploy_vm() {
     fi
     if [ $counter -gt $TIMEOUT ]
     then
+      echo ""
       echo "ERROR: something went wrong - check console"
       exit 1
     elif [ $counter -eq $(( $TIMEOUT / 2 )) ]
     then
+      echo ""
       echo "WARN: this is taking longer than expected"
     fi
     echo -n "."
