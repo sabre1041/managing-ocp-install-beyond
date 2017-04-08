@@ -60,14 +60,13 @@ deploy_vm() {
   VM_IMAGE_URL=${VM_IMAGE_URL_BASE}/${VM_NAME}/${VM_IMAGE_NAME}
 
   # Bring up VM
-  cmd virt-install --ram ${VM_RAM[$VM_TYPE]} --vcpus ${VM_VCPUS[$VM_TYPE]} --os-variant rhel7 \
+  cmd virt-install --ram ${VM_RAM[$VM_TYPE]} --vcpus ${VM_VCPUS[$VM_TYPE]} \
+    --os-variant rhel7 --cpuset=auto --graphics none --cpu host,+vmx \
+    --import --noautoconsole --name ${VM_NAME} \
     --controller type=scsi,model=virtio-scsi \
     --disk path=${VM_IMAGE_PATH},bus=scsi,discard=unmap \
-    --import --noautoconsole --vnc \
-    --cpu host,+vmx \
     --network network:${LAB_NAME}-admin \
-    --network network:${LAB_NAME}-osp \
-    --name ${VM_NAME}
+    --network network:${LAB_NAME}-osp
 
   echo -n "Waiting for ${VM_NAME} VM to come online"
   counter=0
