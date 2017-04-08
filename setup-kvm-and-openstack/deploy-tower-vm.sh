@@ -2,6 +2,6 @@
 
 source group_vars_all
 
-prep_vm TOWER
+prep_vm tower
 
-deploy_vm TOWER 4096 2
+deploy_vm tower

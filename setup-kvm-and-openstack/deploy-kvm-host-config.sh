@@ -64,7 +64,7 @@ cat > /tmp/${LAB_NAME}-admin.xml <<EOF
 <network>
   <forward mode='nat'/>
   <name>${LAB_NAME}-admin</name>
-  <domain name='admin.example.com' localOnly='yes'/>
+  <domain name='${ADMIN_DOMAIN}' localOnly='yes'/>
   <ip address="192.168.144.1" netmask="255.255.255.0">
     <dhcp>
       <range start='192.168.144.2' end='192.168.144.254'/>
@@ -100,10 +100,13 @@ EOF
 cat > /etc/NetworkManager/dnsmasq.d/${LAB_NAME}.conf <<EOF
 no-negcache
 strict-order
-server=/admin.example.com/192.168.144.1
-server=/osp.example.com/172.20.17.100
-address=/master.osp.example.com/172.20.17.5
-address=/.apps.example.com/172.20.17.5
+server=/${ADMIN_DOMAIN}/192.168.144.1
+server=/${OSP_DOMAIN}/172.20.17.100
+address=/master.${OSP_DOMAIN}/172.20.17.5
+address=/${WILDCARD_DOMAIN}/172.20.17.5
+address=/rhosp.${OSP_DOMAIN}/172.20.17.10
+address=/repo.${OSP_DOMAIN}/172.20.17.15
+address=/tower.${OSP_DOMAIN}/172.20.17.20
 EOF
 
 # Restart NetworkManager to pick up the changes

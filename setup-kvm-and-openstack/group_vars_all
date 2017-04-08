@@ -4,29 +4,34 @@
 VERBOSE=true
 DEBUG=false
 LAB_NAME=L104353
-BASE_IMAGE_NAME=rhel-guest-image-7.3-35.x86_64.qcow2
-BASE_IMAGE_URL=http://10.11.169.10/fileshare/images/${BASE_IMAGE_NAME}
-OSP_VM_NAME=${LAB_NAME}-rhelosp
-OSP_VM_TOTAL_DISK_SIZE=100G
-OSP_VM_ROOT_DISK_SIZE=30G
-OSP_VM_HOSTNAME=rhosp.admin.example.com
-OSP_IMAGE_NAME=${LAB_NAME}-rhel7-rhosp10.qcow2
+BASE_DOMAIN=example.com
+ADMIN_DOMAIN=admin.${BASE_DOMAIN}
+OSP_DOMAIN=osp.${BASE_DOMAIN}
+WILDCARD_DOMAIN=".apps.${BASE_DOMAIN}"
 SSH_KEY_FILENAME=~/.ssh/${LAB_NAME}
 SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${SSH_KEY_FILENAME}"
 PASSWORD=summit2017
-TIMEOUT=60
-TIMEOUT_WARN=30
-REPO_IMAGE_NAME=summit-2017-rhel-repo-vm-sparse.qcow2
-REPO_IMAGE_URL=http://10.11.169.10/fileshare/scripts/summit2017/L104353-repo/${REPO_IMAGE_NAME}
-#REPO_IMAGE_URL=http://10.19.115.70/pub/${REPO_IMAGE_NAME}
-REPO_VM_NAME=${LAB_NAME}-repos
-# The next variable will be dynamically determined until we have a static network mapping for instructor machine
-#REPO_VM_IP=
-TOWER_IMAGE_NAME=tower.qcow2
-TOWER_IMAGE_URL=http://10.11.169.10/fileshare/scripts/summit2017/L104353-tower/${TOWER_IMAGE_NAME}
-TOWER_VM_NAME=${LAB_NAME}-tower
-#TOWER_VM_IP=
-IMAGE_LOCAL_DIR=/tmp
+TIMEOUT=90
+FILESHARE_DEST_BASE=/fileshare/scripts/summit2017
+
+declare -A VM_RAM=([rhosp]=32768 [tower]=4096 [repo]=4096)
+declare -A VM_VCPUS=([rhosp]=8 [tower]=2 [repo]=1)
+
+# Base URL to use for fetching pre-created disk images
+VM_IMAGE_URL_BASE=http://10.11.169.10/fileshare/scripts/summit2017
+IMAGE_STAGING_DIR=/tmp
+IMAGE_LOCAL_DIR=/var/lib/libvirt/images
+
+OSP_NAME=rhosp
+OSP_VM_NAME=${LAB_NAME}-rhosp
+OSP_VM_IMAGE_NAME=${OSP_VM_NAME}.qcow2
+OSP_VM_IMAGE_PATH=${IMAGE_LOCAL_DIR}/${OSP_VM_IMAGE_NAME}
+OSP_VM_HOSTNAME=${OSP_NAME}.${ADMIN_DOMAIN}
+OSP_VM_TOTAL_DISK_SIZE=100G
+OSP_VM_ROOT_DISK_SIZE=30G
+OSP_BASE_IMAGE_NAME=rhel-guest-image-7.3-35.x86_64.qcow2
+OSP_BASE_IMAGE_URL=http://10.11.169.10/fileshare/images/${OSP_BASE_IMAGE_NAME}
+OSP_BASE_IMAGE_PATH=${IMAGE_LOCAL_DIR}/${OSP_BASE_IMAGE_NAME}
 
 # Load common functions
 source openstack-scripts/common-libs
