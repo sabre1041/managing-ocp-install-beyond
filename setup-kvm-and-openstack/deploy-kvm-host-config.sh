@@ -13,10 +13,17 @@ then
 fi
 
 # Install required rpms
-cmd yum -y install libvirt qemu-kvm virt-manager virt-install libguestfs-tools xorg-x11-apps xauth virt-viewer libguestfs-xfs dejavu-sans-fonts nfs-utils vim-enhanced rsync nmap bash-completion
+cmd yum -y install libvirt qemu-kvm virt-manager virt-install libguestfs-tools xorg-x11-apps xauth virt-viewer libguestfs-xfs dejavu-sans-fonts nfs-utils vim-enhanced rsync nmap bash-completion numad
 
 # Enable and start libvirt services
 cmd systemctl enable libvirtd && systemctl start libvirtd
+
+# Enable numad is system supports it
+if dmesg | grep -iq numa
+then
+  systemctl start numad
+  systemctl enable numad
+fi
 
 # Check for and attempt to enable nested virt support
 if ! egrep -q '^flags.*(vmx|svm)' /proc/cpuinfo
@@ -59,6 +66,11 @@ then
   echo "ERROR: CPU Virt extensions not loaded, try rebooting and re-run this script."
 fi
 
+# Enable virtual-host profile in tuned
+cmd tuned-adm active
+cmd tuned-adm profile virtual-host
+cmd tuned-adm active
+
 # Create Admin Network
 cat > /tmp/${LAB_NAME}-admin.xml <<EOF
 <network>
@@ -74,16 +86,16 @@ cat > /tmp/${LAB_NAME}-admin.xml <<EOF
 EOF
 
 # Create OpenStack network without DHCP, as OpenStack will provide that via dnsmasq
-cat > /tmp/${LAB_NAME}-osp.xml <<EOF
+cat > /tmp/${LAB_NAME}-rhosp.xml <<EOF
 <network>
   <forward mode='nat'/>
-  <name>${LAB_NAME}-osp</name>
+  <name>${LAB_NAME}-rhosp</name>
   <ip address="172.20.17.1" netmask="255.255.255.0"/>
 </network>
 EOF
 
 # Create OpenStack network
-for network in admin osp; do
+for network in admin rhosp; do
   cmd virsh net-define /tmp/${LAB_NAME}-${network}.xml
   cmd virsh net-autostart ${LAB_NAME}-${network}
   echo "INFO: If this libvirt network fails to start try restarting libvirtd."
