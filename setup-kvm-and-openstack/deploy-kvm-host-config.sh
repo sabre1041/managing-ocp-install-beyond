@@ -5,13 +5,6 @@ source group_vars_all
 # Run environment-specific commands
 source prep-host-env-config.sh
 
-# Set up sshpass for non-interactive deployment
-if ! rpm -q sshpass
-then
-  cmd yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-  cmd yum -y install sshpass
-fi
-
 # Install required rpms
 cmd yum -y install libvirt qemu-kvm virt-manager virt-install libguestfs-tools xorg-x11-apps xauth virt-viewer libguestfs-xfs dejavu-sans-fonts nfs-utils vim-enhanced rsync nmap bash-completion numad
 
