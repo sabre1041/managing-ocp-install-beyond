@@ -46,7 +46,11 @@ cmd virt-customize -a ${OSP_VM_IMAGE_PATH} \
   --hostname ${OSP_VM_HOSTNAME} \
   --root-password password:${PASSWORD} \
   --ssh-inject root:file:${SSH_KEY_FILENAME}.pub \
-  --selinux-relabel \
+  --write /etc/tuned/${LAB_NAME}/tuned.conf:'[main]
+include=virtual-guest
+[disk]
+elevator=noop' \
+  --run-command 'tuned-adm profile ${LAB_NAME}' \
   --run-command 'yum remove cloud-init* -y && \
     rpm -ivh http://rhos-release.virt.bos.redhat.com/repos/rhos-release/rhos-release-latest.noarch.rpm && \
     rhos-release 10 && \
@@ -60,6 +64,8 @@ NETMASK=255.255.255.0
 GATEWAY=172.20.17.1
 DNS1=172.20.17.1
 '
+  --selinux-relabel
+
 # Call deploy_vm function
 deploy_vm ${OSP_NAME}
 

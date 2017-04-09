@@ -57,20 +57,22 @@ packstack-install() {
 
 post-install-config() {
 	cmd echo "INFO: Starting function 'prepare-host'"
-	# Remove cinder loopback device and enable lvm on second partition
-	CINDER_LODEVICE=$(losetup -l | awk '/cinder-volumes/ { print $1 }')
-	losetup -d ${CINDER_LODEVICE}
-  rm -f /var/lib/cinder/cinder-volumes
+	# Enable lvm on second partition
 	pvcreate /dev/sda2
 	vgcreate cinder-volumes /dev/sda2
 	vgchange -ay
-	systemctl disable openstack-losetup.service
-	systemctl stop openstack-losetup.service
-  	openstack-config --set /etc/nova/nova.conf libvirt virt_type kvm
 	openstack-config --set /etc/nova/nova.conf DEFAULT scheduler_default_filters RetryFilter,AvailabilityZoneFilter,RamFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,CoreFilter
-	openstack-config --set /etc/cinder/cinder.conf lvm lvm_type thin
+	openstack-config --set /etc/nova/nova.conf libvirt virt_type kvm
+	openstack-config --set /etc/nova/nova.conf libvirt cpu_mode host-passthrough
+	openstack-config --set /etc/nova/nova.conf libvirt disk_cachemodes 'file=writeback,block=writeback'
+	openstack-config --set /etc/nova/nova.conf libvirt hw_disk_discard unmap
+	openstack-config --set /etc/nova/nova.conf libvirt images_type lvm
+	openstack-config --set /etc/nova/nova.conf libvirt images_volume_group cinder_volumes
+	openstack-config --set /etc/nova/nova.conf libvirt volume_clear none
+	openstack-config --set /etc/nova/nova.conf libvirt force_raw_images true
+	openstack-config --set /etc/nova/nova.conf libvirt use_usb_tablet false
+	openstack-config --set /etc/nova/nova.conf vnc enabled false
 	openstack-config --set /etc/cinder/cinder.conf lvm volume_clear none
-	openstack-config --set /etc/cinder/cinder.conf lvm image_volume_cache_enabled True
 	openstack-config --set /etc/nova/nova.conf DEFAULT block_device_allocate_retries 120
 	openstack-config --set /etc/nova/nova.conf DEFAULT block_device_allocate_retries_interval 10
 	if "${EXTERNAL_ONLY}" == "true"
@@ -175,7 +177,7 @@ create-images() {
 		cmd glance image-create \
 			 --name ${CIRROS_IMAGE_NAME} \
 			 ${IMAGE_IS_PUBLIC_OPTION} \
-			 --disk-format qcow2 \
+			 --disk-format raw \
 			 --container-format bare \
 			 --progress \
 			 --file /tmp/${CIRROS_IMAGE_NAME}.img
@@ -198,8 +200,11 @@ create-images() {
 		cmd glance image-create \
 			 --name ${RHEL_IMAGE_NAME} \
 			 ${IMAGE_IS_PUBLIC_OPTION} \
-			 --disk-format qcow2 \
+			 --disk-format raw \
 			 --container-format bare \
+			 --property hw_scsi_model=virtio-scsi \
+			 --property hw_disk_bus=scsi \
+			 --min-disk 10 \
 			 --progress \
 			 --file /tmp/${RHEL_IMAGE_NAME}.qcow2
 	fi

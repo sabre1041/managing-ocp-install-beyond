@@ -47,14 +47,26 @@ prep_vm () {
   if [ "${VM_TYPE}" == "rhosp" ]
   then
     cmd virt-customize -a ${VM_IMAGE_PATH} \
+    --hostname ${VM_TYPE}.${ADMIN_DOMAIN} \
+    --root-password password:${PASSWORD} \
     --ssh-inject root:file:${SSH_KEY_FILENAME}.pub \
+    --edit /etc/lvm/lvm.conf:'s/issue_discards = .*/issue_discards = 1/' \
+    --write /etc/tuned/${LAB_NAME}/tuned.conf:'[main]
+include=virtual-guest
+[disk]
+elevator=noop' \
+    --run-command 'tuned-adm profile ${LAB_NAME}'
     --selinux-relabel
   else
     cmd virt-customize -a ${VM_IMAGE_PATH} \
     --hostname ${VM_TYPE}.${ADMIN_DOMAIN} \
     --root-password password:${PASSWORD} \
     --ssh-inject root:file:${SSH_KEY_FILENAME}.pub \
-    --selinux-relabel \
+    --edit /etc/lvm/lvm.conf:'s/issue_discards = .*/issue_discards = 1/' \
+    --write /etc/tuned/${LAB_NAME}/tuned.conf:'[main]
+include=virtual-guest
+[disk]
+elevator=noop' \
     --write /etc/sysconfig/network-scripts/ifcfg-eth0:'DEVICE=eth0
 BOOTPROTO=static
 ONBOOT=yes
@@ -64,6 +76,7 @@ NETMASK=255.255.255.0
 GATEWAY=172.20.17.1
 DNS1=172.20.17.1
 ' \
+    --run-command 'tuned-adm profile ${LAB_NAME}'
     --selinux-relabel
   fi
 }
@@ -84,10 +97,9 @@ deploy_vm() {
 
   # Bring up VM
   cmd virt-install --ram ${VM_RAM[$VM_TYPE]} --vcpus ${VM_VCPUS[$VM_TYPE]} \
-    --os-variant rhel7 --cpuset=auto --graphics none \
-    --cpu host,+vmx \
-    --controller type=scsi,model=virtio-scsi \
-    --disk path=${VM_IMAGE_PATH},bus=scsi,discard=unmap \
+    --os-variant rhel7 --cpuset=auto --graphics none --cpu host-passthrough \
+    --cpuset=auto --controller type=scsi,model=virtio-scsi \
+    --disk path=${VM_IMAGE_PATH},bus=scsi,discard=unmap,cache=writeback \
     --import --noautoconsole \
     ${VM_NETWORKS} \
     --name ${VM_NAME}
