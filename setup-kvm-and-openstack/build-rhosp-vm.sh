@@ -106,4 +106,4 @@ cmd rsync -avP ${OSP_VM_IMAGE_PATH} ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_
 source remove-rhosp-vm.sh
 
 # Remove image in /tmp so new one will be pulled next time
-rm -fv /tmp//tmp/L104353-rhosp.qcow2
+rm -fv /tmp/L104353-rhosp.qcow2
