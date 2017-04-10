@@ -88,7 +88,7 @@ deploy_vm() {
     --cpu host,+vmx \
     --controller type=scsi,model=virtio-scsi \
     --disk path=${VM_IMAGE_PATH},bus=scsi,discard=unmap \
-    --import --noautoconsole --vnc \
+    --import --noautoconsole \
     ${VM_NETWORKS} \
     --name ${VM_NAME}
 
