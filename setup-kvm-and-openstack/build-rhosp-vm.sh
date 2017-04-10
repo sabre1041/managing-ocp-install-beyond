@@ -9,6 +9,20 @@ then
   exit 1
 fi
 
+# Check if VM is already defined
+if virsh list | grep -q ${OSP_VM_NAME}
+then
+  echo "ERROR: ${OSP_VM_NAME} already exists. To remove it run the 'remove-rhosp.sh' script."
+  exit 1
+fi
+
+# If no ssh-agent is running, start one and load the private key
+if [ -z "${SSH_AUTH_SOCK}" ]
+then
+ eval "$(ssh-agent -s)"
+  ssh-add ${SSH_KEY_FILENAME}
+fi
+
 # Fetch the base image
 cmd wget --continue -O ${OSP_BASE_IMAGE_PATH} ${OSP_BASE_IMAGE_URL}
 
@@ -36,21 +50,21 @@ cmd virt-customize -a ${OSP_VM_IMAGE_PATH} \
   --run-command 'yum remove cloud-init* -y && \
     rpm -ivh http://rhos-release.virt.bos.redhat.com/repos/rhos-release/rhos-release-latest.noarch.rpm && \
     rhos-release 10 && \
-    echo "DEVICE=eth1" > /etc/sysconfig/network-scripts/ifcfg-eth1 && \
-    echo "BOOTPROTO=static" >> /etc/sysconfig/network-scripts/ifcfg-eth1 && \
-    echo "ONBOOT=yes" >> /etc/sysconfig/network-scripts/ifcfg-eth1 && \
-    echo "IPADDR=172.20.17.10" >> /etc/sysconfig/network-scripts/ifcfg-eth1 && \
-    echo "NETMASK=255.255.255.0" >> /etc/sysconfig/network-scripts/ifcfg-eth1 && \
-    systemctl disable NetworkManager'
-
+    systemctl disable NetworkManager' \
+  --write /etc/sysconfig/network-scripts/ifcfg-eth1:'DEVICE=eth1
+BOOTPROTO=static
+ONBOOT=yes
+PEERDNS=no
+IPADDR='"${VM_IP[rhosp]}"'
+NETMASK=255.255.255.0
+GATEWAY=172.20.17.1
+DNS1=172.20.17.1
+'
 # Call deploy_vm function
 deploy_vm ${OSP_NAME}
 
 # Copy guest image to VM
 cmd scp ${SSH_OPTS} ${OSP_BASE_IMAGE_PATH} root@${OSP_VM_HOSTNAME}:/tmp/.
-
-# Remove base image to conserve space
-rm -f ${OSP_BASE_IMAGE_PATH}
 
 # Copy openstack-scripts to VM
 cmd rsync -e "ssh ${SSH_OPTS}" -avP openstack-scripts/ root@${OSP_VM_HOSTNAME}:/root/openstack-scripts/
@@ -65,27 +79,31 @@ cmd virsh destroy ${OSP_VM_NAME}
 SHUTDOWN_TIMEOUT=600
 echo -n "Waiting for ${OSP_VM_NAME} VM to shutdown"
 counter=0
+VM_DESTROYED=""
 while :
 do
-  counter=$(( $counter + 1 ))
-  sleep 1
-
-  if [ -z ${OSP_VM_NAME} ]
+  VM_DESTROYED=$(virsh list --all | grep "${OSP_VM_NAME}")
+  if echo ${VM_DESTROYED} | grep -qi "shut off"
   then
     break
   fi
-
-  if [ $counter -gt $SHUTDOWN_TIMEOUT ]
+  if [ "$counter" -gt "$SHUTDOWN_TIMEOUT" ]
   then
+    echo ""
     echo ERROR: something went wrong - check console
     exit 1
   fi
-
+  counter=$(( $counter + 1 ))
   echo -n "."
+  sleep 1
 done
 echo ""
 
-# Sparsify and copy the image to the fileshare
-cmd virt-sparsify ${OSP_VM_IMAGE_PATH} ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME}
+# Copy image
+cmd rsync -avP ${OSP_VM_IMAGE_PATH} ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME}
 
+# Remove running rhosp guest
 source remove-rhosp-vm.sh
+
+# Remove image in /tmp so new one will be pulled next time
+rm -fv /tmp//tmp/L104353-rhosp.qcow2
