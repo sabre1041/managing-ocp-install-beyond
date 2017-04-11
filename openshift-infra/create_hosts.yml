@@ -102,7 +102,7 @@
         osev3: 'true'
         node_type: 'app'
     with_items:
-    - node1.osp.example.com
+    - node2.osp.example.com
     register: app_node_create
 
   - name: Wait for ssh
