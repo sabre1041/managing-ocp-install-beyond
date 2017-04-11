@@ -47,7 +47,6 @@ prep_vm () {
     --hostname ${VM_TYPE}.${ADMIN_DOMAIN} \
     --root-password password:${PASSWORD} \
     --ssh-inject root:file:${SSH_KEY_FILENAME}.pub \
-    --edit /etc/lvm/lvm.conf:'s/issue_discards = .*/issue_discards = 1/' \
     --mkdir /etc/tuned/${LAB_NAME} \
     --write /etc/tuned/${LAB_NAME}/tuned.conf:'[main]
 include=virtual-guest
@@ -74,7 +73,6 @@ NETMASK=255.255.255.0
 GATEWAY=172.20.17.1
 DNS1=172.20.17.1'
   fi
-
 
 }
 

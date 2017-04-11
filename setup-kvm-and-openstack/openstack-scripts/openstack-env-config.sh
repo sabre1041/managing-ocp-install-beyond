@@ -57,6 +57,9 @@ packstack-install() {
 
 post-install-config() {
 	cmd echo "INFO: Starting function 'prepare-host'"
+	# Enable discards for lvm
+	sed -i -e 's/issue_discards = .*$/issue_discards = 1/' /etc/lvm/lvm.conf
+
 	# Enable lvm on second partition
 	pvcreate /dev/sda2
 	vgcreate cinder-volumes /dev/sda2
