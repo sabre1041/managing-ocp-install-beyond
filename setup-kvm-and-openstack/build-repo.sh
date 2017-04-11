@@ -41,8 +41,16 @@ then
   ssh-add ${SSH_KEY_FILENAME}
 fi
 
-# Fetch the base image
-cmd wget --continue -O ${REPO_BASE_IMAGE_PATH} ${REPO_BASE_IMAGE_URL}
+if [ $USE_FILESHARE == true ]
+then
+  # Fetch the base image
+  cmd wget --continue -O ${REPO_BASE_IMAGE_PATH} ${REPO_BASE_IMAGE_URL}
+else
+  if [ ! -f ${REPO_BASE_IMAGE_PATH} ]
+  then
+    echo "ERROR: images need to be pre-staged if USE_FILEESHARE is false"
+  fi
+fi
 
 # Create empty image which will be used for the virt-resize
 cmd qemu-img create -f qcow2 ${REPO_VM_IMAGE_PATH} ${REPO_VM_TOTAL_DISK_SIZE}

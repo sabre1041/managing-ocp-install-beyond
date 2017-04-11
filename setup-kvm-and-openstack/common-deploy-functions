@@ -35,13 +35,22 @@ prep_vm () {
     ssh-add ${SSH_KEY_FILENAME}
   fi
 
-  # Grab image from source URL and keep a local copy
-  echo "INFO: Downloading image to ${VM_IMAGE_STAGING_PATH}."
-  cmd wget --continue -O ${VM_IMAGE_STAGING_PATH} ${VM_IMAGE_URL}
+  if [ $USE_FILESHARE == true ]
+  then
+    # Grab image from source URL and keep a local copy
+    echo "INFO: Downloading image to ${VM_IMAGE_STAGING_PATH}."
+    cmd wget --continue -O ${VM_IMAGE_STAGING_PATH} ${VM_IMAGE_URL}
 
-  echo "INFO: Copying image to ${VM_IMAGE_PATH} to preserve original for future runs."
-  # Copy to libvirt/images but leave in local source dir to speed up future runs
-  cmd rsync -avP ${VM_IMAGE_STAGING_PATH} ${VM_IMAGE_PATH}
+    echo "INFO: Copying image to ${VM_IMAGE_PATH} to preserve original for future runs."
+    # Copy to libvirt/images but leave in local source dir to speed up future runs
+    cmd rsync -avP ${VM_IMAGE_STAGING_PATH} ${VM_IMAGE_PATH}
+  else
+    if [ ! -f ${VM_IMAGE_PATH} ]
+    then
+      echo "ERROR: images need to be pre-staged if USE_FILESHARE is false"
+      exit 1
+    fi
+  fi
 
   cmd virt-customize -a ${VM_IMAGE_PATH} \
     --hostname ${VM_TYPE}.${ADMIN_DOMAIN} \
