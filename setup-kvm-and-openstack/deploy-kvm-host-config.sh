@@ -107,8 +107,8 @@ no-negcache
 strict-order
 server=/${ADMIN_DOMAIN}/192.168.144.1
 server=/${OSP_DOMAIN}/172.20.17.100
-address=/master.${OSP_DOMAIN}/172.20.17.5
 address=/${WILDCARD_DOMAIN}/172.20.17.5
+address=/master.${OSP_DOMAIN}/172.20.17.5
 address=/rhosp.${OSP_DOMAIN}/172.20.17.10
 address=/repo.${OSP_DOMAIN}/172.20.17.15
 address=/tower.${OSP_DOMAIN}/172.20.17.20
