@@ -72,7 +72,7 @@ post-install-config() {
 	openstack-config --set /etc/nova/nova.conf libvirt disk_cachemodes 'file=writeback,block=writeback'
 	openstack-config --set /etc/nova/nova.conf libvirt hw_disk_discard unmap
 	openstack-config --set /etc/nova/nova.conf libvirt images_type lvm
-	openstack-config --set /etc/nova/nova.conf libvirt images_volume_group cinder_volumes
+	openstack-config --set /etc/nova/nova.conf libvirt images_volume_group cinder-volumes
 	openstack-config --set /etc/nova/nova.conf libvirt volume_clear none
 	openstack-config --set /etc/nova/nova.conf libvirt force_raw_images true
 	openstack-config --set /etc/nova/nova.conf libvirt use_usb_tablet false
