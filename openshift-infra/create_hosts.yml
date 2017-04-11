@@ -15,7 +15,7 @@
         disk: 10
         ram: 4096
         vcpus: 2
-      node:
+      app:
         name: ocp.node
         disk: 10
         ram: 4096
