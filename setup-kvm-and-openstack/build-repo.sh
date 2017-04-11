@@ -61,11 +61,9 @@ cmd virt-df -a ${REPO_VM_IMAGE_PATH}
 
 MIRRORED_REPOS='rhel-7-server-rpms rhel-7-server-extras-rpms rhel-7-server-ose-3.4-rpms'
 REPOS_TO_ENABLE=''
-CREATE_REPO_CMDS=''
 for repo in ${MIRRORED_REPOS}
 do
   REPOS_TO_ENABLE+="--enable ${repo} "
-  CREATE_REPO_CMDS+="--run-command createrepo --basedir /var/www/html/pub/$repo -o /var/www/html/pub/${repo} /var/www/html/pub/${repo}"
 done
 
 # Set password, set hostname, remove cloud-init, configure rhos-release, and setup networking
@@ -87,14 +85,15 @@ IPADDR='"${VM_IP[repo]}"'
 NETMASK=255.255.255.0
 GATEWAY=172.20.17.1
 DNS1=172.20.17.1' \
-  --run-command "reposync -p /var/www/html/pub -g -n -l" \
-  ${CREATE_REPO_CMDS} \
+  --run-command 'pushd /var/www/html/pub && reposync -p /var/www/html/pub -g -n -l && popd' \
+  --run-command 'pushd /var/www/html/pub/rhel-7-server-rpms && createrepo . && popd' \
+  --run-command 'pushd /var/www/html/pub/rhel-7-server-extras-rpms && createrepo . && popd' \
+  --run-command 'pushd /var/www/html/pub/rhel-7-server-ose-3.4-rpms && createrepo . && popd' \
   --sm-unregister \
   --selinux-relabel
 
 # Call deploy_vm function
 deploy_vm ${REPO_NAME}
-
 
 # TODO: Post-deploy config goes here
 
