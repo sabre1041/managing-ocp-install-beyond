@@ -13,13 +13,14 @@ SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${SSH_K
 PASSWORD=summit2017
 TIMEOUT=90
 FILESHARE_DEST_BASE=/fileshare/scripts/summit2017
+: ${FILESHARE_HOST:=10.11.169.10}
 
 declare -A VM_RAM=([rhosp]=32768 [tower]=4096 [repo]=4096)
 declare -A VM_VCPUS=([rhosp]=8 [tower]=2 [repo]=1)
 declare -A VM_IP=([rhosp]=172.20.17.10 [tower]=172.20.17.20 [repo]=172.20.17.15)
 
 # Base URL to use for fetching pre-created disk images
-VM_IMAGE_URL_BASE=http://10.11.169.10/fileshare/scripts/summit2017
+VM_IMAGE_URL_BASE=http://${FILESHARE_HOST}${FILESHARE_DEST_BASE}
 IMAGE_STAGING_DIR=/tmp
 IMAGE_LOCAL_DIR=/var/lib/libvirt/images
 
@@ -31,7 +32,7 @@ OSP_VM_HOSTNAME=${OSP_NAME}.${ADMIN_DOMAIN}
 OSP_VM_TOTAL_DISK_SIZE=100G
 OSP_VM_ROOT_DISK_SIZE=30G
 OSP_BASE_IMAGE_NAME=rhel-guest-image-7.3-35.x86_64.qcow2
-OSP_BASE_IMAGE_URL=http://10.11.169.10/fileshare/images/${OSP_BASE_IMAGE_NAME}
+OSP_BASE_IMAGE_URL=http://${FILESHARE_HOST}/fileshare/images/${OSP_BASE_IMAGE_NAME}
 OSP_BASE_IMAGE_PATH=${IMAGE_STAGING_DIR}/${OSP_BASE_IMAGE_NAME}
 
 # Load common functions
