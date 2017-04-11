@@ -85,9 +85,11 @@ IPADDR='"${VM_IP[repo]}"'
 NETMASK=255.255.255.0
 GATEWAY=172.20.17.1
 DNS1=172.20.17.1' \
-  --run-command 'pushd /var/www/html/pub && reposync -p /var/www/html/pub -g -n -l && popd' \
+  --run-command 'reposync -p /var/www/html/pub -r rhel-7-server-rpms' \
   --run-command 'pushd /var/www/html/pub/rhel-7-server-rpms && createrepo . && popd' \
+  --run-command 'reposync -p /var/www/html/pub -r rhel-7-server-extras-rpms' \
   --run-command 'pushd /var/www/html/pub/rhel-7-server-extras-rpms && createrepo . && popd' \
+  --run-command 'reposync -p /var/www/html/pub -r rhel-7-server-ose-3.4-rpms' \
   --run-command 'pushd /var/www/html/pub/rhel-7-server-ose-3.4-rpms && createrepo . && popd' \
   --sm-unregister \
   --selinux-relabel
