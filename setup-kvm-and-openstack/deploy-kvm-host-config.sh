@@ -3,7 +3,7 @@
 source group_vars_all
 
 # Run environment-specific commands
-source prep-host-env-config.sh
+#source prep-host-env-config.sh
 
 # Install required rpms
 cmd yum -y install libvirt qemu-kvm virt-manager virt-install libguestfs-tools xorg-x11-apps xauth virt-viewer libguestfs-xfs dejavu-sans-fonts nfs-utils vim-enhanced rsync nmap bash-completion numad numactl systat iostat
