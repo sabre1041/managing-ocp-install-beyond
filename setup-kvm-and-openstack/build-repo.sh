@@ -76,7 +76,8 @@ cmd virt-customize -a ${REPO_VM_IMAGE_PATH} \
   --sm-register \
   --sm-attach pool:${RHSM_POOL} \
   --run-command "yum-config-manager --disable \* ${REPOS_TO_ENABLE}" \
-  --install yum-utils,createrepo \
+  --install yum-utils,createrepo,httpd \
+  --run-command "systemctl enable httpd && systemd start httpd" \
   --write /etc/sysconfig/network-scripts/ifcfg-eth1:'DEVICE=eth1
 BOOTPROTO=static
 ONBOOT=yes
