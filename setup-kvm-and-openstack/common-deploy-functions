@@ -64,6 +64,7 @@ prep_vm () {
     --root-password password:${PASSWORD} \
     --ssh-inject root:file:${SSH_KEY_FILENAME}.pub \
     --edit /etc/lvm/lvm.conf:'s/issue_discards = .*/issue_discards = 1/' \
+    --mkdir /etc/tuned/${LAB_NAME} \
     --write "/etc/tuned/${LAB_NAME}/tuned.conf:'${TUNED_CONFIG}'" \
     --run-command "tuned-adm profile ${LAB_NAME}" \
     ${VM_INTERFACE_CONFIG} \
