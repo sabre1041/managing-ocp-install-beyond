@@ -50,7 +50,7 @@
       vcpus: "{{ item.value.vcpus }}"
       cloud: admin
       state: present
-  - with_dict: "{{ osp_flavors }}"
+    with_dict: "{{ osp_flavors }}"
 
   - os_keypair:
       name: tower
