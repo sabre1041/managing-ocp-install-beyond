@@ -86,6 +86,7 @@ cmd virt-customize -a ${REPO_VM_IMAGE_PATH} \
   --run-command "yum-config-manager --disable \* ${REPOS_TO_ENABLE}" \
   --install yum-utils,createrepo,httpd \
   --run-command "systemctl enable httpd && systemctl start httpd" \
+  --run-command 'yum remove cloud-init* -y' \
   --write /etc/sysconfig/network-scripts/ifcfg-eth1:'DEVICE=eth1
 BOOTPROTO=static
 ONBOOT=yes
