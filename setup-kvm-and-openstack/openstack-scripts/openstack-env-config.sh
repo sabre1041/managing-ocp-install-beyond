@@ -47,9 +47,10 @@ prep() {
   fi
 
   # Enable lvm on second partition
-  pvcreate /dev/sda2
-  vgcreate cinder-volumes /dev/sda2
-  vgchange -ay
+  cmd yum install lvm2
+  cmd pvcreate /dev/sda2
+  cmd vgcreate cinder-volumes /dev/sda2
+  cmd vgchange -ay
 }
 
 packstack-install() {
@@ -63,7 +64,7 @@ packstack-install() {
 post-install-config() {
 	cmd echo "INFO: Starting function 'prepare-host'"
 	# Enable discards for lvm
-	sed -i -e 's/issue_discards = .*$/issue_discards = 1/' /etc/lvm/lvm.conf
+	cmd sed -i -e 's/issue_discards = .*$/issue_discards = 1/' /etc/lvm/lvm.conf
 
 	openstack-config --set /etc/nova/nova.conf DEFAULT scheduler_default_filters RetryFilter,AvailabilityZoneFilter,RamFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,CoreFilter
 	openstack-config --set /etc/nova/nova.conf libvirt virt_type kvm
@@ -83,7 +84,7 @@ post-install-config() {
 	then
 		openstack-config --set /etc/neutron/dhcp_agent.ini DEFAULT enable_isolated_metadata true
 	fi
-	openstack-service restart
+	cmd openstack-service restart
 }
 
 post-install-admin-tasks() {
@@ -352,7 +353,7 @@ verify-networking() {
 cleanup () {
   source /root/keystonerc_${USERNAME}
   cmd openstack server delete cirros-test
-  #cmd openstack server delete rhel-test
+  cmd openstack server delete rhel-test
 }
 
 # Main
