@@ -52,20 +52,49 @@ else
   fi
 fi
 
-# Create empty image which will be used for the virt-resize
-cmd qemu-img create -f qcow2 ${REPO_VM_IMAGE_PATH} ${REPO_VM_TOTAL_DISK_SIZE}
+if [ $REFRESH_BUILD == false ]
+then
+  # Create empty image which will be used for the virt-resize
+  cmd qemu-img create -f qcow2 ${REPO_VM_IMAGE_PATH} ${REPO_VM_TOTAL_DISK_SIZE}
 
-# List partition on rhel-guest-image
-cmd virt-filesystems --partitions -h --long -a ${REPO_BASE_IMAGE_PATH}
+  # List partition on rhel-guest-image
+  cmd virt-filesystems --partitions -h --long -a ${REPO_BASE_IMAGE_PATH}
 
-# Resize rhel-guest-image sda1 to ${REPO_VM_ROOT_DISK_SIZE} into the created qcow. The remaining space will become sda2
-cmd virt-resize --expand /dev/sda1 ${REPO_BASE_IMAGE_PATH} ${REPO_VM_IMAGE_PATH}
+  # Resize rhel-guest-image sda1 to ${REPO_VM_ROOT_DISK_SIZE} into the created qcow. The remaining space will become sda2
+  cmd virt-resize --expand /dev/sda1 ${REPO_BASE_IMAGE_PATH} ${REPO_VM_IMAGE_PATH}
 
-# List partitions on new image
-cmd virt-filesystems --partitions -h --long -a ${REPO_VM_IMAGE_PATH}
+  # List partitions on new image
+  cmd virt-filesystems --partitions -h --long -a ${REPO_VM_IMAGE_PATH}
 
-# Show disk space on new image
-cmd virt-df -a ${REPO_VM_IMAGE_PATH}
+  # Show disk space on new image
+  cmd virt-df -a ${REPO_VM_IMAGE_PATH}
+else
+  # Shutdown the VM
+  cmd virsh destroy ${REPO_VM_NAME}
+
+  SHUTDOWN_TIMEOUT=${TIMEOUT}
+  echo -n "Waiting for ${REPO_VM_NAME} VM to shutdown"
+  counter=0
+  VM_DESTROYED=""
+  while :
+  do
+    VM_DESTROYED=$(virsh list --all | grep "${REPO_VM_NAME}")
+    if echo ${VM_DESTROYED} | grep -qi "shut off"
+    then
+      break
+    fi
+    if [ "$counter" -gt "$SHUTDOWN_TIMEOUT" ]
+    then
+      echo ""
+      echo ERROR: something went wrong - check console
+      exit 1
+    fi
+    counter=$(( $counter + 1 ))
+    echo -n "."
+    sleep 1
+  done
+  echo ""
+fi
 
 MIRRORED_REPOS='rhel-7-server-rpms rhel-7-server-extras-rpms rhel-7-server-ose-3.4-rpms'
 REPOS_TO_ENABLE=''
