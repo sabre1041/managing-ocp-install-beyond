@@ -72,7 +72,7 @@ done
 cmd virt-customize -a ${REPO_VM_IMAGE_PATH} \
   --hostname ${REPO_VM_HOSTNAME} \
   --root-password password:${PASSWORD} \
-  --sm-credentials ${RHSM_USER}:password${RHSM_PASSWORD} \
+  --sm-credentials ${RHSM_USER}:password:${RHSM_PASSWORD} \
   --sm-register \
   --sm-attach pool:${RHSM_POOL} \
   --run-command "yum-config-manager --disable='*' ${REPOS_TO_ENABLE}" \
