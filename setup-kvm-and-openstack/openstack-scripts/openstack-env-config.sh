@@ -45,6 +45,11 @@ prep() {
   then
     echo "WARN: CPU Virt extensions not loaded, try rebooting to enable."
   fi
+
+  # Enable lvm on second partition
+  pvcreate /dev/sda2
+  vgcreate cinder-volumes /dev/sda2
+  vgchange -ay
 }
 
 packstack-install() {
@@ -60,10 +65,6 @@ post-install-config() {
 	# Enable discards for lvm
 	sed -i -e 's/issue_discards = .*$/issue_discards = 1/' /etc/lvm/lvm.conf
 
-	# Enable lvm on second partition
-	pvcreate /dev/sda2
-	vgcreate cinder-volumes /dev/sda2
-	vgchange -ay
 	openstack-config --set /etc/nova/nova.conf DEFAULT scheduler_default_filters RetryFilter,AvailabilityZoneFilter,RamFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,CoreFilter
 	openstack-config --set /etc/nova/nova.conf libvirt virt_type kvm
 	openstack-config --set /etc/nova/nova.conf libvirt cpu_mode host-passthrough
