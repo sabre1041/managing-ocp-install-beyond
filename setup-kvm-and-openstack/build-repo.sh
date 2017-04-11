@@ -2,22 +2,25 @@
 
 source group_vars_all
 
-if [ ! -z "${RSHM_USER}" ]
+if [ -n "${USE_RHSM}" ]
 then
-  echo "ERROR: ${RHSM_USER} not present in env."
-  exit 1
-fi
+  if [ ! -z "${RSHM_USER}" ]
+  then
+    echo "ERROR: ${RHSM_USER} not present in env."
+    exit 1
+  fi
 
-if [ ! -z "${RSHM_PASSWORD}" ]
-then
-  echo "ERROR: ${RHSM_PASSWORD} not present in env."
-  exit 1
-fi
+  if [ ! -z "${RSHM_PASSWORD}" ]
+  then
+    echo "ERROR: ${RHSM_PASSWORD} not present in env."
+    exit 1
+  fi
 
-if [ ! -z "${RSHM_POOL}" ]
-then
-  echo "ERROR: ${RHSM_POOL} not present in env."
-  exit 1
+  if [ ! -z "${RSHM_POOL}" ]
+  then
+    echo "ERROR: ${RHSM_POOL} not present in env."
+    exit 1
+  fi
 fi
 
 # Check for SSH keys
