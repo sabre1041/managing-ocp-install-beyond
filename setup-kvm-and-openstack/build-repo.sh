@@ -65,22 +65,20 @@ CREATE_REPO_CMDS=''
 for repo in ${MIRRORED_REPOS}
 do
   REPOS_TO_ENABLE+="--enable ${repo} "
-  CREATE_REPO_CMDS+="--run-command 'pushd /var/www/html/pub/${repo}; createrepo .; popd' "
+  CREATE_REPO_CMDS+="--run-command createrepo --basedir /var/www/html/pub/$repo -o /var/www/html/pub/${repo} /var/www/html/pub/${repo}"
 done
 
 # Set password, set hostname, remove cloud-init, configure rhos-release, and setup networking
 cmd virt-customize -a ${REPO_VM_IMAGE_PATH} \
   --hostname ${REPO_VM_HOSTNAME} \
   --root-password password:${PASSWORD} \
+  --ssh-inject root:file:${SSH_KEY_FILENAME}.pub \
+  --mkdir /var/www/html/pub \
   --sm-credentials ${RHSM_USER}:password:${RHSM_PASSWORD} \
   --sm-register \
   --sm-attach pool:${RHSM_POOL} \
-  --run-command "yum-config-manager --disable='*' ${REPOS_TO_ENABLE}" \
-  --install "yum-utils createrepo" \
-  --mkdir /var/www/html/pub \
-  --run-command "reposync -p /var/www/html/pub -g -n -l" \
-  ${CREATE_REPO_CMDS} \
-  --ssh-inject root:file:${SSH_KEY_FILENAME}.pub \
+  --run-command "yum-config-manager --disable \* ${REPOS_TO_ENABLE}" \
+  --install yum-utils,createrepo \
   --write /etc/sysconfig/network-scripts/ifcfg-eth1:'DEVICE=eth1
 BOOTPROTO=static
 ONBOOT=yes
@@ -89,6 +87,8 @@ IPADDR='"${VM_IP[repo]}"'
 NETMASK=255.255.255.0
 GATEWAY=172.20.17.1
 DNS1=172.20.17.1' \
+  --run-command "reposync -p /var/www/html/pub -g -n -l" \
+  ${CREATE_REPO_CMDS} \
   --sm-unregister \
   --selinux-relabel
 
