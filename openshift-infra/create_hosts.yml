@@ -1,0 +1,114 @@
+---
+- name: Create OpenShift Hosts
+  hosts: localhost
+  gather_facts: no
+  tasks:
+  - os_nova_flavor:
+      name: ocp.master
+      cloud: admin
+      disk: 10
+      ram: 4096
+      vcpus: 2
+      state: present
+  - os_nova_flavor:
+      name: ocp.node
+      cloud: admin
+      disk: 10
+      ram: 4096
+      vcpus: 2
+      state: present
+  - os_keypair:
+      name: tower
+      cloud: devstack
+      state: present
+      public_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCnmKhoNRc6aH7bL/kCif8yCWJkPDBdFvMr6Ik/5YbZInPGi+kXsJCR7i5Ck1rBDcp4KlBB1GHBg8J5C4eXbkbJcSC8OawUcBtF1QdprEgcmjqVip8CwaS9+s8g8IhQKC0rKMVuxM0/Tp236hF37r0mpauCoCn8zj1js8ob1ea3oZuMFUHLBUE+9EfcGpV0nj5i0+igmICd7fiwNoRw0buhw9LOLcwt4q3Blk81HtWMk9QTgpWA/3UIkDm3Jq30U+oFeIY0wzUBx5F7b9OZGILbYYwiH7W15OkcbyF6rR28LrUHozWiZL9/9f1iSJpgzuj3UmiAK17nqvgwe5KRTezx tower@tower
+  - os_object:
+      container: openshift_registry
+      cloud: devstack
+      state: present
+  - os_server:
+      name: "{{ item }}"
+      cloud: devstack
+      state: present
+      image: rhel-guest-image-7.3
+      volume_size: 10
+      boot_from_volume: yes
+      terminate_volume: yes
+      flavor: ocp.master
+      key_name: tower
+      userdata: "{{ lookup('template', 'user_data.j2') }}"
+      nics:
+      - port-name: openshift-master
+      meta:
+        masters: 'true'
+        etcd: 'true'
+        nodes: 'true'
+        osev3: 'true'
+        node_type: 'master'
+    with_items:
+    - master.osp.example.com
+    register: master_create
+
+  - name: Wait for ssh
+    wait_for:
+      port: 22
+      host: "{{ item.server.accessIPv4 }}"
+      timeout: 600
+    with_items:
+    - "{{ master_create.results }}"
+
+  - os_server:
+      name: "{{ item }}"
+      cloud: devstack
+      state: present
+      image: rhel-guest-image-7.3
+      volume_size: 10
+      boot_from_volume: yes
+      terminate_volume: yes
+      flavor: ocp.node
+      key_name: tower
+      userdata: "{{ lookup('template', 'user_data.j2') }}"
+      nics:
+      - port-name: openshift-infra
+      meta:
+        nodes: 'true'
+        osev3: 'true'
+        node_type: 'infra'
+    with_items:
+    - node1.osp.example.com
+    register: infra_node_create
+
+  - name: Wait for ssh
+    wait_for:
+      port: 22
+      host: "{{ item.server.accessIPv4 }}"
+      timeout: 600
+    with_items:
+    - "{{ infra_node_create.results }}"
+
+  - os_server:
+      name: "{{ item }}"
+      cloud: devstack
+      state: present
+      image: rhel-guest-image-7.3
+      volume_size: 10
+      boot_from_volume: yes
+      terminate_volume: yes
+      flavor: ocp.node
+      key_name: tower
+      userdata: "{{ lookup('template', 'user_data.j2') }}"
+      meta:
+        nodes: 'true'
+        osev3: 'true'
+        node_type: 'app'
+    with_items:
+    - node1.osp.example.com
+    register: app_node_create
+
+  - name: Wait for ssh
+    wait_for:
+      port: 22
+      host: "{{ item.server.accessIPv4 }}"
+      timeout: 600
+    with_items:
+    - "{{ app_node_create.results }}"

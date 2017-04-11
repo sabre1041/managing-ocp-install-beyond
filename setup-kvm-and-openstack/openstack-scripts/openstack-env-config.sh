@@ -118,6 +118,7 @@ post-install-admin-tasks() {
 
   #Create port for openshift master
   cmd neutron port-create external --name openshift-master --tenant-id ${TENANT_ID} --allowed-address-pairs type=dict list=true ip_address=172.20.17.5 --fixed-ip subnet_id=${EXTERNAL_SUBNET_ID},ip_address=172.20.17.5
+  cmd neutron port-create external --name openshift-infra --tenant-id ${TENANT_ID} --allowed-address-pairs type=dict list=true ip_address=172.20.17.6 --fixed-ip subnet_id=${EXTERNAL_SUBNET_ID},ip_address=172.20.17.6
 
 	# User keystonerc file
 cat > /root/keystonerc_${USERNAME} << EOF
