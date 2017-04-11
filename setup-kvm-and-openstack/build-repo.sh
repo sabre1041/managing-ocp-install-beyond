@@ -65,7 +65,7 @@ CREATE_REPO_CMDS=''
 for repo in ${MIRRORED_REPOS}
 do
   REPOS_TO_ENABLE+="--enable ${repo} "
-  CREATE_REPO_CMDS+="--run-command pushd /var/www/html/pub/${repo}; createrepo .; popd "
+  CREATE_REPO_CMDS+="--run-command 'pushd /var/www/html/pub/${repo}; createrepo .; popd' "
 done
 
 # Set password, set hostname, remove cloud-init, configure rhos-release, and setup networking
