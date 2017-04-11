@@ -51,7 +51,7 @@ cmd qemu-img create -f qcow2 ${REPO_VM_IMAGE_PATH} ${REPO_VM_TOTAL_DISK_SIZE}
 cmd virt-filesystems --partitions -h --long -a ${REPO_BASE_IMAGE_PATH}
 
 # Resize rhel-guest-image sda1 to ${REPO_VM_ROOT_DISK_SIZE} into the created qcow. The remaining space will become sda2
-cmd virt-resize --resize /dev/sda1=${REPO_VM_ROOT_DISK_SIZE} ${REPO_BASE_IMAGE_PATH} ${REPO_VM_IMAGE_PATH}
+cmd virt-resize --expand /dev/sda1 ${REPO_BASE_IMAGE_PATH} ${REPO_VM_IMAGE_PATH}
 
 # List partitions on new image
 cmd virt-filesystems --partitions -h --long -a ${REPO_VM_IMAGE_PATH}
