@@ -57,7 +57,8 @@ PEERDNS=no
 IPADDR='"${VM_IP[rhosp]}"'
 NETMASK=255.255.255.0
 GATEWAY=172.20.17.1
-DNS1=172.20.17.1' \
+DNS1=172.20.17.1
+' \
   --selinux-relabel
 
 # Call deploy_vm function

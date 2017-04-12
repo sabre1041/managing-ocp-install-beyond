@@ -126,7 +126,8 @@ PEERDNS=no
 IPADDR='"${VM_IP[repo]}"'
 NETMASK=255.255.255.0
 GATEWAY=172.20.17.1
-DNS1=172.20.17.1' \
+DNS1=172.20.17.1
+' \
   --run-command 'reposync -p /var/www/html/pub -r rhel-7-server-rpms' \
   --run-command 'pushd /var/www/html/pub/rhel-7-server-rpms && createrepo . && popd' \
   --run-command 'reposync -p /var/www/html/pub -r rhel-7-server-extras-rpms' \
