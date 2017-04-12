@@ -12,3 +12,10 @@ docker pull registry.access.redhat.com/openshift3/ose-haproxy-router:v3.4.1.2
 docker pull registry.access.redhat.com/openshift3/ose-deployer:v3.4.1.2
 docker pull registry.access.redhat.com/openshift3/ose-docker-registry:v3.4.1.2
 docker pull registry.access.redhat.com/openshift3/metrics-heapster:3.4.0
+
+docker pull registry.access.redhat.com/rhscl/php-56-rhel7:5.6
+docker pull registry.access.redhat.com/rhscl/mysql-56-rhel7:5.6
+
+docker pull registry.access.redhat.com/cloudforms/cfme-openshift-memcached:latest
+docker pull registry.access.redhat.com/cloudforms/cfme-openshift-app:latest
+docker pull registry.access.redhat.com/cloudforms/cfme-openshift-postgresql:latest
