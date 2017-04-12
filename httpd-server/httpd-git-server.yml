@@ -1,0 +1,83 @@
+---
+- name: Create HTTPD Git Server and Populate with OCP Examples
+  hosts: instructor
+  vars:
+    git_repo_home: "/opt/git"
+    ocp_git_repo_home: "{{ git_repo_home }}/openshift"
+    ocp_resources_dirs:
+     - "/var/www/html/ocp/templates"
+    git_user: "git"
+    ocp_example_repos:
+     - "https://github.com/openshift/cakephp-ex.git"
+    docker_registry_host: "172.20.17.15:5000"
+  handlers:
+    - name: restart httpd
+      service:
+        name: httpd
+        state: restarted
+  tasks:
+    - name: Install Packages
+      action: "{{ ansible_pkg_mgr }} name={{ item }} state=present"
+      with_items:
+        - git
+        - httpd
+        - firewalld
+        - libsemanage-python
+    - name: Create Git User
+      user: name="{{ git_user }}"
+    - name: Create OCP Git Repository Content Home
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ git_user }}"
+        group: "{{ git_user }}"
+      with_items:
+        - "{{ git_repo_home }}"
+        - "{{ ocp_git_repo_home }}"
+    - name: Clone OCP Examples
+      git:
+        repo: "{{ item }}"
+        bare: yes
+        dest: "{{ ocp_git_repo_home }}/{{ item | basename }}"
+      with_items:
+        - "{{ ocp_example_repos }}"
+      tags: test
+      become: yes
+      become_user: "{{ git_user }}"
+    - name: Configure Git HTTP Configuration
+      template:
+        src: "git.conf.j2"
+        dest: "/etc/httpd/conf.d/git.conf"
+        owner: root
+        group: root
+      notify: restart httpd
+    - name: Create OCP Resources Directories
+      file:
+        path: "{{ item }}"
+        state: directory
+      with_items: "{{ ocp_resources_dirs }}"
+    - name: Configure CFME Template
+      template:
+        src: "cfme-template.yaml.j2"
+        dest: "/var/www/html/ocp/templates/cfme-template.yaml"
+        owner: root
+        group: root
+    - name: Enable Services
+      service: name={{ item }} enabled=yes state=started   
+      with_items:
+        - firewalld
+        - httpd
+    - name: HTTPD SELinux Configurations
+      seboolean: 
+        name: httpd_can_network_connect
+        state: yes
+        persistent: yes
+    - name: Open Firewall for HTTPD
+      firewalld: 
+        port: 80/tcp
+        permanent: yes
+        state: enabled
+        immediate: yes
+        zone: public
+    
+    
