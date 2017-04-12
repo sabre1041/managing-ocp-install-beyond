@@ -45,6 +45,12 @@ prep() {
   then
     echo "WARN: CPU Virt extensions not loaded, try rebooting to enable."
   fi
+
+  # Enable lvm on second partition
+  cmd yum install lvm2
+  cmd pvcreate /dev/sda2
+  cmd vgcreate cinder-volumes /dev/sda2
+  cmd vgchange -ay
 }
 
 packstack-install() {
@@ -57,27 +63,23 @@ packstack-install() {
 
 post-install-config() {
 	cmd echo "INFO: Starting function 'prepare-host'"
-	# Remove cinder loopback device and enable lvm on second partition
-	CINDER_LODEVICE=$(losetup -l | awk '/cinder-volumes/ { print $1 }')
-	losetup -d ${CINDER_LODEVICE}
-  rm -f /var/lib/cinder/cinder-volumes
-	pvcreate /dev/sda2
-	vgcreate cinder-volumes /dev/sda2
-	vgchange -ay
-	systemctl disable openstack-losetup.service
-	systemctl stop openstack-losetup.service
-  	openstack-config --set /etc/nova/nova.conf libvirt virt_type kvm
+	# Enable discards for lvm
+	cmd sed -i -e 's/issue_discards = .*$/issue_discards = 1/' /etc/lvm/lvm.conf
+
 	openstack-config --set /etc/nova/nova.conf DEFAULT scheduler_default_filters RetryFilter,AvailabilityZoneFilter,RamFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,CoreFilter
-	openstack-config --set /etc/cinder/cinder.conf lvm lvm_type thin
+	openstack-config --set /etc/nova/nova.conf libvirt virt_type kvm
+	openstack-config --set /etc/nova/nova.conf libvirt cpu_mode host-passthrough
+	openstack-config --set /etc/nova/nova.conf libvirt hw_disk_discard unmap
+	openstack-config --set /etc/nova/nova.conf libvirt use_usb_tablet false
+	openstack-config --set /etc/nova/nova.conf vnc enabled false
 	openstack-config --set /etc/cinder/cinder.conf lvm volume_clear none
-	openstack-config --set /etc/cinder/cinder.conf lvm image_volume_cache_enabled True
 	openstack-config --set /etc/nova/nova.conf DEFAULT block_device_allocate_retries 120
 	openstack-config --set /etc/nova/nova.conf DEFAULT block_device_allocate_retries_interval 10
 	if "${EXTERNAL_ONLY}" == "true"
 	then
 		openstack-config --set /etc/neutron/dhcp_agent.ini DEFAULT enable_isolated_metadata true
 	fi
-	openstack-service restart
+	cmd openstack-service restart
 }
 
 post-install-admin-tasks() {
@@ -116,6 +118,10 @@ post-install-admin-tasks() {
 
   #Create port for openshift master
   cmd neutron port-create external --name openshift-master --tenant-id ${TENANT_ID} --allowed-address-pairs type=dict list=true ip_address=172.20.17.5 --fixed-ip subnet_id=${EXTERNAL_SUBNET_ID},ip_address=172.20.17.5
+  cmd neutron port-create external --name openshift-infra --tenant-id ${TENANT_ID} --allowed-address-pairs type=dict list=true ip_address=172.20.17.6 --fixed-ip subnet_id=${EXTERNAL_SUBNET_ID},ip_address=172.20.17.6
+  cmd neutron port-create external --name openshift-node1 --tenant-id ${TENANT_ID} --allowed-address-pairs type=dict list=true ip_address=172.20.17.51 --fixed-ip subnet_id=${EXTERNAL_SUBNET_ID},ip_address=172.20.17.51
+  cmd neutron port-create external --name openshift-node2 --tenant-id ${TENANT_ID} --allowed-address-pairs type=dict list=true ip_address=172.20.17.52 --fixed-ip subnet_id=${EXTERNAL_SUBNET_ID},ip_address=172.20.17.52
+  cmd neutron port-create external --name openshift-node3 --tenant-id ${TENANT_ID} --allowed-address-pairs type=dict list=true ip_address=172.20.17.53 --fixed-ip subnet_id=${EXTERNAL_SUBNET_ID},ip_address=172.20.17.53
 
 	# User keystonerc file
 cat > /root/keystonerc_${USERNAME} << EOF
@@ -200,6 +206,9 @@ create-images() {
 			 ${IMAGE_IS_PUBLIC_OPTION} \
 			 --disk-format qcow2 \
 			 --container-format bare \
+			 --property hw_scsi_model=virtio-scsi \
+			 --property hw_disk_bus=scsi \
+			 --min-disk 10 \
 			 --progress \
 			 --file /tmp/${RHEL_IMAGE_NAME}.qcow2
 	fi
@@ -343,7 +352,7 @@ verify-networking() {
 cleanup () {
   source /root/keystonerc_${USERNAME}
   cmd openstack server delete cirros-test
-  #cmd openstack server delete rhel-test
+  cmd openstack server delete rhel-test
 }
 
 # Main

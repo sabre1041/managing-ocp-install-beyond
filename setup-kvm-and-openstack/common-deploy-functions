@@ -35,27 +35,46 @@ prep_vm () {
     ssh-add ${SSH_KEY_FILENAME}
   fi
 
-  # Grab image from source URL and keep a local copy
-  echo "INFO: Downloading image to ${VM_IMAGE_STAGING_PATH}."
-  cmd wget --continue -O ${VM_IMAGE_STAGING_PATH} ${VM_IMAGE_URL}
-
-  echo "INFO: Copying image to ${VM_IMAGE_PATH} to preserve original for future runs."
-  # Copy to libvirt/images but leave in local source dir to speed up future runs
-  cmd rsync -avP ${VM_IMAGE_STAGING_PATH} ${VM_IMAGE_PATH}
-
-  # Customize image
-  if [ "${VM_TYPE}" == "rhosp" ]
+  if [ $USE_FILESHARE == true ]
   then
-    cmd virt-customize -a ${VM_IMAGE_PATH} \
-    --ssh-inject root:file:${SSH_KEY_FILENAME}.pub \
-    --selinux-relabel
+    # Grab image from source URL and keep a local copy
+    echo "INFO: Downloading image to ${VM_IMAGE_STAGING_PATH}."
+    cmd wget --continue -O ${VM_IMAGE_STAGING_PATH} ${VM_IMAGE_URL}
+
+    echo "INFO: Copying image to ${VM_IMAGE_PATH} to preserve original for future runs."
+    # Copy to libvirt/images but leave in local source dir to speed up future runs
+    cmd rsync -avP ${VM_IMAGE_STAGING_PATH} ${VM_IMAGE_PATH}
   else
-    cmd virt-customize -a ${VM_IMAGE_PATH} \
+    if [ ! -f ${VM_IMAGE_PATH} ]
+    then
+      echo "ERROR: images need to be pre-staged if USE_FILESHARE is false"
+      exit 1
+    fi
+  fi
+
+  cmd virt-customize -a ${VM_IMAGE_PATH} \
     --hostname ${VM_TYPE}.${ADMIN_DOMAIN} \
     --root-password password:${PASSWORD} \
     --ssh-inject root:file:${SSH_KEY_FILENAME}.pub \
-    --selinux-relabel \
+    --mkdir /etc/tuned/${LAB_NAME} \
+    --write /etc/tuned/${LAB_NAME}/tuned.conf:'[main]
+include=virtual-guest
+[disk]
+elevator=noop' \
+    --run-command "tuned-adm profile ${LAB_NAME}" \
     --write /etc/sysconfig/network-scripts/ifcfg-eth0:'DEVICE=eth0
+BOOTPROTO=dhcp
+ONBOOT=yes
+TYPE=Ethernet
+PEERDNS=yes
+PERSISTENT_DHCLIENT=1
+' \
+    --selinux-relabel
+
+  if [ "${VM_TYPE}" != "rhosp" ]
+  then
+    cmd virt-customize -a ${VM_IMAGE_PATH} \
+      --write /etc/sysconfig/network-scripts/ifcfg-eth1:'DEVICE=eth1
 BOOTPROTO=static
 ONBOOT=yes
 PEERDNS=no
@@ -63,9 +82,9 @@ IPADDR='"${VM_IP[$VM_TYPE]}"'
 NETMASK=255.255.255.0
 GATEWAY=172.20.17.1
 DNS1=172.20.17.1
-' \
-    --selinux-relabel
+'
   fi
+
 }
 
 deploy_vm() {
@@ -75,21 +94,15 @@ deploy_vm() {
   VM_IMAGE_NAME=${VM_NAME}.qcow2
   VM_IMAGE_PATH=${IMAGE_LOCAL_DIR}/${VM_IMAGE_NAME}
   VM_IMAGE_URL=${VM_IMAGE_URL_BASE}/${VM_NAME}/${VM_IMAGE_NAME}
-  if [ "${VM_TYPE}" == "rhosp" ]
-  then
-    VM_NETWORKS="--network network:${LAB_NAME}-admin --network network:${LAB_NAME}-rhosp"
-  else
-    VM_NETWORKS="--network network:${LAB_NAME}-rhosp"
-  fi
 
   # Bring up VM
   cmd virt-install --ram ${VM_RAM[$VM_TYPE]} --vcpus ${VM_VCPUS[$VM_TYPE]} \
-    --os-variant rhel7 --cpuset=auto --graphics none \
-    --cpu host,+vmx \
-    --controller type=scsi,model=virtio-scsi \
-    --disk path=${VM_IMAGE_PATH},bus=scsi,discard=unmap \
+    --os-variant rhel7 --cpuset=auto --graphics none --cpu host-passthrough \
+    --cpuset=auto --controller type=scsi,model=virtio-scsi \
+    --disk path=${VM_IMAGE_PATH},bus=scsi,discard=unmap,cache=writeback \
     --import --noautoconsole \
-    ${VM_NETWORKS} \
+    --network network:${LAB_NAME}-admin \
+    --network network:${LAB_NAME}-rhosp \
     --name ${VM_NAME}
 
   echo -n "Waiting for ${VM_NAME} VM to come online at ${VM_IP[$VM_TYPE]}"

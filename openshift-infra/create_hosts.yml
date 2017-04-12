@@ -1,0 +1,110 @@
+---
+- name: Create OpenShift Hosts
+  hosts: localhost
+  gather_facts: no
+  vars:
+    osp_domain_name: osp.example.com
+    osp_flavors:
+      master:
+        name: ocp.master
+        disk: 10
+        ram: 4096
+        vcpus: 2
+      infra:
+        name: ocp.infra
+        disk: 10
+        ram: 4096
+        vcpus: 2
+      app:
+        name: ocp.node
+        disk: 10
+        ram: 4096
+        vcpus: 2
+    osp_instances:
+    - type: master
+      name: master
+      meta:
+        masters: 'true'
+        etcd: 'true'
+        nodes: 'true'
+        osev3: 'true'
+        node_type: master
+    - type: infra
+      name: infra
+      meta:
+        nodes: 'true'
+        osev3: 'true'
+        node_type: infra
+    - type: app
+      name: node1
+      meta:
+        nodes: 'true'
+        osev3: 'true'
+        node_type: app
+
+  tasks:
+  - os_nova_flavor:
+      name: "{{ item.value.name }}"
+      disk: "{{ item.value.disk }}"
+      ram: "{{ item.value.ram }}"
+      vcpus: "{{ item.value.vcpus }}"
+      cloud: admin
+      state: present
+    with_dict: "{{ osp_flavors }}"
+
+  - os_keypair:
+      name: tower
+      cloud: devstack
+      state: present
+      public_key: "{{ lookup('file', 'tower_host.pub') }}"
+
+  - os_object:
+      container: openshift_registry
+      cloud: devstack
+      state: present
+
+  - os_security_group:
+      cloud: devstack
+      state: present
+      name: openshift
+      description: security group for openshift hosts
+
+  - os_security_group_rule:
+      cloud: devstack
+      state: present
+      security_group: openshift
+      protocol: "{{ item }}"
+      remote_ip_prefix: 0.0.0.0/0
+    with_items:
+    - tcp
+    - udp
+    - icmp
+
+  - os_server:
+      name: "{{ item.name }}.{{ osp_domain_name }}"
+      cloud: devstack
+      state: present
+      image: rhel-guest-image-7.3
+      volume_size: "{{ osp_flavors[item.type].disk }}"
+      boot_from_volume: yes
+      terminate_volume: yes
+      flavor: "{{ osp_flavors[item.type].name }}"
+      key_name: tower
+      userdata: "{{ lookup('template', 'user_data.j2') }}"
+      security_groups:
+      - default
+      - openshift
+      nics:
+      - port-name: "openshift-{{ item.name }}"
+      meta: "{{ item.meta}}"
+    with_items:
+    - "{{ osp_instances }}"
+    register: instance_create
+
+  - name: Wait for ssh
+    wait_for:
+      port: 22
+      host: "{{ item.server.accessIPv4 }}"
+      timeout: 600
+    with_items:
+    - "{{ instance_create.results }}"

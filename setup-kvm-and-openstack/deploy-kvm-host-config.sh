@@ -3,10 +3,10 @@
 source group_vars_all
 
 # Run environment-specific commands
-source prep-host-env-config.sh
+#source prep-host-env-config.sh
 
 # Install required rpms
-cmd yum -y install libvirt qemu-kvm virt-manager virt-install libguestfs-tools xorg-x11-apps xauth virt-viewer libguestfs-xfs dejavu-sans-fonts nfs-utils vim-enhanced rsync nmap bash-completion numad
+cmd yum -y install libvirt qemu-kvm virt-manager virt-install libguestfs-tools xorg-x11-apps xauth virt-viewer libguestfs-xfs dejavu-sans-fonts nfs-utils vim-enhanced rsync nmap bash-completion numad numactl systat iostat
 
 # Enable and start libvirt services
 cmd systemctl enable libvirtd && systemctl start libvirtd
@@ -48,7 +48,7 @@ then
   echo "options kvm-${CPU_VENDOR} enable_apicv=1" >> /etc/modprobe.d/kvm_${CPU_VENDOR}.conf
   echo "options kvm-${CPU_VENDOR} ept=1" >> /etc/modprobe.d/kvm_${CPU_VENDOR}.conf
   cmd modprobe kvm-${CPU_VENDOR}
-  if egrep -q "N|0" /sys/module/kvm_${CPU_VENDOR}/parameters/nested 
+  if egrep -q "N|0" /sys/module/kvm_${CPU_VENDOR}/parameters/nested
   then
     echo "WARN: Could not dynamically enable nested virt, reboot and re-run this script."
     exit 1
@@ -107,8 +107,12 @@ no-negcache
 strict-order
 server=/${ADMIN_DOMAIN}/192.168.144.1
 server=/${OSP_DOMAIN}/172.20.17.100
+address=/${WILDCARD_DOMAIN}/172.20.17.6
 address=/master.${OSP_DOMAIN}/172.20.17.5
-address=/${WILDCARD_DOMAIN}/172.20.17.5
+address=/infra.${OSP_DOMAIN}/172.20.17.6
+address=/node1.${OSP_DOMAIN}/172.20.17.51
+address=/node2.${OSP_DOMAIN}/172.20.17.52
+address=/node3.${OSP_DOMAIN}/172.20.17.53
 address=/rhosp.${OSP_DOMAIN}/172.20.17.10
 address=/repo.${OSP_DOMAIN}/172.20.17.15
 address=/tower.${OSP_DOMAIN}/172.20.17.20

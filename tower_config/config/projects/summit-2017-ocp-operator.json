@@ -1,0 +1,15 @@
+{
+    "name": "summit-2017-ocp-operator",
+    "description": "",
+    "local_path": "_67__summit_2017_ocp_operator",
+    "scm_type": "git",
+    "scm_url": "https://gitlab.consulting.redhat.com/jdetiber/summit-2017-ocp-operator.git",
+    "scm_branch": "perf",
+    "scm_clean": true,
+    "scm_delete_on_update": false,
+    "credential": 5,
+    "timeout": 0,
+    "organization": 1,
+    "scm_update_on_launch": true,
+    "scm_update_cache_timeout": 0
+}

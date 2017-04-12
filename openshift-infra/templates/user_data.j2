@@ -1,0 +1,8 @@
+#cloud-config
+hostname: "{{ item.name }}"
+fqdn: "{{ item.name }}.{{ osp_domain_name }}"
+write_files:
+- path: /etc/sudoers.d/99-cloud-user-requiretty
+  permissions: 440
+  content: |
+    Defaults:cloud-user !requiretty
