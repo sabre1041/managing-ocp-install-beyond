@@ -4,6 +4,31 @@ SSD_DISK=sdp
 DISK_IS_ROTATIONAL=$(cat /sys/block/${SSD_DISK}/queue/rotational)
 DISK_SIZE=400GB
 
+curl -o /tmp/rhos-release-latest.noarch.rpm http://rhos-release.virt.bos.redhat.com/repos/rhos-release/rhos-release-latest.noarch.rpm
+
+if ! rpm -q rhos-release
+then
+  cmd yum -y localinstall /tmp/rhos-release-latest.noarch.rpm
+fi
+cmd rhos-release rhel-7.3
+
+# nfs-utils needed for this to work
+if ! mount | grep "10.11.169.10:/exports/fileshare/"
+then
+  mkdir /fileshare/
+  cmd mount 10.11.169.10:/exports/fileshare/ /fileshare/
+fi
+
+if ! grep "10.11.169.10:/exports/fileshare/" /etc/fstab
+then
+  echo -e "10.11.169.10:/exports/fileshare/\t/fileshare/\tnfs\tdefaults\t0 0" >> /etc/fstab
+fi
+
+if ! rpm -q nfs-utils
+then
+  cmd yum -y install nfs-utils
+fi
+
 # Remove all partitions
 if [ "${DISK_IS_ROTATIONAL}" == "0" ]
 then
@@ -17,6 +42,9 @@ else
   lsblk
   exit 1
 fi
+
+#Create disk labels
+cmd parted -s /dev/${SSD_DISK} mklabel msdos
 
 cmd partprobe -s /dev/${SSD_DISK}
 
@@ -58,5 +86,6 @@ then
 fi
 
 if ! grep "/var/lib/libvirt/images" /etc/fstab
+then
   echo -e "/dev/vg_${LAB_NAME}/lv_${LAB_NAME}\t/var/lib/libvirt/images\txfs\tdefaults\t0 0" >> /etc/fstab
 fi
