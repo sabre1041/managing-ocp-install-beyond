@@ -7,4 +7,5 @@ source remove-repo-vm.sh
 source remove-tower-vm.sh
 source remove-kvm-host-config.sh
 
-rm -fv /tmp/L104353-*.qcow2
+echo "INFO: Leave images to speed up deploy scripts. Remove images only if using build scripts."
+rm -iv /tmp/${LAB_NAME}-*.qcow2

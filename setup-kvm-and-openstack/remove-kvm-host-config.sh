@@ -2,16 +2,16 @@
 
 source group_vars_all
 
-virsh net-destroy ${LAB_NAME}
-virsh net-undefine ${LAB_NAME}
 for network in admin rhosp; do
-  virsh net-destroy ${LAB_NAME}-${network}
-  virsh net-undefine ${LAB_NAME}-${network}
+  if virsh net-list | grep -q ${LAB_NAME}-${network}
+  then
+    virsh net-destroy ${LAB_NAME}-${network}
+    virsh net-undefine ${LAB_NAME}-${network}
+  fi
 done
 
-
 # Remove the dnsmasq configuration and reload NetworkManager
-rm -f /etc/NetworkManager/conf.d/${LAB_NAME}.conf /etc/NetworkManager/dnsmasq.d/${LAB_NAME}*.conf
+rm -fv /etc/NetworkManager/conf.d/${LAB_NAME}.conf /etc/NetworkManager/dnsmasq.d/${LAB_NAME}*.conf
 systemctl restart NetworkManager
 
 # Remove SSH keys
