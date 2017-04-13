@@ -47,7 +47,7 @@ prep() {
   fi
 
   # Enable lvm on second partition
-  cmd yum install lvm2
+  cmd yum -y install lvm2
   cmd pvcreate /dev/sda2
   cmd vgcreate cinder-volumes /dev/sda2
   cmd vgchange -ay
