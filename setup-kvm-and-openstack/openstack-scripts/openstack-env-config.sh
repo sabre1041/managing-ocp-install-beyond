@@ -243,7 +243,24 @@ post-install-user-tasks() {
 			  --direction ingress \
 			  default
 	fi
-
+  if ! neutron security-group-rule-list | grep "65535/tcp"
+	then
+		cmd neutron security-group-rule-create \
+			  --protocol tcp \
+			  --port-range-min 1 \
+			  --port-range-max 65535 \
+			  --direction ingress \
+			  default
+	fi
+  if ! neutron security-group-rule-list | grep "65535/udp"
+	then
+		cmd neutron security-group-rule-create \
+			  --protocol udp \
+			  --port-range-min 1 \
+			  --port-range-max 65535 \
+			  --direction ingress \
+			  default
+	fi
 }
 
 build-instances() {
