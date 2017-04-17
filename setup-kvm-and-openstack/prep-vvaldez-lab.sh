@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source group_vars_all
+
 # Enter any commands needed to prep your host specific to your lab environment
 
 # Using internal rhos-release so no dependency on Satellite or Hosted

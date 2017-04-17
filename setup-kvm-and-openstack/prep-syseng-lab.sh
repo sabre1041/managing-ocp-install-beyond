@@ -1,6 +1,8 @@
 #!/bin/bash
 
-SSD_DISK=sdp
+source group_vars_all
+
+SSD_DISK=sdb
 DISK_IS_ROTATIONAL=$(cat /sys/block/${SSD_DISK}/queue/rotational)
 DISK_SIZE=400GB
 
@@ -11,6 +13,9 @@ then
   cmd yum -y localinstall /tmp/rhos-release-latest.noarch.rpm
 fi
 cmd rhos-release rhel-7.3
+
+# Install packages
+cmd yum -y install vim-enhanced screen nfs-utils rsync
 
 # nfs-utils needed for this to work
 if ! mount | grep "10.11.169.10:/exports/fileshare/"
