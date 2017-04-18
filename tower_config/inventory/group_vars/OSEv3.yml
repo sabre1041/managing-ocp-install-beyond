@@ -1,23 +1,26 @@
 ---
+repo_hostname: repo.osp.example.com
 deployment_type: openshift-enterprise
 openshift_additional_repos:
 - id: ocp
   name: OCP
-  baseurl: http://repo.osp.example.com/pub/rhel-7-server-ose-3.4-rpms/
+  baseurl: "http://{{ repo_hostname }}/pub/rhel-7-server-ose-3.4-rpms/"
   enabled: 1
   gpgcheck: 0
 - id: rhel7
   name: rhel7
-  baseurl: http://repo.osp.example.com/pub/rhel-7-server-rpms/
+  baseurl: "http://{{ repo_hostname }}/pub/rhel-7-server-rpms/"
   enabled: 1
   gpgcheck: 0
 - id: rhel7-extras
   name: rhel7-extras
-  baseurl: http://repo.osp.example.com/pub/rhel-7-server-extras-rpms/
+  baseurl: "http://{{ repo_hostname }}/pub/rhel-7-server-extras-rpms/"
   enabled: 1
   gpgcheck: 0
-openshift_docker_additional_registries: repo.osp.example.com:5000
-openshift_docker_insecure_registries: repo.osp.example.com:5000
+openshift_docker_additional_registries: "{{ repo_hostname }}:5000"
+openshift_docker_insecure_registries: "{{ repo_hostname }}:5000"
+oreg_url: "{{ repo_hostname }}:5000/openshift3/ose-${component}:${version}"
+openshift_examples_modify_imagestreams: true
 osm_use_cockpit: no
 openshift_master_default_subdomain: apps.example.com
 openshift_master_identity_providers:
