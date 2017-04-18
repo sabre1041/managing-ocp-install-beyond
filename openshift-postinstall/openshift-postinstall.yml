@@ -3,3 +3,6 @@
   tasks:
   - shell: >
       echo {{ lookup('file', 'default_storage_class.yml') | quote }} | oc create -f -
+    register: default_storage_class
+    changed_when: default_storage_class.rc == 0
+    failed_when: default_storage_class.rc != 0 and 'already exists' not in default_storage_class.stdout
