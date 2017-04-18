@@ -1,21 +1,21 @@
 #!/bin/bash
 
-docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/node:v3.4.1.2
-docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/metrics-deployer:v3.4.1.2
-docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/metrics-deployer:v3.4.1.2
-docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/ose-docker-builder:v3.4.1.2
-docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/ose-sti-builder:v3.4.1.2
-docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/ose-haproxy-router:v3.4.1.2
-docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/ose-deployer:v3.4.1.2
-docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/ose-keepalived-ipfailover:v3.4.1.2
-docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/ose-docker-registry:v3.4.1.2
-docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/ose:v3.4.1.2
-docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/ose-pod:v3.4.1.2
-docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/metrics-heapster:3.4.0
+docker push repos.osp.example.com:5000/openshift3/node:v3.4.1.2
+docker push repos.osp.example.com:5000/openshift3/metrics-deployer:v3.4.1.2
+docker push repos.osp.example.com:5000/openshift3/metrics-deployer:v3.4.1.2
+docker push repos.osp.example.com:5000/openshift3/ose-docker-builder:v3.4.1.2
+docker push repos.osp.example.com:5000/openshift3/ose-sti-builder:v3.4.1.2
+docker push repos.osp.example.com:5000/openshift3/ose-haproxy-router:v3.4.1.2
+docker push repos.osp.example.com:5000/openshift3/ose-deployer:v3.4.1.2
+docker push repos.osp.example.com:5000/openshift3/ose-keepalived-ipfailover:v3.4.1.2
+docker push repos.osp.example.com:5000/openshift3/ose-docker-registry:v3.4.1.2
+docker push repos.osp.example.com:5000/openshift3/ose:v3.4.1.2
+docker push repos.osp.example.com:5000/openshift3/ose-pod:v3.4.1.2
+docker push repos.osp.example.com:5000/openshift3/metrics-heapster:3.4.0
 
-docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/rhscl/php-70-rhel7:latest
-docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/rhscl/mysql-57-rhel7:latest
+docker push repos.osp.example.com:5000/rhscl/php-70-rhel7:latest
+docker push repos.osp.example.com:5000/rhscl/mysql-57-rhel7:latest
 
-docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/cloudforms/cfme-openshift-memcached:latest
-docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/cloudforms/cfme-openshift-app:latest
-docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/cloudforms/cfme-openshift-postgresql:latest
+docker push repos.osp.example.com:5000/cloudforms/cfme-openshift-memcached:latest
+docker push repos.osp.example.com:5000/cloudforms/cfme-openshift-app:latest
+docker push repos.osp.example.com:5000/cloudforms/cfme-openshift-postgresql:latest
