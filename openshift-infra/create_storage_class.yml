@@ -1,0 +1,5 @@
+---
+- hosts: masters
+  tasks:
+  - shell: >
+      echo {{ lookup('file', 'default_storage_class.yml') | quote }} | oc create -f -
