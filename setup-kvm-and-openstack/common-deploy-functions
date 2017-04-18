@@ -38,11 +38,11 @@ prep_vm () {
   if [ $USE_FILESHARE == true ]
   then
     # Copy tower private key
-    cmd wget --timestamping -O ${IMAGE_STAGING_DIR}/${TOWER_PRIVATE_KEY} ${TOWER_PRIVATE_KEY_URL}
+    cmd wget -O ${IMAGE_STAGING_DIR}/${TOWER_PRIVATE_KEY} ${TOWER_PRIVATE_KEY_URL}
 
     # Grab image from source URL and keep a local copy
     echo "INFO: Downloading image to ${VM_IMAGE_STAGING_PATH}."
-    cmd wget --timestamping --continue -O ${VM_IMAGE_STAGING_PATH} ${VM_IMAGE_URL}
+    cmd wget --continue -O ${VM_IMAGE_STAGING_PATH} ${VM_IMAGE_URL}
 
     echo "INFO: Copying image to ${VM_IMAGE_PATH} to preserve original for future runs."
     # Copy to libvirt/images but leave in local source dir to speed up future runs
@@ -166,6 +166,7 @@ remove_vm () {
   VM_NAME=${LAB_NAME}-${VM_TYPE}
   VM_IMAGE_NAME=${VM_NAME}.qcow2
   VM_IMAGE_PATH=${IMAGE_LOCAL_DIR}/${VM_IMAGE_NAME}
+  VM_IMAGE_STAGING_PATH=${IMAGE_STAGING_DIR}/${VM_IMAGE_NAME}
 
   if virsh list | grep -q ${VM_NAME}
   then
@@ -175,5 +176,9 @@ remove_vm () {
   then
     virsh undefine ${VM_NAME}
   fi
+  echo "INFO: Removing ${VM_IMAGE_PATH}"
   rm -fv ${VM_IMAGE_PATH}
+  echo ""
+  echo "TIP: Leave local image in /tmp/ to speed up deploy scripts, remove local image in /tmp/ to retrieve updated images or if using build scripts."
+  rm -iv ${VM_IMAGE_STAGING_PATH}
 }
