@@ -139,7 +139,7 @@ deploy_vm() {
   do
     counter=$(( $counter + 1 ))
     sleep 1
-    if nmap -p22 ${VM_IP[$VM_TYPE]} | grep  "22/tcp.*open"
+    if nmap -p22 ${VM_IP[$VM_TYPE]} | grep -q "22/tcp.*open"
     then
       break
     fi

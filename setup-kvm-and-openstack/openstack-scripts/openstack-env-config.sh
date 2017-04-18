@@ -369,7 +369,7 @@ verify-networking() {
 cleanup () {
   source /root/keystonerc_${USERNAME}
   cmd openstack server delete cirros-test
-  #cmd openstack server delete rhel-test
+  cmd openstack server delete rhel-test
 }
 
 # Main
