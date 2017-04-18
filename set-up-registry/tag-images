@@ -12,8 +12,8 @@ docker tag registry.access.redhat.com/openshift3/ose:v3.4.1.2 summit-2017-rhel-r
 docker tag registry.access.redhat.com/openshift3/ose-pod:v3.4.1.2 summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/ose-pod:v3.4.1.2
 docker tag registry.access.redhat.com/openshift3/metrics-heapster:3.4.0 summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/metrics-heapster:3.4.0
 
-docker tag registry.access.redhat.com/rhscl/php-56-rhel7:5.6 summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/rhscl/php-56-rhel7:5.6
-docker tag registry.access.redhat.com/rhscl/mysql-56-rhel7:5.6 summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/rhscl/mysql-56-rhel7:5.6
+docker tag registry.access.redhat.com/rhscl/php-70-rhel7:latest summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/rhscl/php-70-rhel7:latest
+docker tag registry.access.redhat.com/rhscl/mysql-57-rhel7:latest summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/rhscl/mysql-57-rhel7:latest
 
 docker tag registry.access.redhat.com/cloudforms/cfme-openshift-memcached:latest summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/cloudforms/cfme-openshift-memcached:latest
 docker tag registry.access.redhat.com/cloudforms/cfme-openshift-app:latest summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/cloudforms/cfme-openshift-app:latest

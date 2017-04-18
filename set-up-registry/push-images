@@ -13,8 +13,8 @@ docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/ose:v3.4
 docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/ose-pod:v3.4.1.2
 docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/openshift3/metrics-heapster:3.4.0
 
-docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/rhscl/php-56-rhel7:5.6
-docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/rhscl/mysql-56-rhel7:5.6
+docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/rhscl/php-70-rhel7:latest
+docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/rhscl/mysql-57-rhel7:latest
 
 docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/cloudforms/cfme-openshift-memcached:latest
 docker push summit-2017-rhel-repo-vm.e2e.bos.redhat.com:5000/cloudforms/cfme-openshift-app:latest
