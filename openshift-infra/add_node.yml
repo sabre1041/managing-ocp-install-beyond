@@ -1,0 +1,39 @@
+---
+- name: Create OpenShift Hosts
+  hosts: localhost
+  gather_facts: no
+  vars:
+    osp_domain_name: osp.example.com
+  tasks:
+  - os_server:
+      name: "{{ item }}.{{ osp_domain_name }}"
+      cloud: devstack
+      state: present
+      image: rhel-guest-image-7.3
+      volume_size: 10
+      boot_from_volume: yes
+      terminate_volume: yes
+      flavor: ocp.node
+      key_name: tower
+      userdata: "{{ lookup('template', 'user_data.j2') }}"
+      security_groups:
+      - default
+      - openshift
+      nics:
+      - port-name: "openshift-{{ item }}"
+      meta:
+        nodes: 'true'
+        new_nodes: 'true'
+        osev3: 'true'
+        node_type: app
+    with_items:
+    - node2
+    register: instance_create
+
+  - name: Wait for ssh
+    wait_for:
+      port: 22
+      host: "{{ item.server.accessIPv4 }}"
+      timeout: 600
+    with_items:
+    - "{{ instance_create.results }}"
