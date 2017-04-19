@@ -4,29 +4,33 @@
   gather_facts: no
   vars:
     osp_domain_name: osp.example.com
+    osp_instances:
+    - type: app
+      name: node2
+      meta:
+        nodes: 'true'
+        osev3: 'true'
+        node_type: app
   tasks:
   - os_server:
-      name: "{{ item }}.{{ osp_domain_name }}"
+      name: "{{ item.name }}.{{ osp_domain_name }}"
       cloud: devstack
       state: present
       image: rhel-guest-image-7.3
-      volume_size: 10
+      volume_size: "{{ osp_flavors[item.type].disk }}"
       boot_from_volume: yes
       terminate_volume: yes
-      flavor: ocp.node
+      flavor: "{{ osp_flavors[item.type].name }}"
       key_name: tower
       userdata: "{{ lookup('template', 'user_data.j2') }}"
       security_groups:
       - default
       - openshift
       nics:
-      - port-name: "openshift-{{ item }}"
-      meta:
-        nodes: 'true'
-        osev3: 'true'
-        node_type: app
+      - port-name: "openshift-{{ item.name }}"
+      meta: "{{ item.meta}}"
     with_items:
-    - node2
+    - "{{ osp_instances }}"
     register: instance_create
 
   - name: Wait for ssh
