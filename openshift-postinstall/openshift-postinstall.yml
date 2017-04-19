@@ -1,8 +1,38 @@
 ---
 - hosts: masters
+  vars:
+    templates_query: '{range .items[*]}{.metadata.name}{"\n"}{end}'
+    image_streams_query: '{range .items[*]}{.metadata.name}{"\n"}{end}'
+    templates_to_keep: ['cakephp-mysql-persistent', 'metrics-deployer-template', 'registry-console']
+    image_streams_to_keep: ['php', 'mysql']
   tasks:
-  - shell: >
+  - name: Add default storage class
+    shell: >
       echo {{ lookup('file', 'default_storage_class.yml') | quote }} | oc create -f -
     register: default_storage_class
     changed_when: default_storage_class.rc == 0
     failed_when: default_storage_class.rc != 0 and 'already exists' not in default_storage_class.stderr
+
+  - name: Get templates
+    command: >
+      oc get templates -n openshift -o jsonpath='{{ templates_query }}'
+    register: templates
+
+  - name: Remove templates
+    command: >
+      oc delete templates -n openshift {{ item }}
+    when: item not in templates_to_keep
+    with_items:
+    - "{{ templates.stdout_lines }}"
+
+  - name: Get image streams
+    command: >
+      oc get is -n openshift -o jsonpath='{{ image_streams_query }}'
+    register: image_streams
+
+  - name: Remove templates
+    command: >
+      oc delete is -n openshift {{ item }}
+    when: item not in image_streams_to_keep
+    with_items:
+    - "{{ image_streams.stdout_lines }}"
