@@ -18,10 +18,10 @@
       cloud: devstack
       state: present
       image: rhel-guest-image-7.3
-      volume_size: "{{ osp_flavors[item.type].disk }}"
+      volume_size: 10
       boot_from_volume: yes
       terminate_volume: yes
-      flavor: "{{ osp_flavors[item.type].name }}"
+      flavor: ocp.node
       key_name: tower
       userdata: "{{ lookup('template', 'user_data.j2') }}"
       security_groups:
