@@ -4,8 +4,14 @@
   gather_facts: no
   vars:
     osp_domain_name: osp.example.com
+    osp_flavors:
+      small_app:
+        name: ocp.small.node
+        disk: 10
+        ram: 4096
+        vcpus: 2
     osp_instances:
-    - type: app
+    - type: small_app
       name: node2
       meta:
         nodes: 'true'
@@ -13,15 +19,23 @@
         osev3: 'true'
         node_type: app
   tasks:
+  - os_nova_flavor:
+      name: "{{ item.value.name }}"
+      disk: "{{ item.value.disk }}"
+      ram: "{{ item.value.ram }}"
+      vcpus: "{{ item.value.vcpus }}"
+      cloud: admin
+      state: present
+    with_dict: "{{ osp_flavors }}"
   - os_server:
       name: "{{ item.name }}.{{ osp_domain_name }}"
       cloud: devstack
       state: present
       image: rhel-guest-image-7.3
-      volume_size: 10
+      volume_size: "{{ osp_flavors[item.type].disk }}"
       boot_from_volume: yes
       terminate_volume: yes
-      flavor: ocp.node
+      flavor: "{{ osp_flavors[item.type].name }}"
       key_name: tower
       userdata: "{{ lookup('template', 'user_data.j2') }}"
       security_groups:
