@@ -15,7 +15,6 @@
       name: node2
       meta:
         nodes: 'true'
-        new_nodes: 'true'
         osev3: 'true'
         node_type: app
   tasks:
