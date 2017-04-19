@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source group_vars_all
+
 # Enter any commands needed to prep your host specific to your lab environment
 
 # Using internal rhos-release so no dependency on Satellite or Hosted
@@ -24,3 +26,7 @@ if [ ! -z "${REPOS_TO_DISABLE}" ]
 then
   cmd yum-config-manager ${REPOS_TO_DISABLE}
 fi
+
+# Call lab-specific scripts
+#source prep-syseng.sh
+#source prep-etl.sh

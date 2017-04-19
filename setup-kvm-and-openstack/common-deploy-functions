@@ -37,6 +37,9 @@ prep_vm () {
 
   if [ $USE_FILESHARE == true ]
   then
+    # Copy tower private key
+    cmd wget -O ${IMAGE_STAGING_DIR}/${TOWER_PRIVATE_KEY} ${TOWER_PRIVATE_KEY_URL}
+
     # Grab image from source URL and keep a local copy
     echo "INFO: Downloading image to ${VM_IMAGE_STAGING_PATH}."
     cmd wget --continue -O ${VM_IMAGE_STAGING_PATH} ${VM_IMAGE_URL}
@@ -45,9 +48,9 @@ prep_vm () {
     # Copy to libvirt/images but leave in local source dir to speed up future runs
     cmd rsync -avP ${VM_IMAGE_STAGING_PATH} ${VM_IMAGE_PATH}
   else
-    if [ ! -f ${VM_IMAGE_PATH} ]
+    if [[ ! -f ${VM_IMAGE_PATH} || ! -f ${IMAGE_STAGING_DIR}/${TOWER_PRIVATE_KEY} ]]
     then
-      echo "ERROR: images need to be pre-staged if USE_FILESHARE is false"
+      echo "ERROR: files need to be pre-staged if USE_FILESHARE is false"
       exit 1
     fi
   fi
@@ -56,6 +59,8 @@ prep_vm () {
     --hostname ${VM_TYPE}.${ADMIN_DOMAIN} \
     --root-password password:${PASSWORD} \
     --ssh-inject root:file:${SSH_KEY_FILENAME}.pub \
+    --copy-in ${IMAGE_STAGING_DIR}/${TOWER_PRIVATE_KEY}:/root/ \
+    --chmod 0600:/root/${TOWER_PRIVATE_KEY} \
     --mkdir /etc/tuned/${LAB_NAME} \
     --write /etc/tuned/${LAB_NAME}/tuned.conf:'[main]
 include=virtual-guest
@@ -134,7 +139,7 @@ deploy_vm() {
   do
     counter=$(( $counter + 1 ))
     sleep 1
-    if nmap -p22 ${VM_IP[$VM_TYPE]} | grep  "22/tcp.*open"
+    if nmap -p22 ${VM_IP[$VM_TYPE]} | grep -q "22/tcp.*open"
     then
       break
     fi
@@ -161,8 +166,19 @@ remove_vm () {
   VM_NAME=${LAB_NAME}-${VM_TYPE}
   VM_IMAGE_NAME=${VM_NAME}.qcow2
   VM_IMAGE_PATH=${IMAGE_LOCAL_DIR}/${VM_IMAGE_NAME}
+  VM_IMAGE_STAGING_PATH=${IMAGE_STAGING_DIR}/${VM_IMAGE_NAME}
 
-  virsh destroy ${VM_NAME}
-  virsh undefine ${VM_NAME}
+  if virsh list | grep -q ${VM_NAME}
+  then
+    virsh destroy ${VM_NAME}
+  fi
+  if virsh list --all | grep -q ${VM_NAME}
+  then
+    virsh undefine ${VM_NAME}
+  fi
+  echo "INFO: Removing ${VM_IMAGE_PATH}"
   rm -fv ${VM_IMAGE_PATH}
+  echo ""
+  echo "TIP: Leave local image in /tmp/ to speed up deploy scripts, remove local image in /tmp/ to retrieve updated images or if using build scripts."
+  rm -iv ${VM_IMAGE_STAGING_PATH}
 }

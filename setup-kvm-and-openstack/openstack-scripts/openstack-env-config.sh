@@ -47,7 +47,7 @@ prep() {
   fi
 
   # Enable lvm on second partition
-  cmd yum install lvm2
+  cmd yum -y install lvm2
   cmd pvcreate /dev/sda2
   cmd vgcreate cinder-volumes /dev/sda2
   cmd vgchange -ay
@@ -243,7 +243,24 @@ post-install-user-tasks() {
 			  --direction ingress \
 			  default
 	fi
-
+  if ! neutron security-group-rule-list | grep "65535/tcp"
+	then
+		cmd neutron security-group-rule-create \
+			  --protocol tcp \
+			  --port-range-min 1 \
+			  --port-range-max 65535 \
+			  --direction ingress \
+			  default
+	fi
+  if ! neutron security-group-rule-list | grep "65535/udp"
+	then
+		cmd neutron security-group-rule-create \
+			  --protocol udp \
+			  --port-range-min 1 \
+			  --port-range-max 65535 \
+			  --direction ingress \
+			  default
+	fi
 }
 
 build-instances() {
@@ -304,7 +321,7 @@ build-instances() {
 
 verify-networking() {
 	source /root/keystonerc_${USERNAME}
-	nova list
+	openstack server list
 	# Get a VNC console
 	cmd nova get-vnc-console cirros-test novnc
 	cmd nova get-vnc-console rhel-test novnc

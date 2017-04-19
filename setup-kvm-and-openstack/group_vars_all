@@ -49,6 +49,9 @@ REPO_BASE_IMAGE_NAME=rhel-guest-image-7.3-35.x86_64.qcow2
 REPO_BASE_IMAGE_URL=http://${FILESHARE_HOST}/fileshare/images/${REPO_BASE_IMAGE_NAME}
 REPO_BASE_IMAGE_PATH=${IMAGE_STAGING_DIR}/${REPO_BASE_IMAGE_NAME}
 
+TOWER_PRIVATE_KEY=${LAB_NAME}-tower.pem
+TOWER_PRIVATE_KEY_URL=http://${FILESHARE_HOST}${FILESHARE_DEST_BASE}/${LAB_NAME}-tower/tower_host
+
 # Load common functions
 source openstack-scripts/common-libs
 source common-deploy-functions
