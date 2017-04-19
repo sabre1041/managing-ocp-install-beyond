@@ -47,6 +47,7 @@ objects:
     name: cfme-openshift-app
     annotations:
       description: "Keeps track of changes in the CloudForms app image"
+      openshift.io/image.insecureRepository: "true"
   spec:
     dockerImageRepository: registry.access.redhat.com/cloudforms/cfme-openshift-app
 - apiVersion: v1
@@ -187,6 +188,7 @@ objects:
     name: cfme-openshift-memcached
     annotations:
       description: "Keeps track of changes in the CloudForms memcached image"
+      openshift.io/image.insecureRepository: "true"
   spec:
     dockerImageRepository: ${REGISTRY_HOST}/cloudforms/cfme-openshift-memcached
 - apiVersion: v1
@@ -271,6 +273,7 @@ objects:
     name: cfme-openshift-postgresql
     annotations:
       description: "Keeps track of changes in the CloudForms postgresql image"
+      openshift.io/image.insecureRepository: "true"
   spec:
     dockerImageRepository: ${REGISTRY_HOST}/cloudforms/cfme-openshift-postgresql
 - apiVersion: v1
@@ -426,13 +429,13 @@ parameters:
     displayName: "Application Memory Minimum"
     required: true
     description: "Minimum amount of memory the Application container will need."
-    value: "4096Mi"
+    value: "2048Mi"
   -
     name: "MEMORY_POSTGRESQL_LIMIT"
     displayName: "PostgreSQL Memory Limit"
     required: true
     description: "Maximum amount of memory the PostgreSQL container can use."
-    value: "2048Mi"
+    value: "1024Mi"
   -
     name: "MEMORY_MEMCACHED_LIMIT"
     displayName: "Memcached Memory Limit"
