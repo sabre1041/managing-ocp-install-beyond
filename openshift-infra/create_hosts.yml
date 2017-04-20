@@ -84,7 +84,7 @@
       name: "{{ item.name }}.{{ osp_domain_name }}"
       cloud: devstack
       state: present
-      image: rhel-guest-image-7.3
+      image: openshift-base
       volume_size: "{{ osp_flavors[item.type].disk }}"
       boot_from_volume: yes
       terminate_volume: yes
