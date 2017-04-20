@@ -35,4 +35,25 @@
       oc delete is -n openshift {{ item }}
     when: item not in image_streams_to_keep
     with_items:
-    - "{{ image_streams.stdout_lines }}"
+      - "{{ image_streams.stdout_lines }}"
+
+  - name: Delete image stream tags not needed
+    command: >
+      oc tag {{ item }} -d
+    register: tag_delete
+    failed_when: tag_delete.rc != 0 and 'not found' not in tag_delete.stderr
+    changed_when: tag_delete.rc == 0
+    with_items:
+    - openshift/php:5.5
+    - openshift/php:5.6
+    - openshift/mysql:5.5
+    - openshift/mysql:5.6
+
+  - name: Update image stream tags
+    command: >
+      oc tag {{ item.source }} {{ item.tag }} --insecure
+    with_items:
+    - source: repos.osp.example.com:5000/rhscl/php-70-rhel7:latest
+      tag: openshift/php:7.0
+    - source: repos.osp.example.com:5000/rhscl/mysql-57-rhel7:latest
+      tag: openshift/mysql:5.7
