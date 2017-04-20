@@ -8,7 +8,7 @@
      - "/var/www/html/ocp/templates"
     git_user: "git"
     ocp_example_repos:
-     - "https://github.com/openshift/cakephp-ex.git"
+     - { url: "https://github.com/openshift/cakephp-ex.git", version: "fb2aabb3c104df7f590b3ccb041c28885ca213c2" }
     docker_registry_host: "172.20.17.15:5000"
   handlers:
     - name: restart httpd
@@ -36,9 +36,10 @@
         - "{{ ocp_git_repo_home }}"
     - name: Clone OCP Examples
       git:
-        repo: "{{ item }}"
+        repo: "{{ item.url }}"
         bare: yes
-        dest: "{{ ocp_git_repo_home }}/{{ item | basename }}"
+        version: "{{ item | selectattr('version') }}"
+        dest: "{{ ocp_git_repo_home }}/{{ item.url | basename }}"
       with_items:
         - "{{ ocp_example_repos }}"
       tags: test
