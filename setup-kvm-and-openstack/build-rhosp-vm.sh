@@ -26,6 +26,12 @@ fi
 # Fetch the base image
 cmd wget --continue -O ${OSP_BASE_IMAGE_PATH} ${OSP_BASE_IMAGE_URL}
 
+# Fetch the openshift image
+cmd wget --continue -O ${OPENSHIFT_IMAGE_PATH} ${OPENSHIFT_IMAGE_URL}
+
+# Fetch Tower public key
+cmd wget -O ${IMAGE_STAGING_DIR}/${TOWER_PUBLIC_KEY} ${TOWER_PUBLIC_KEY_URL}
+
 # Create empty image which will be used for the virt-resize
 cmd qemu-img create -f qcow2 ${OSP_VM_IMAGE_PATH} ${OSP_VM_TOTAL_DISK_SIZE}
 
@@ -67,6 +73,20 @@ deploy_vm ${OSP_NAME}
 # Copy guest image to VM
 cmd scp ${SSH_OPTS} ${OSP_BASE_IMAGE_PATH} root@${OSP_VM_HOSTNAME}:/tmp/.
 
+
+# Inject SSH Key
+cmd virt-customize -a ${OPENSHIFT_IMAGE_PATH} \
+  --root-password password:${PASSWORD} \
+  --hostname ${OPENSHIFT_VM_HOSTNAME} \
+  --ssh-inject root:file:${IMAGE_STAGING_DIR}/${TOWER_PUBLIC_KEY} \
+  --selinux-relabel
+
+# Copy openshift-base image to VM
+cmd scp ${SSH_OPTS} ${OPENSHIFT_IMAGE_PATH} root@${OSP_VM_HOSTNAME}:/tmp/.
+
+# Remove OpenShift image
+cmd rm -fv ${OPENSHIFT_IMAGE_PATH}
+
 # Copy openstack-scripts to VM
 cmd rsync -e "ssh ${SSH_OPTS}" -avP openstack-scripts/ root@${OSP_VM_HOSTNAME}:/root/openstack-scripts/
 
@@ -100,11 +120,21 @@ do
 done
 echo ""
 
-# Copy image
-cmd rsync -avP ${OSP_VM_IMAGE_PATH} ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME}
+# Remove image if it exists
+DATETIME=$(date +%Y%m%d%H%M%S)
+if [ -f ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME}.${DATETIME} ]
+then
+  echo "WARNING: ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME}.${DATETIME} file exists, remove first?"
+  rm -iv ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME}.${DATETIME}
+elif [ -L ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME} ]
+then
+  echo "WARNING: ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME} link exists, remove first?"
+  rm -iv ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME}
+fi
+cmd rsync -avP ${OSP_VM_IMAGE_PATH} ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME}.${DATETIME}
+
+# Create symlink to new image
+cmd ln -s ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME}.${DATETIME} ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME}
 
 # Remove running rhosp guest
 source remove-rhosp-vm.sh
-
-# Remove image in /tmp so new one will be pulled next time
-rm -fv /tmp/L104353-rhosp.qcow2

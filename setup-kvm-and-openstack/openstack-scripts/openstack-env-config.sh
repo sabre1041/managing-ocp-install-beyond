@@ -71,7 +71,6 @@ post-install-config() {
 	openstack-config --set /etc/nova/nova.conf libvirt cpu_mode host-passthrough
 	openstack-config --set /etc/nova/nova.conf libvirt hw_disk_discard unmap
 	openstack-config --set /etc/nova/nova.conf libvirt use_usb_tablet false
-	openstack-config --set /etc/nova/nova.conf vnc enabled false
 	openstack-config --set /etc/cinder/cinder.conf lvm volume_clear none
 	openstack-config --set /etc/nova/nova.conf DEFAULT block_device_allocate_retries 120
 	openstack-config --set /etc/nova/nova.conf DEFAULT block_device_allocate_retries_interval 10
@@ -131,6 +130,7 @@ export OS_PASSWORD=${PASSWORD}
 export OS_AUTH_URL=http://${CONTROLLER_HOST}:35357/v2.0/
 export PS1='[\u@\h \W(keystone_${USERNAME})]\$ '
 EOF
+echo "source /root/keystonerc_${USERNAME}">> /root/.bashrc
 }
 
 create-images() {
@@ -162,7 +162,7 @@ create-images() {
 		if [ "${IMAGE_IS_PUBLIC}" = true ]
 		then
 			source /root/keystonerc_admin
-			IMAGE_IS_PUBLIC_OPTION="--visibility public"
+			IMAGE_IS_PUBLIC_OPTION="--public"
 		else
 			source /root/keystonerc_${USERNAME}
 			IMAGE_IS_PUBLIC_OPTION=
@@ -175,19 +175,22 @@ create-images() {
 	then
 		echo "INFO: Setting IMAGE_IS_PUBLIC_OPTION to '${IMAGE_IS_PUBLIC_OPTION}'" 2>&1 | tee -a ${LOGFILE}
 	fi
-	if ! glance image-list | grep ${CIRROS_IMAGE_NAME}
+	if ! glance image-list | grep ${OPENSHIFT_IMAGE_NAME}
 	then
-		cmd curl -o /tmp/${CIRROS_IMAGE_NAME}.img ${CIRROS_IMAGE_URL} 2>&1 | tee -a ${LOGFILE}
-		cmd glance image-create \
-			 --name ${CIRROS_IMAGE_NAME} \
+		cmd openstack image create \
 			 ${IMAGE_IS_PUBLIC_OPTION} \
 			 --disk-format qcow2 \
+       --protected \
 			 --container-format bare \
-			 --progress \
-			 --file /tmp/${CIRROS_IMAGE_NAME}.img
+			 --property hw_scsi_model=virtio-scsi \
+			 --property hw_disk_bus=scsi \
+			 --min-disk 10 \
+			 --file /tmp/${OPENSHIFT_IMAGE_NAME}.qcow2 \
+			 ${OPENSHIFT_IMAGE_NAME} 2>&1 | tee -a ${LOGFILE}
 	fi
-	CIRROS_IMAGE_ID=$(glance image-list | grep ${CIRROS_IMAGE_NAME} | awk ' {print $2} ')
-  cmd glance image-show ${CIRROS_IMAGE_ID} 2>&1 | tee -a ${LOGFILE}
+	OPENSHIFT_IMAGE_ID=$(glance image-list | grep ${OPENSHIFT_IMAGE_NAME} | awk ' {print $2} ')
+  cmd glance image-show ${OPENSHIFT_IMAGE_ID} 2>&1 | tee -a ${LOGFILE}
+  cmd rm -vf /tmp/${OPENSHIFT_IMAGE_NAME}*.qcow2 2>&1 | tee -a ${LOGFILE}
 
 	if ! glance image-list | grep ${RHEL_IMAGE_NAME}
 	then
@@ -201,20 +204,20 @@ create-images() {
 		fi
 		cmd systemctl restart libvirtd
 		cmd virt-customize -a /tmp/${RHEL_IMAGE_NAME}.qcow2 --root-password password:${PASSWORD} 2>&1 | tee -a ${LOGFILE}
-		cmd glance image-create \
-			 --name ${RHEL_IMAGE_NAME} \
+		cmd openstack image create \
 			 ${IMAGE_IS_PUBLIC_OPTION} \
 			 --disk-format qcow2 \
 			 --container-format bare \
+       --protected \
 			 --property hw_scsi_model=virtio-scsi \
 			 --property hw_disk_bus=scsi \
 			 --min-disk 10 \
-			 --progress \
-			 --file /tmp/${RHEL_IMAGE_NAME}.qcow2
+			 --file /tmp/${RHEL_IMAGE_NAME}.qcow2 \
+			 ${RHEL_IMAGE_NAME} 2>&1 | tee -a ${LOGFILE}
 	fi
 	RHEL_IMAGE_ID=$(glance image-list | grep ${RHEL_IMAGE_NAME} | awk ' {print $2} ')
   cmd glance image-show ${RHEL_IMAGE_ID} 2>&1 | tee -a ${LOGFILE}
-
+  cmd rm -vf /tmp/rhel-guest-image*.qcow2 2>&1 | tee -a ${LOGFILE}
 }
 
 post-install-user-tasks() {
@@ -267,19 +270,19 @@ build-instances() {
 	cmd echo "INFO: Starting function 'build-instances'"
 	source ~/keystonerc_${USERNAME}
 	glance image-list
-	if nova list | grep cirros-test
+	if nova list | grep openshift-test
 	then
-		nova delete cirros-test
+		nova delete openshift-test
 		sleep 5
 	fi
-  cmd openstack volume create --size 1 cirros-vol-test
-  CIRROS_VOL_ID=$(openstack volume list -f value -c ID -c "Display Name" | awk '/cirros-vol-test/ { print $1 }')
-	cmd nova boot cirros-test \
-    --flavor 1 \
+  cmd openstack volume create --size 1 openshift-vol-test
+  OPENSHIFT_VOL_ID=$(openstack volume list -f value -c ID -c "Display Name" | awk '/openshift-vol-test/ { print $1 }')
+	cmd nova boot openshift-test \
+    --flavor 2 \
     --poll \
     --key-name ${USERNAME} \
-    --image ${CIRROS_IMAGE_ID} \
-    --block-device source=volume,id=${CIRROS_VOL_ID},dest=volume,shutdown=remove
+    --image ${OPENSHIFT_IMAGE_ID} \
+    --block-device source=volume,id=${OPENSHIFT_VOL_ID},dest=volume,shutdown=remove
 
 	if nova list | grep rhel-test
 	then
@@ -323,15 +326,15 @@ verify-networking() {
 	source /root/keystonerc_${USERNAME}
 	openstack server list
 	# Get a VNC console
-	cmd nova get-vnc-console cirros-test novnc
+	cmd nova get-vnc-console openshift-test novnc
 	cmd nova get-vnc-console rhel-test novnc
 
 	# Grab the instance ID
-	CIRROS_INSTANCE_ID=$(nova list | awk '/cirros-test/ {print $2}')
+	OPENSHIFT_INSTANCE_ID=$(nova list | awk '/openshift-test/ {print $2}')
 	RHEL_INSTANCE_ID=$(nova list | awk '/rhel-test/ {print $2}')
 
 	# Grab the IP to ping it after instance boot
-	CIRROS_IP=$( openstack server list -f value -c Name -c Networks | awk -F= ' /cirros-test/ { print $2 }')
+	OPENSHIFT_IP=$( openstack server list -f value -c Name -c Networks | awk -F= ' /openshift-test/ { print $2 }')
 	RHEL_IP=$( openstack server list -f value -c Name -c Networks | awk -F= ' /rhel-test/ { print $2 }')
 	echo -n "Waiting for instance networking to be available"
     counter=0
@@ -340,7 +343,7 @@ verify-networking() {
     counter=$(( $counter + 1 ))
 		echo -n "."
 		sleep 1
-		if ping -c 2 ${CIRROS_IP} 2>&1 > /dev/null && ping -c 2 ${RHEL_IP} 2>&1 > /dev/null
+		if ping -c 2 ${OPENSHIFT_IP} 2>&1 > /dev/null && ping -c 2 ${RHEL_IP} 2>&1 > /dev/null
     then
       break
     fi
@@ -356,8 +359,8 @@ verify-networking() {
 	echo ""
 
 	# Ping the IP
-	echo "INFO: Pinging IP for Cirros instance: ${CIRROS_IP}"
-	cmd ping -c 3 ${CIRROS_IP}
+	echo "INFO: Pinging IP for openshift instance: ${OPENSHIFT_IP}"
+	cmd ping -c 3 ${OPENSHIFT_IP}
 	sleep 10
 	echo "INFO: Pinging IP for RHEL instance: ${RHEL_IP}"
 	cmd ping -c 3 ${RHEL_IP}
@@ -368,7 +371,7 @@ verify-networking() {
 
 cleanup () {
   source /root/keystonerc_${USERNAME}
-  cmd openstack server delete cirros-test
+  cmd openstack server delete openshift-test
   cmd openstack server delete rhel-test
 }
 
