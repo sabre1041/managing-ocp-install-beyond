@@ -91,6 +91,7 @@
       flavor: "{{ osp_flavors[item.type].name }}"
       key_name: tower
       userdata: "{{ lookup('template', 'user_data.j2') }}"
+      timeout: 300
       security_groups:
       - default
       - openshift
