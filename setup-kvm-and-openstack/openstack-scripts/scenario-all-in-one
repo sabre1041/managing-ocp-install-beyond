@@ -63,17 +63,10 @@ PRIVATE_NETWORK=
 #Images
 IMAGE_IS_PUBLIC=true
 
-# Cirros image
-CIRROS_IMAGE_URL=http://download.cirros-cloud.net/0.3.5/cirros-0.3.5-x86_64-disk.img
+# OpenShift image
+OPENSHIFT_IMAGE_URL=/tmp/openshift-base.qcow2
 # Dynamic name based on URL, set statically if desired
-CIRROS_IMAGE_NAME=$(echo ${CIRROS_IMAGE_URL} | cut -d'/' -f 5 | cut -d'-' -f 1-2)
-
-# Windows cloudbase-init image
-WINDOWS_IMAGE_URL=/fileshare/images/windows_server_2012_r2_standard_eval_kvm_20140607.qcow2
-# Dynamic name based on URL, set statically if desired
-WINDOWS_IMAGE_NAME=$(echo ${WINDOWS_IMAGE_URL} | cut -d'/' -f 4 | awk -F. '{print $1}' | cut -d'_' -f 1-4)
-# Set the following to 'true' to enable Windows builds
-WINDOWS_BUILD=false
+OPENSHIFT_IMAGE_NAME=openshift-base
 
 # Set the following to 'true' to enable downloading the latest RHEL image
 RHEL_IMAGE_INSTALL_LATEST=false
