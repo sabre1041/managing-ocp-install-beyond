@@ -36,6 +36,7 @@
       terminate_volume: yes
       flavor: "{{ osp_flavors[item.type].name }}"
       key_name: tower
+      timeout: 300
       userdata: "{{ lookup('template', 'user_data.j2') }}"
       security_groups:
       - default
