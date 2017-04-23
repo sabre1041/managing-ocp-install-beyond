@@ -4,21 +4,6 @@ TIMEOUT=60
 TIMEOUT_WARN=$(( $TIMEOUT / 2 ))
 # Set the following to the version of RHELOSP to install, see the following array for all versions or run rhos-release -l
 RHELOSP_VERSION=10
-# The following is a list of valid versions to choose from
-RHELOSP_VERSIONS=(
-	"4"
-	"5"
-	"5-cdn"
-	"5-rhel-6"
-	"5-rhel-7"
-	"6-cdn"
-	"6"
-	"7-cdn"
-	"7"
-	"8"
-	"9"
-	"10"
-	)
 
 # Deployment variables
 VERBOSE=true
@@ -64,9 +49,8 @@ PRIVATE_NETWORK=
 IMAGE_IS_PUBLIC=true
 
 # OpenShift image
-OPENSHIFT_IMAGE_URL=/tmp/openshift-base.qcow2
-# Dynamic name based on URL, set statically if desired
-OPENSHIFT_IMAGE_NAME=openshift-base
+OPENSHIFT_IMAGE_PATH=/tmp/L104353-openshift-base.qcow2
+OPENSHIFT_VM_NAME=openshift-base
 
 # Set the following to 'true' to enable downloading the latest RHEL image
 RHEL_IMAGE_INSTALL_LATEST=false

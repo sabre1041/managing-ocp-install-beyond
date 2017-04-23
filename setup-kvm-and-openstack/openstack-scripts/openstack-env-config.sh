@@ -10,11 +10,6 @@ then
 	echo "ERROR: Controller IP not loaded properly!" 2>&1 | tee -a ${LOGFILE}
 	exit 1
 fi
-if [[ ! " ${RHELOSP_VERSIONS[@]} " =~ " ${RHELOSP_VERSION} " ]]
-then
-  echo "ERROR: Version '${RHELOSP_VERSION}' is not a valid version. Update scenario file." 2>&1 | tee -a ${LOGFILE}
-  exit 1
-fi
 
 prep() {
   # Determine CPU Vendor
@@ -135,47 +130,20 @@ echo "source /root/keystonerc_${USERNAME}">> /root/.bashrc
 
 create-images() {
   # Logging everything except the image creation
-	cmd echo "INFO: Starting function 'create-images'" 2>&1 | tee -a ${LOGFILE}
-	# The following is needed to address changes in --is-public to --visibility in OSP 8
-	RHELOSP_OLD_VERSIONS=(
-	"4"
-	"5"
-	"5-cdn"
-	"5-rhel-6"
-	"5-rhel-7"
-	"6-cdn"
-	"6"
-	"7-cdn"
-	"7"
-	)
-	RHELOSP_NEW_VERSIONS=(
-	"8"
-	"9"
-	"10"
-	)
-	if [[ " ${RHELOSP_OLD_VERSIONS[@]} " =~ " ${RHELOSP_VERSION} " ]]
-	then
-		source /root/keystonerc_admin
-		IMAGE_IS_PUBLIC_OPTION="--is-public ${IMAGE_IS_PUBLIC}"
-	elif [[ " ${RHELOSP_NEW_VERSIONS[@]} " =~ " ${RHELOSP_VERSION} " ]]
-	then
-		if [ "${IMAGE_IS_PUBLIC}" = true ]
-		then
-			source /root/keystonerc_admin
-			IMAGE_IS_PUBLIC_OPTION="--public"
-		else
-			source /root/keystonerc_${USERNAME}
-			IMAGE_IS_PUBLIC_OPTION=
-		fi
-	else
-		source /root/keystonerc_${USERNAME}
-		IMAGE_IS_PUBLIC_OPTION=
-	fi
+	cmd echo "INFO: Starting function 'create-images'"
+  if [ "${IMAGE_IS_PUBLIC}" = true ]
+  then
+    source /root/keystonerc_admin
+    IMAGE_IS_PUBLIC_OPTION="--public"
+  else
+    source /root/keystonerc_${USERNAME}
+    IMAGE_IS_PUBLIC_OPTION=
+  fi
 	if [ "${VERBOSE}" = true ]
 	then
-		echo "INFO: Setting IMAGE_IS_PUBLIC_OPTION to '${IMAGE_IS_PUBLIC_OPTION}'" 2>&1 | tee -a ${LOGFILE}
+		echo "INFO: Setting IMAGE_IS_PUBLIC_OPTION to '${IMAGE_IS_PUBLIC_OPTION}'"
 	fi
-	if ! glance image-list | grep ${OPENSHIFT_IMAGE_NAME}
+	if ! glance image-list | grep ${OPENSHIFT_VM_NAME}
 	then
 		cmd openstack image create \
 			 ${IMAGE_IS_PUBLIC_OPTION} \
@@ -185,39 +153,11 @@ create-images() {
 			 --property hw_scsi_model=virtio-scsi \
 			 --property hw_disk_bus=scsi \
 			 --min-disk 10 \
-			 --file /tmp/${OPENSHIFT_IMAGE_NAME}.qcow2 \
-			 ${OPENSHIFT_IMAGE_NAME} 2>&1 | tee -a ${LOGFILE}
+			 --file ${OPENSHIFT_IMAGE_PATH} \
+			 ${OPENSHIFT_VM_NAME}
 	fi
-	OPENSHIFT_IMAGE_ID=$(glance image-list | grep ${OPENSHIFT_IMAGE_NAME} | awk ' {print $2} ')
-  cmd glance image-show ${OPENSHIFT_IMAGE_ID} 2>&1 | tee -a ${LOGFILE}
-  cmd rm -vf /tmp/${OPENSHIFT_IMAGE_NAME}*.qcow2 2>&1 | tee -a ${LOGFILE}
-
-	if ! glance image-list | grep ${RHEL_IMAGE_NAME}
-	then
-		cmd yum -y install libguestfs-tools 2>&1 | tee -a ${LOGFILE}
-		if [ "${RHEL_IMAGE_INSTALL_LATEST}" = true ]
-		then
-			cmd yum -y install rhel-guest-image-7 2>&1 | tee -a ${LOGFILE}
-			cmd cp -v /usr/share/rhel-guest-image-7/rhel-guest-image-7*.qcow2  /tmp/ 2>&1 | tee -a ${LOGFILE}
-		else
-			cmd cp -v ${RHEL_IMAGE_URL} /tmp/${RHEL_IMAGE_NAME}.qcow2 2>&1 | tee -a ${LOGFILE}
-		fi
-		cmd systemctl restart libvirtd
-		cmd virt-customize -a /tmp/${RHEL_IMAGE_NAME}.qcow2 --root-password password:${PASSWORD} 2>&1 | tee -a ${LOGFILE}
-		cmd openstack image create \
-			 ${IMAGE_IS_PUBLIC_OPTION} \
-			 --disk-format qcow2 \
-			 --container-format bare \
-       --protected \
-			 --property hw_scsi_model=virtio-scsi \
-			 --property hw_disk_bus=scsi \
-			 --min-disk 10 \
-			 --file /tmp/${RHEL_IMAGE_NAME}.qcow2 \
-			 ${RHEL_IMAGE_NAME} 2>&1 | tee -a ${LOGFILE}
-	fi
-	RHEL_IMAGE_ID=$(glance image-list | grep ${RHEL_IMAGE_NAME} | awk ' {print $2} ')
-  cmd glance image-show ${RHEL_IMAGE_ID} 2>&1 | tee -a ${LOGFILE}
-  cmd rm -vf /tmp/rhel-guest-image*.qcow2 2>&1 | tee -a ${LOGFILE}
+  cmd openstack image show ${OPENSHIFT_VM_NAME}
+  cmd rm -vf ${OPENSHIFT_IMAGE_PATH}
 }
 
 post-install-user-tasks() {
@@ -237,15 +177,6 @@ post-install-user-tasks() {
 			  default
 	fi
 
-  if ! neutron security-group-rule-list | grep "22/tcp"
-	then
-		cmd neutron security-group-rule-create \
-			  --protocol tcp \
-			  --port-range-min 22 \
-			  --port-range-max 22 \
-			  --direction ingress \
-			  default
-	fi
   if ! neutron security-group-rule-list | grep "65535/tcp"
 	then
 		cmd neutron security-group-rule-create \
@@ -269,34 +200,22 @@ post-install-user-tasks() {
 build-instances() {
 	cmd echo "INFO: Starting function 'build-instances'"
 	source ~/keystonerc_${USERNAME}
+  OPENSHIFT_IMAGE_ID=$(openstack image show ${OPENSHIFT_VM_NAME} -f value -c id)
+  echo "INFO: Image name: ${OPENSHIFT_VM_NAME} with ID ${OPENSHIFT_IMAGE_ID}"
 	glance image-list
-	if nova list | grep openshift-test
+	if nova list | grep openshift-base
 	then
-		nova delete openshift-test
+		nova delete openshift-base
 		sleep 5
 	fi
-  cmd openstack volume create --size 1 openshift-vol-test
-  OPENSHIFT_VOL_ID=$(openstack volume list -f value -c ID -c "Display Name" | awk '/openshift-vol-test/ { print $1 }')
-	cmd nova boot openshift-test \
+  cmd openstack volume create --size 20 openshift-base-volume
+  OPENSHIFT_VOL_ID=$(openstack volume list -f value -c ID -c "Display Name" | awk '/openshift-base-volume/ { print $1 }')
+	cmd nova boot openshift-base \
     --flavor 2 \
     --poll \
     --key-name ${USERNAME} \
     --image ${OPENSHIFT_IMAGE_ID} \
     --block-device source=volume,id=${OPENSHIFT_VOL_ID},dest=volume,shutdown=remove
-
-	if nova list | grep rhel-test
-	then
-		nova delete rhel-test
-		sleep 5
-	fi
-  cmd openstack volume create --size 10 rhel-vol-test
-  RHEL_VOL_ID=$(openstack volume list -f value -c ID -c "Display Name" | awk '/rhel-vol-test/ { print $1 }')
-	cmd nova boot rhel-test \
-    --flavor 2 \
-    --key-name ${USERNAME} \
-    --image ${RHEL_IMAGE_ID} \
-    --poll \
-    --block-device source=volume,id=${RHEL_VOL_ID},dest=volume,shutdown=remove
 
 	# wait for instances to build
 	echo -en "\nWaiting for instances to build "
@@ -325,17 +244,15 @@ build-instances() {
 verify-networking() {
 	source /root/keystonerc_${USERNAME}
 	openstack server list
-	# Get a VNC console
-	cmd nova get-vnc-console openshift-test novnc
-	cmd nova get-vnc-console rhel-test novnc
+	# Get a VNC console to watch boot sequence if desired
+  echo "INFO: View console if desired to watch boot sequence"
+	cmd nova get-vnc-console openshift-base novnc
 
 	# Grab the instance ID
-	OPENSHIFT_INSTANCE_ID=$(nova list | awk '/openshift-test/ {print $2}')
-	RHEL_INSTANCE_ID=$(nova list | awk '/rhel-test/ {print $2}')
+	OPENSHIFT_INSTANCE_ID=$(nova list | awk '/openshift-base/ {print $2}')
 
 	# Grab the IP to ping it after instance boot
-	OPENSHIFT_IP=$( openstack server list -f value -c Name -c Networks | awk -F= ' /openshift-test/ { print $2 }')
-	RHEL_IP=$( openstack server list -f value -c Name -c Networks | awk -F= ' /rhel-test/ { print $2 }')
+	OPENSHIFT_IP=$( openstack server list -f value -c Name -c Networks | awk -F= ' /openshift-base/ { print $2 }')
 	echo -n "Waiting for instance networking to be available"
     counter=0
 	while :
@@ -343,7 +260,7 @@ verify-networking() {
     counter=$(( $counter + 1 ))
 		echo -n "."
 		sleep 1
-		if ping -c 2 ${OPENSHIFT_IP} 2>&1 > /dev/null && ping -c 2 ${RHEL_IP} 2>&1 > /dev/null
+		if ping -c 2 ${OPENSHIFT_IP} 2>&1 > /dev/null
     then
       break
     fi
@@ -361,18 +278,15 @@ verify-networking() {
 	# Ping the IP
 	echo "INFO: Pinging IP for openshift instance: ${OPENSHIFT_IP}"
 	cmd ping -c 3 ${OPENSHIFT_IP}
-	sleep 10
-	echo "INFO: Pinging IP for RHEL instance: ${RHEL_IP}"
-	cmd ping -c 3 ${RHEL_IP}
-
-	# Get a VNC consolE
-	source /root/keystonerc_${USERNAME}
 }
 
 cleanup () {
-  source /root/keystonerc_${USERNAME}
-  cmd openstack server delete openshift-test
-  cmd openstack server delete rhel-test
+	# Get a VNC consolE
+	source /root/keystonerc_${USERNAME}
+  echo "INFO: Bring up console if SSH doesn't work"
+	cmd nova get-vnc-console openshift-base novnc
+  # Leaving openshift-base so snapshots can be used based of this server
+  #cmd openstack server delete openshift-base
 }
 
 # Main
@@ -382,8 +296,7 @@ packstack-install 2>&1 | tee -a ${LOGFILE}
 cmd packstack --answer-file=/root/openstack-scripts/answers.txt
 post-install-config 2>&1 | tee -a ${LOGFILE}
 post-install-admin-tasks 2>&1 | tee -a ${LOGFILE}
-# Image creation can't be redirected to a log file or the --progress option doesn't work
-create-images
+create-images 2>&1 | tee -a ${LOGFILE}
 post-install-user-tasks 2>&1 | tee -a ${LOGFILE}
 build-instances 2>&1 | tee -a ${LOGFILE}
 source /root/keystonerc_${USERNAME}

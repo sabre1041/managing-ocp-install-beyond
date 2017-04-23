@@ -70,10 +70,6 @@ DNS1=172.20.17.1
 # Call deploy_vm function
 deploy_vm ${OSP_NAME}
 
-# Copy guest image to VM
-cmd scp ${SSH_OPTS} ${OSP_BASE_IMAGE_PATH} root@${OSP_VM_HOSTNAME}:/tmp/.
-
-
 # Inject SSH Key
 cmd virt-customize -a ${OPENSHIFT_IMAGE_PATH} \
   --root-password password:${PASSWORD} \
@@ -82,7 +78,7 @@ cmd virt-customize -a ${OPENSHIFT_IMAGE_PATH} \
   --selinux-relabel
 
 # Copy openshift-base image to VM
-cmd scp ${SSH_OPTS} ${OPENSHIFT_IMAGE_PATH} root@${OSP_VM_HOSTNAME}:/tmp/.
+cmd scp ${SSH_OPTS} ${OPENSHIFT_IMAGE_PATH} root@${OSP_VM_HOSTNAME}:${OPENSHIFT_IMAGE_PATH}
 
 # Remove OpenShift image
 cmd rm -fv ${OPENSHIFT_IMAGE_PATH}
