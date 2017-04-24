@@ -130,7 +130,9 @@ fi
 cmd rsync -avP ${OSP_VM_IMAGE_PATH} ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME}.${DATETIME}
 
 # Create symlink to new image
-cmd ln -s ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME}.${DATETIME} ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME}
+pushd ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/
+ln -s ${OSP_VM_IMAGE_NAME}.${DATETIME} ${OSP_VM_IMAGE_NAME}
+popd
 
 # Remove running rhosp guest
 source remove-rhosp-vm.sh
