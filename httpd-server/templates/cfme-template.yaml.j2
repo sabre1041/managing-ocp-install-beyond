@@ -49,7 +49,7 @@ objects:
       description: "Keeps track of changes in the CloudForms app image"
       openshift.io/image.insecureRepository: "true"
   spec:
-    dockerImageRepository: registry.access.redhat.com/cloudforms/cfme-openshift-app
+    dockerImageRepository: ${REGISTRY_HOST}/cloudforms/cfme-openshift-app
 - apiVersion: v1
   kind: PersistentVolumeClaim
   metadata:

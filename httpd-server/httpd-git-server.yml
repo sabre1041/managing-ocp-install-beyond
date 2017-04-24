@@ -9,7 +9,7 @@
     git_user: "git"
     ocp_example_repos:
      - { url: "https://github.com/openshift/cakephp-ex.git", commit: "fb2aabb3c104df7f590b3ccb041c28885ca213c2" }
-    docker_registry_host: "repos.osp.example.com:5000"
+    docker_registry_host: "repo.osp.example.com:5000"
   handlers:
     - name: restart httpd
       service:
