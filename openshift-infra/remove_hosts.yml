@@ -1,0 +1,19 @@
+---
+- name: Remove OpenShift Hosts
+  hosts: localhost
+  gather_facts: no
+  vars:
+    osp_domain_name: osp.example.com
+    osp_instances:
+    - name: master
+    - name: infra
+    - name: node1
+    - name: node2
+
+  tasks:
+  - os_server:
+      name: "{{ item.name }}.{{ osp_domain_name }}"
+      cloud: devstack
+      state: absent
+    with_items:
+    - "{{ osp_instances }}"
