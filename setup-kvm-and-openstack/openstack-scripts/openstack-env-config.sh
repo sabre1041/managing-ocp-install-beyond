@@ -280,37 +280,9 @@ verify-networking() {
 	cmd ping -c 3 ${OPENSHIFT_IP}
 }
 
-snapshots() {
-  # Create Server snapshots
-	source /root/keystonerc_${USERNAME}
-  cmd openstack server stop openshift-base
-	echo -n "Waiting for instance to stop"
-  counter=0
-	while :
-	do
-    counter=$(( $counter + 1 ))
-		echo -n "."
-		sleep 1
-		if openstack server show openshift-base -f value -c status | grep -q SHUTOFF
-    then
-      break
-    fi
-    if [ $counter -gt $TIMEOUT ]
-    then
-      echo ERROR: something went wrong - check console
-      exit 1
-    elif [ $counter -gt $TIMEOUT_WARN ]
-    then
-      echo WARN: this is taking longer than expected
-    fi
-	done
-	echo ""
-  echo "INFO: Creating server snapshot images (this will take a while)"
-  cmd openstack server image create openshift-base --name openshift-master --wait
-  cmd openstack server image create openshift-base --name openshift-infra --wait
-  cmd openstack server image create openshift-base --name openshift-node1 --wait
-  cmd openstack server image create openshift-base --name openshift-node2 --wait
-  cmd openstack server image create openshift-base --name openshift-node3 --wait
+cleanup() {
+  source /root/keystonerc_${USERNAME}
+  cmd openstack server delete openshift-base
 }
 
 # Main
@@ -330,6 +302,6 @@ then
   exit 1
 fi
 verify-networking 2>&1 | tee -a ${LOGFILE}
-snapshots 2>&1 | tee -a ${LOGFILE}
+cleanup 2>&1 | tee -a ${LOGFILE}
 
 echo "INFO: All functions completed" 2>&1 | tee -a ${LOGFILE}
