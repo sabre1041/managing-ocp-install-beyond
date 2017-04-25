@@ -53,7 +53,7 @@
     command: >
       oc tag {{ item.source }} {{ item.tag }} --insecure
     with_items:
-    - source: repos.osp.example.com:5000/rhscl/php-70-rhel7:latest
+    - source: repo.osp.example.com:5000/rhscl/php-70-rhel7:latest
       tag: openshift/php:7.0
-    - source: repos.osp.example.com:5000/rhscl/mysql-57-rhel7:latest
+    - source: repo.osp.example.com:5000/rhscl/mysql-57-rhel7:latest
       tag: openshift/mysql:5.7
