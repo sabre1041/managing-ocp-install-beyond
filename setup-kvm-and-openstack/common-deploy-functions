@@ -179,6 +179,9 @@ remove_vm () {
   echo "INFO: Removing ${VM_IMAGE_PATH}"
   rm -fv ${VM_IMAGE_PATH}
   echo ""
-  echo "TIP: Leave local image in /tmp/ to speed up deploy scripts, remove local image in /tmp/ to retrieve updated images or if using build scripts."
-  rm -iv ${VM_IMAGE_STAGING_PATH}
+  if [ -f ${VM_IMAGE_STAGING_PATH} ]
+  then
+    echo "TIP: Leave local image in /tmp/ to speed up deploy scripts, remove local image in /tmp/ to retrieve updated images or if using build scripts."
+    rm -iv ${VM_IMAGE_STAGING_PATH}
+  fi
 }
