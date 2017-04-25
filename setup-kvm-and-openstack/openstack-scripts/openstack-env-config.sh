@@ -255,8 +255,8 @@ verify-networking() {
 	OPENSHIFT_IP=$(openstack server list -f value -c Name -c Networks | awk -F= ' /openshift-base/ { print $2 }')
 	echo -n "Waiting for instance networking to be available"
   counter=0
-	while :
-	do
+  while :
+  do
     counter=$(( $counter + 1 ))
     echo -n "."
     sleep 1
@@ -285,8 +285,8 @@ cleanup() {
   cmd openstack server delete openshift-base
   echo -n "Waiting for openshift-base to be deleted"
   counter=0
-	while :
-	do
+  while :
+  do
     counter=$(( $counter + 1 ))
     echo -n "."
     sleep 1
@@ -302,12 +302,12 @@ cleanup() {
     then
       echo WARN: this is taking longer than expected
     fi
-	done
-	echo ""
+  done
+   echo ""
   echo -n "Waiting for openshift-base-volume to be deleted"
   counter=0
-	while :
-	do
+  while :
+  do
     counter=$(( $counter + 1 ))
     echo -n "."
     sleep 1
@@ -323,8 +323,8 @@ cleanup() {
     then
       echo WARN: this is taking longer than expected
     fi
-	done
-	echo ""
+  done
+  echo ""
   # Remove repos
   cmd rhos-release -x
   cmd yum -y remove rhos-release
