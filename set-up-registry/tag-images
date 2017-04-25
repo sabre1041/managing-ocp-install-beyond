@@ -11,10 +11,10 @@ docker tag registry.access.redhat.com/openshift3/ose-docker-registry:v3.4.1.10 r
 docker tag registry.access.redhat.com/openshift3/ose:v3.4.1.10 repo.osp.example.com:5000/openshift3/ose:v3.4.1.10
 docker tag registry.access.redhat.com/openshift3/ose-pod:v3.4.1.10 repo.osp.example.com:5000/openshift3/ose-pod:v3.4.1.10
 
-docker tag registry.access.redhat.com/openshift3/metrics-deployer:3.4.1 repo.osp.example.com:5000/openshift3/metrics-deployer:3.4.1
-docker tag registry.access.redhat.com/openshift3/metrics-heapster:3.4.1 repo.osp.example.com:5000/openshift3/metrics-heapster:3.4.1
-docker tag registry.access.redhat.com/openshift3/metrics-cassandra:3.4.1 repo.osp.example.com:5000/openshift3/metrics-cassandra:3.4.1
-docker tag registry.access.redhat.com/openshift3/metrics-hawkular-metrics:3.4.1 repo.osp.example.com:5000/openshift3/metrics-hawkular-metrics:3.4.1
+docker tag registry.access.redhat.com/openshift3/metrics-deployer:3.4.0 repo.osp.example.com:5000/openshift3/metrics-deployer:3.4.0
+docker tag registry.access.redhat.com/openshift3/metrics-heapster:3.4.0 repo.osp.example.com:5000/openshift3/metrics-heapster:3.4.0
+docker tag registry.access.redhat.com/openshift3/metrics-cassandra:3.4.0 repo.osp.example.com:5000/openshift3/metrics-cassandra:3.4.0
+docker tag registry.access.redhat.com/openshift3/metrics-hawkular-metrics:3.4.0 repo.osp.example.com:5000/openshift3/metrics-hawkular-metrics:3.4.0
 
 docker tag registry.access.redhat.com/rhscl/php-70-rhel7:latest repo.osp.example.com:5000/rhscl/php-70-rhel7:latest
 docker tag registry.access.redhat.com/rhscl/mysql-57-rhel7:latest repo.osp.example.com:5000/rhscl/mysql-57-rhel7:latest
