@@ -258,9 +258,9 @@ verify-networking() {
 	while :
 	do
     counter=$(( $counter + 1 ))
-		echo -n "."
-		sleep 1
-		if ping -c 2 ${OPENSHIFT_IP} 2>&1 > /dev/null
+    echo -n "."
+    sleep 1
+    if ping -q -c 2 ${OPENSHIFT_IP} > /dev/null
     then
       break
     fi
@@ -283,6 +283,51 @@ verify-networking() {
 cleanup() {
   source /root/keystonerc_${USERNAME}
   cmd openstack server delete openshift-base
+  echo -n "Waiting for openshift-base to be deleted"
+  counter=0
+	while :
+	do
+    counter=$(( $counter + 1 ))
+    echo -n "."
+    sleep 1
+    if ! openstack server list -f value | grep -q openshift-base
+    then
+      break
+    fi
+    if [ $counter -gt $TIMEOUT ]
+    then
+      echo ERROR: something went wrong - check console
+      exit 1
+    elif [ $counter -gt $TIMEOUT_WARN ]
+    then
+      echo WARN: this is taking longer than expected
+    fi
+	done
+	echo ""
+  echo -n "Waiting for openshift-base-volume to be deleted"
+  counter=0
+	while :
+	do
+    counter=$(( $counter + 1 ))
+    echo -n "."
+    sleep 1
+    if ! openstack volume list -f value | grep -q openshift-base-volume
+    then
+      break
+    fi
+    if [ $counter -gt $TIMEOUT ]
+    then
+      echo ERROR: something went wrong - check console
+      exit 1
+    elif [ $counter -gt $TIMEOUT_WARN ]
+    then
+      echo WARN: this is taking longer than expected
+    fi
+	done
+	echo ""
+  # Remove repos
+  cmd rhos-release -x
+  cmd yum -y remove rhos-release
 }
 
 # Main
