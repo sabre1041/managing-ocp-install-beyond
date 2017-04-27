@@ -11,7 +11,7 @@ WILDCARD_DOMAIN=".apps.${BASE_DOMAIN}"
 SSH_KEY_FILENAME=~/.ssh/${LAB_NAME}
 SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ${SSH_KEY_FILENAME}"
 PASSWORD=summit2017
-TIMEOUT=90
+TIMEOUT=180
 FILESHARE_DEST_BASE=/fileshare/scripts/summit2017
 : ${FILESHARE_HOST:=10.11.169.10}
 : ${UPDATE_FILESHARE:=true}
