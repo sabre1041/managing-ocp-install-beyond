@@ -125,12 +125,16 @@ cmd systemctl restart NetworkManager
 if [ ! -d ~/.ssh ]
 then
   cmd mkdir ~/.ssh
-  cmd chmod 600 ~/.ssh
 fi
 
 # Create unique key for this project
 if [ ! -f ${SSH_KEY_FILENAME} ]
 then
-  # Setup lab key
-  cmd ssh-keygen -b 2048 -t rsa -f ${SSH_KEY_FILENAME} -N ""
+  cmd wget -O ${SSH_KEY_FILENAME} ${TOWER_PRIVATE_KEY_URL}
 fi
+if [ ! -f ${SSH_KEY_FILENAME}.pub ]
+then
+  cmd wget -O ${SSH_KEY_FILENAME}.pub ${TOWER_PUBLIC_KEY_URL}
+fi
+cmd chmod -Rv 600 ~/.ssh
+cmd restorecon -Rv ~/.ssh
