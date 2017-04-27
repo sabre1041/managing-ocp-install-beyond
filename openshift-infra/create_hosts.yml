@@ -18,7 +18,7 @@
       app:
         name: ocp.node
         disk: 10
-        ram: 8096
+        ram: 12288
         vcpus: 2
     osp_instances:
     - type: master
