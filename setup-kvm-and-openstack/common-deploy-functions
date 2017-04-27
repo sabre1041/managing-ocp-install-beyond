@@ -54,6 +54,21 @@ prep_vm () {
       exit 1
     fi
   fi
+}
+
+customize_vm() {
+  VM_TYPE=$1
+
+  VM_NAME=${LAB_NAME}-${VM_TYPE}
+  VM_IMAGE_NAME=${VM_NAME}.qcow2
+  VM_IMAGE_PATH=${IMAGE_LOCAL_DIR}/${VM_IMAGE_NAME}
+  VM_IMAGE_STAGING_PATH=${IMAGE_STAGING_DIR}/${VM_IMAGE_NAME}
+  VM_IMAGE_URL=${VM_IMAGE_URL_BASE}/${VM_NAME}/${VM_IMAGE_NAME}
+
+  echo $VM_TYPE
+  echo ${VM_IMAGE_NAME}
+  echo ${VM_IMAGE_URL}
+  echo ${VM_NAME}
 
   cmd virt-customize -a ${VM_IMAGE_PATH} \
     --hostname ${VM_TYPE}.${ADMIN_DOMAIN} \
