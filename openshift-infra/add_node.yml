@@ -28,7 +28,7 @@
       volume_size: 10
       boot_from_volume: yes
       terminate_volume: yes
-      flavor: osp.node
+      flavor: ocp.node
       key_name: tower
       timeout: 300
       userdata: "{{ lookup('template', 'user_data.j2') }}"
