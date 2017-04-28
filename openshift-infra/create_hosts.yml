@@ -80,6 +80,15 @@
     - udp
     - icmp
 
+  - os_volume:
+      state: present
+      cloud: devstack
+      size: 10
+      display_name: "{{ item.name }}-docker-volume"
+    when: item.type in ['infra', 'app']
+    with_items:
+    - "{{ osp_instances }}"
+
   - os_server:
       name: "{{ item.name }}.{{ osp_domain_name }}"
       cloud: devstack
@@ -90,6 +99,7 @@
       terminate_volume: yes
       flavor: "{{ osp_flavors[item.type].name }}"
       key_name: tower
+      volumes: "{{ [item.name ~ '-docker-volume'] if item.type in ['infra', 'app'] else omit }}"
       userdata: "{{ lookup('template', 'user_data.j2') }}"
       timeout: 300
       security_groups:
