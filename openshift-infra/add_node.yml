@@ -4,40 +4,36 @@
   gather_facts: no
   vars:
     osp_domain_name: osp.example.com
-    osp_flavors:
-      small_app:
-        name: ocp.small.node
-        disk: 10
-        ram: 4096
-        vcpus: 2
     osp_instances:
-    - type: small_app
+    - type: app
       name: node2
       meta:
         nodes: 'true'
         osev3: 'true'
         node_type: app
   tasks:
-  - os_nova_flavor:
-      name: "{{ item.value.name }}"
-      disk: "{{ item.value.disk }}"
-      ram: "{{ item.value.ram }}"
-      vcpus: "{{ item.value.vcpus }}"
-      cloud: admin
+  - os_volume:
       state: present
-    with_dict: "{{ osp_flavors }}"
+      cloud: devstack
+      size: 10
+      display_name: "{{ item.name }}-docker-volume"
+    with_items:
+    - "{{ osp_instances }}"
+
   - os_server:
       name: "{{ item.name }}.{{ osp_domain_name }}"
       cloud: devstack
       state: present
       image: openshift-base
-      volume_size: "{{ osp_flavors[item.type].disk }}"
+      volume_size: 10
       boot_from_volume: yes
       terminate_volume: yes
-      flavor: "{{ osp_flavors[item.type].name }}"
+      flavor: osp.node
       key_name: tower
       timeout: 300
       userdata: "{{ lookup('template', 'user_data.j2') }}"
+      volumes:
+      - "{{ item.name }}-docker-volume"
       security_groups:
       - default
       - openshift
