@@ -103,6 +103,9 @@ NETMASK=255.255.255.0
 GATEWAY=172.20.17.1
 DNS1=172.20.17.1
 '
+  else
+    cmd virt-customize -a ${VM_IMAGE_PATH} \
+      --ssh-inject user1:file:${SSH_KEY_FILENAME}.pub \
   fi
 }
 

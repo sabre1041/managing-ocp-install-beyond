@@ -74,6 +74,10 @@ post-install-config() {
 		openstack-config --set /etc/neutron/dhcp_agent.ini DEFAULT enable_isolated_metadata true
 	fi
 	cmd openstack-service restart
+  cmd useradd ${USERNAME}
+  cmd usermod ${USERNAME} -G wheel
+  echo "${PASSWORD}" | passwd ${USERNAME} --stdin
+  cmd sed -i 's/cloud-user/user1/g' /etc/sudoers
 }
 
 post-install-admin-tasks() {
@@ -126,6 +130,9 @@ export OS_AUTH_URL=http://${CONTROLLER_HOST}:35357/v2.0/
 export PS1='[\u@\h \W(keystone_${USERNAME})]\$ '
 EOF
 echo "source /root/keystonerc_${USERNAME}">> /root/.bashrc
+echo "source /home/${USERNAME}/keystonerc_${USERNAME}">> /home/${USERNAME}/.bashrc
+cp /root/keystonerc_${USERNAME} /home/${USERNAME}/.
+chown ${USERNAME}:${USERNAME} /home/${USERNAME}/keystonerc_${USERNAME}
 }
 
 create-images() {

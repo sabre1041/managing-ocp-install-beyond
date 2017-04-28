@@ -1144,7 +1144,7 @@ CONFIG_SWIFT_STORAGE_FSTYPE=ext4
 CONFIG_SWIFT_HASH=53b7bcb5e03f4afd
 
 # Size of the Object Storage loopback file storage device.
-CONFIG_SWIFT_STORAGE_SIZE=20G
+CONFIG_SWIFT_STORAGE_SIZE=2G
 
 # Password used by Orchestration service user to authenticate against
 # the database.
