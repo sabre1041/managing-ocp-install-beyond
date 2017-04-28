@@ -74,6 +74,13 @@ post-install-config() {
 		openstack-config --set /etc/neutron/dhcp_agent.ini DEFAULT enable_isolated_metadata true
 	fi
 	cmd openstack-service restart
+  cmd useradd ${USERNAME}
+  cmd usermod ${USERNAME} -G wheel
+  echo "${PASSWORD}" | passwd ${USERNAME} --stdin
+  cmd sed -i 's/cloud-user/user1/g' /etc/sudoers
+  # Remove repos
+  cmd rhos-release -x
+  cmd yum -y remove rhos-release
 }
 
 post-install-admin-tasks() {
@@ -126,6 +133,9 @@ export OS_AUTH_URL=http://${CONTROLLER_HOST}:35357/v2.0/
 export PS1='[\u@\h \W(keystone_${USERNAME})]\$ '
 EOF
 echo "source /root/keystonerc_${USERNAME}">> /root/.bashrc
+echo "source /home/${USERNAME}/keystonerc_${USERNAME}">> /home/${USERNAME}/.bashrc
+cp /root/keystonerc_${USERNAME} /home/${USERNAME}/.
+chown ${USERNAME}:${USERNAME} /home/${USERNAME}/keystonerc_${USERNAME}
 }
 
 create-images() {
@@ -325,9 +335,6 @@ cleanup() {
     fi
   done
   echo ""
-  # Remove repos
-  cmd rhos-release -x
-  cmd yum -y remove rhos-release
 }
 
 # Main
@@ -339,14 +346,14 @@ post-install-config 2>&1 | tee -a ${LOGFILE}
 post-install-admin-tasks 2>&1 | tee -a ${LOGFILE}
 create-images 2>&1 | tee -a ${LOGFILE}
 post-install-user-tasks 2>&1 | tee -a ${LOGFILE}
-build-instances 2>&1 | tee -a ${LOGFILE}
-source /root/keystonerc_${USERNAME}
-if nova list | grep ERROR
-then
-  echo "ERROR: Something went wrong, check virt capabilities of this host ..."
-  exit 1
-fi
-verify-networking 2>&1 | tee -a ${LOGFILE}
-cleanup 2>&1 | tee -a ${LOGFILE}
+#build-instances 2>&1 | tee -a ${LOGFILE}
+#source /root/keystonerc_${USERNAME}
+#if nova list | grep ERROR
+#then
+#  echo "ERROR: Something went wrong, check virt capabilities of this host ..."
+#  exit 1
+#fi
+#verify-networking 2>&1 | tee -a ${LOGFILE}
+#cleanup 2>&1 | tee -a ${LOGFILE}
 
 echo "INFO: All functions completed" 2>&1 | tee -a ${LOGFILE}

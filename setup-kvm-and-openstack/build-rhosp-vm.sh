@@ -116,6 +116,11 @@ do
 done
 echo ""
 
+# Inject key for user
+cmd virt-customize -a ${VM_IMAGE_PATH} \
+  --ssh-inject user1:file:${SSH_KEY_FILENAME}.pub \
+  --selinux-relabel
+
 # Remove image if it exists
 DATETIME=$(date +%Y%m%d%H%M%S)
 if [ -f ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME}.${DATETIME} ]
