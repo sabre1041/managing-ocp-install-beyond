@@ -78,6 +78,9 @@ post-install-config() {
   cmd usermod ${USERNAME} -G wheel
   echo "${PASSWORD}" | passwd ${USERNAME} --stdin
   cmd sed -i 's/cloud-user/user1/g' /etc/sudoers
+  # Remove repos
+  cmd rhos-release -x
+  cmd yum -y remove rhos-release
 }
 
 post-install-admin-tasks() {
@@ -332,9 +335,6 @@ cleanup() {
     fi
   done
   echo ""
-  # Remove repos
-  cmd rhos-release -x
-  cmd yum -y remove rhos-release
 }
 
 # Main
@@ -346,14 +346,14 @@ post-install-config 2>&1 | tee -a ${LOGFILE}
 post-install-admin-tasks 2>&1 | tee -a ${LOGFILE}
 create-images 2>&1 | tee -a ${LOGFILE}
 post-install-user-tasks 2>&1 | tee -a ${LOGFILE}
-build-instances 2>&1 | tee -a ${LOGFILE}
-source /root/keystonerc_${USERNAME}
-if nova list | grep ERROR
-then
-  echo "ERROR: Something went wrong, check virt capabilities of this host ..."
-  exit 1
-fi
-verify-networking 2>&1 | tee -a ${LOGFILE}
-cleanup 2>&1 | tee -a ${LOGFILE}
+#build-instances 2>&1 | tee -a ${LOGFILE}
+#source /root/keystonerc_${USERNAME}
+#if nova list | grep ERROR
+#then
+#  echo "ERROR: Something went wrong, check virt capabilities of this host ..."
+#  exit 1
+#fi
+#verify-networking 2>&1 | tee -a ${LOGFILE}
+#cleanup 2>&1 | tee -a ${LOGFILE}
 
 echo "INFO: All functions completed" 2>&1 | tee -a ${LOGFILE}
