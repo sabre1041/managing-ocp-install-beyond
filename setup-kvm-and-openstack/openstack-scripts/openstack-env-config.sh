@@ -42,7 +42,6 @@ prep() {
   fi
 
   # Enable lvm on second partition
-  cmd yum -y install lvm2
   cmd pvcreate /dev/sda2
   cmd vgcreate cinder-volumes /dev/sda2
   cmd vgchange -ay
@@ -58,8 +57,6 @@ packstack-install() {
 
 post-install-config() {
 	cmd echo "INFO: Starting function 'prepare-host'"
-	# Enable discards for lvm
-	cmd sed -i -e 's/issue_discards = .*$/issue_discards = 1/' /etc/lvm/lvm.conf
 
 	openstack-config --set /etc/cinder/cinder.conf lvm volume_clear none
 	openstack-config --set /etc/cinder/cinder.conf lvm image_upload_use_cinder_backend True
@@ -155,7 +152,6 @@ create-images() {
   then
     cmd openstack image create \
       --disk-format raw \
-      --protected \
       --container-format bare \
       --property hw_scsi_model=virtio-scsi \
       --property hw_disk_bus=scsi \
@@ -163,7 +159,6 @@ create-images() {
       --file ${OPENSHIFT_IMAGE_PATH} \
       image-base-src
   fi
-  cmd openstack image show image-base-src
   if ! glance image-list | grep ${OPENSHIFT_VM_NAME}
   then
     cmd openstack volume create \
@@ -181,6 +176,8 @@ create-images() {
     VOLUME_ID=$(openstack volume show ${OPENSHIFT_VM_NAME} -f value -c id)
     IMAGE_ID=$(openstack image show ${OPENSHIFT_VM_NAME} -f value -c id)
     cmd glance location-add ${IMAGE_ID} --url cinder://${VOLUME_ID}
+    cmd virt-sparsify /dev/cinder-volumes/volume-${VOLUME_ID} --in-place
+    cmd openstack image delete image-base-src
   fi
   cmd openstack image show ${OPENSHIFT_VM_NAME}
   cmd rm -vf ${OPENSHIFT_IMAGE_PATH}

@@ -55,6 +55,8 @@ cmd virt-customize -a ${OSP_VM_IMAGE_PATH} \
   --run-command 'yum remove cloud-init* -y && \
     rpm -ivh http://rhos-release.virt.bos.redhat.com/repos/rhos-release/rhos-release-latest.noarch.rpm && \
     rhos-release 10 && \
+    yum install -y lvm2 libguestfs-tools && \
+    sed -i -e "s/issue_discards = .*$/issue_discards = 1/" /etc/lvm/lvm.conf && \
     systemctl disable NetworkManager' \
   --write /etc/sysconfig/network-scripts/ifcfg-eth1:'DEVICE=eth1
 BOOTPROTO=static
