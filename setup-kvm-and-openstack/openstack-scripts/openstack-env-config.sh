@@ -124,6 +124,9 @@ post-install-admin-tasks() {
   cmd neutron port-create external --name openshift-node2 --tenant-id ${TENANT_ID} --allowed-address-pairs type=dict list=true ip_address=172.20.17.52 --fixed-ip subnet_id=${EXTERNAL_SUBNET_ID},ip_address=172.20.17.52
   cmd neutron port-create external --name openshift-node3 --tenant-id ${TENANT_ID} --allowed-address-pairs type=dict list=true ip_address=172.20.17.53 --fixed-ip subnet_id=${EXTERNAL_SUBNET_ID},ip_address=172.20.17.53
 
+  #Increase quota for volumes
+  cmd openstack quota set --volumes 20 ${TENANT_NAME}
+
 	# User keystonerc file
 cat > /root/keystonerc_${USERNAME} << EOF
 export OS_USERNAME=${USERNAME}
