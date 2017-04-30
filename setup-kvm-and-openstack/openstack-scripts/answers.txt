@@ -42,7 +42,7 @@ CONFIG_HORIZON_INSTALL=y
 CONFIG_SWIFT_INSTALL=y
 
 # Specify 'y' to install OpenStack Metering (ceilometer). ['y', 'n']
-CONFIG_CEILOMETER_INSTALL=n
+CONFIG_CEILOMETER_INSTALL=y
 
 # Specify 'y' to install OpenStack Telemetry Alarming (Aodh). Note
 # Aodh requires Ceilometer to be installed as well. ['y', 'n']

@@ -1,6 +1,6 @@
 echo "INFO: Loading scenario-all-in-one"
 
-TIMEOUT=60
+TIMEOUT=120
 TIMEOUT_WARN=$(( $TIMEOUT / 2 ))
 # Set the following to the version of RHELOSP to install, see the following array for all versions or run rhos-release -l
 RHELOSP_VERSION=10
