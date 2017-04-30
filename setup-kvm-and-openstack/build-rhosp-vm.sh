@@ -137,7 +137,7 @@ fi
 
 # Sparsify image
 cmd virt-sparsify ${OSP_VM_IMAGE_PATH} ${OSP_VM_IMAGE_PATH}-sparsified
-cmd rsync -avP ${OSP_VM_IMAGE_PATH} ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME}.${DATETIME}-sparsified
+cmd rsync -avP ${OSP_VM_IMAGE_PATH}-sparsified ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME}.${DATETIME}-sparsified
 
 # Create symlink to new image
 pushd ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/
@@ -146,3 +146,4 @@ popd
 
 # Remove running rhosp guest
 source remove-rhosp-vm.sh
+cmd rm -iv ${OSP_VM_IMAGE_PATH}-sparsified

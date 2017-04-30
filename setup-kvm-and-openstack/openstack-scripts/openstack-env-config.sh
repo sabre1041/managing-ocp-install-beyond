@@ -161,7 +161,7 @@ create-images() {
       image-base-src
   fi
 	# wait for image to become active
-	echo -en "\nWaiting for image to create"
+	echo -en "\nWaiting for image-base-src image to create"
   counter=0
 	while :
 	do
@@ -196,13 +196,13 @@ create-images() {
       --property hw_disk_bus=scsi \
       --min-disk 10 \
       ${OPENSHIFT_VM_NAME}
-    echo -en "\nWaiting for volume to create"
+    echo -en "\nWaiting for ${OPENSHIFT_VM_NAME} volume to create"
     counter=0
     while :
     do
       counter=$(( $counter + 1 ))
       echo -n "."
-      sleep 1
+      sleep 2
       if openstack volume show ${OPENSHIFT_VM_NAME} -f value -c status | grep -q available
       then
         break
