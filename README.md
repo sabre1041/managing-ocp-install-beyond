@@ -26,7 +26,7 @@ Infrastructure
 
 ## Repository Organization
 
-The majority of the components are located on the `master` branch. This includes the tooling to provision the underlying virtual machines along with most *ansible* playbooks. The *L104353* branch contains a fork of the [openshift-ansible](https://github.com/openshift/openshift-ansible) with custom logic to install the OpenShift Container Platform. 
+The majority of the components are located on the `master` branch. This includes the tooling to provision the underlying virtual machines along with most *ansible* playbooks. The [L104353](https://github.com/detiber/openshift-ansible/tree/L104353) branch contains a fork of the [openshift-ansible](https://github.com/openshift/openshift-ansible) with custom logic to install the OpenShift Container Platform. 
 
 ## Red Hat Summit 2017 Lab (L104353)
 
