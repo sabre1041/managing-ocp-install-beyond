@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# Source Variables
+source ./vars &> /dev/null
+
+# Set up path for var file so we can include it.
+INCLUDE="$(dirname "$0")"
+
+# Check for existance of jq package
+if [[ ! -f /usr/bin/jq ]] && [[ ! -f /usr/local/bin/jq ]]
+    then 
+        echo
+        echo "no jq package installed"
+        echo "jq is needed to assign names to infra nodes during launch"
+        echo
+        exit
+    else 
+        echo "jq is installed"
+fi
+
+# Get security group id for nodes
+SEC_GROUP_ID=$(aws ec2 describe-security-groups \
+--query 'SecurityGroups[].GroupId[]' \
+--filters Name=group-name,Values=$LOFT_SEC_GROUP \
+--output text)
+echo "Using security group: ${SEC_GROUP_ID}"
+
+# Create the instances and assign tags
+for NODE_COUNT in $NODE_COUNT; do
+echo "Creating instance ${NODE_COUNT}"
+aws ec2 create-tags \
+--resources $(aws ec2 run-instances \
+--image-id $TOWER_AMI_ID \
+--instance-type $TOWER_INST_TYPE \
+--subnet-id $SUBNET_ID_1 \
+--security-group-ids $SEC_GROUP_ID \
+--block-device-mappings file://block-devs/tower.json \
+--key-name $KEY_NAME --output json | jq -r ".Instances[0].InstanceId") \
+--tags "Key=Name,Value=$TOWER_NODE_1-$NODE_COUNT" "Key=${TAG_KEY1},Value=${TAG_VALUE1}" "Key=${TAG_KEY2},Value=${TAG_VALUE2}"
+
+aws ec2 create-tags \
+--resources $(aws ec2 run-instances \
+--image-id $OCP_AMI_ID \
+--instance-type $OCP_MASTER_INST_TYPE \
+--subnet-id $SUBNET_ID_1 \
+--security-group-ids $SEC_GROUP_ID \
+--key-name $KEY_NAME --output json | jq -r ".Instances[0].InstanceId") \
+--tags "Key=Name,Value=$OCP_MASTER_NODE_2-$NODE_COUNT" "Key=${TAG_KEY1},Value=${TAG_VALUE1}" "Key=${TAG_KEY2},Value=${TAG_VALUE2}"
+
+aws ec2 create-tags \
+--resources $(aws ec2 run-instances \
+--image-id $OCP_AMI_ID \
+--instance-type $OCP_NODE_INST_TYPE \
+--subnet-id $SUBNET_ID_1 \
+--security-group-ids $SEC_GROUP_ID \
+--key-name $KEY_NAME --output json | jq -r ".Instances[0].InstanceId") \
+--tags "Key=Name,Value=$OCP_NODE_NODE_3-$NODE_COUNT" "Key=${TAG_KEY1},Value=${TAG_VALUE1}" "Key=${TAG_KEY2},Value=${TAG_VALUE2}"
+done

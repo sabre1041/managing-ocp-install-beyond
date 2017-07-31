@@ -1,0 +1,49 @@
+# Create Custom Variables.  You can change this to anything you want, makes a unique environment.
+# Example: LAB_USER=tohuges or LAB_USER=scollier or LAB_USER=student
+INSTANCE_TYPE_1="tower"
+INSTANCE_TYPE_2="master"
+INSTANCE_TYPE_3="node"
+ENV_NAME="student"
+
+# Number of loft nodes that need to be created
+# Just provide a start and finish number
+NODE_COUNT=$(seq 1 1)
+
+# AMI Id
+# This needs to be updated everytime you update the AMI on AWS.
+TOWER_AMI_ID=ami-a32a0fd8
+OCP_AMI_ID=ami-d4e1c4af
+
+# Instance types
+# I only requested an extension to 105 instances for this type.  Can't launch more than 15 of any other type.
+TOWER_INST_TYPE=t2.medium
+OCP_MASTER_INST_TYPE=t2.large
+OCP_NODE_INST_TYPE=t2.xlarge
+
+# Network info
+# This is all static. Already created in our VPC
+SUBNET_CIDR_1='10.15.5.0/24'
+SUBNET_ID_1=subnet-cabb9091
+
+# Availability Zones
+# Will need to change this once we swap to the west coast.
+REGION=us-east-1
+AZ_1=us-east-1a
+
+# Security Groups
+# This is static
+LOFT_SEC_GROUP=scollier-testing-sg
+
+# Tags
+TAG_KEY1="lab_type"
+TAG_VALUE1=${INSTANCE_TYPE}
+TAG_KEY2="lab_user"
+TAG_VALUE2=${ENV_NAME}
+
+# AWS node names
+TOWER_NODE_1=${INSTANCE_TYPE_1}-${ENV_NAME}
+OCP_MASTER_NODE_2=${INSTANCE_TYPE_2}-${ENV_NAME}
+OCP_NODE_NODE_3=${INSTANCE_TYPE_3}-${ENV_NAME}
+
+# AWS Key
+KEY_NAME=aws-certification
