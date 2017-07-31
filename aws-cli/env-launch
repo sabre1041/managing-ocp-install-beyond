@@ -34,7 +34,6 @@ aws ec2 create-tags \
 --instance-type $TOWER_INST_TYPE \
 --subnet-id $SUBNET_ID_1 \
 --security-group-ids $SEC_GROUP_ID \
---block-device-mappings file://block-devs/tower.json \
 --key-name $KEY_NAME --output json | jq -r ".Instances[0].InstanceId") \
 --tags "Key=Name,Value=$TOWER_NODE_1-$NODE_COUNT" "Key=${TAG_KEY1},Value=${TAG_VALUE1}" "Key=${TAG_KEY2},Value=${TAG_VALUE2}"
 

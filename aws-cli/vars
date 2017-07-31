@@ -11,7 +11,7 @@ NODE_COUNT=$(seq 1 1)
 
 # AMI Id
 # This needs to be updated everytime you update the AMI on AWS.
-TOWER_AMI_ID=ami-a32a0fd8
+TOWER_AMI_ID=ami-68e9cc13
 OCP_AMI_ID=ami-d4e1c4af
 
 # Instance types
