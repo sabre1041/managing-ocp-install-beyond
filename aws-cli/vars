@@ -1,21 +1,24 @@
-# Create Custom Variables.  You can change this to anything you want, makes a unique environment.
-# Example: LAB_USER=tohuges or LAB_USER=scollier or LAB_USER=student
+# Change these variables to ensure a unique launch
+# Example: LAB_USER=student and LAB_NAME=rhsummit2017
+LAB_USER="student"
+LAB_NAME="rhte"
+
+# This next variable will determine the total number of 'sets of instances' (e.g. students) needed. If there are 3 instances per student for this lab, then this variable is multiplied by 3.
+STUDENT_COUNT=1
+
+#################################################################################
+# These remaining variables should only be changed if you know what you are doing
 INSTANCE_TYPE_1="tower"
 INSTANCE_TYPE_2="master"
 INSTANCE_TYPE_3="node"
-ENV_NAME="student"
 
-# Number of loft nodes that need to be created
-# Just provide a start and finish number
-NODE_COUNT=$(seq 1 1)
-
-# AMI Id
+# AMI IDs
 # This needs to be updated everytime you update the AMI on AWS.
 TOWER_AMI_ID=ami-68e9cc13
 OCP_AMI_ID=ami-d4e1c4af
 
 # Instance types
-# I only requested an extension to 105 instances for this type.  Can't launch more than 15 of any other type.
+# I only requested an extension to 105 instances for this type.  Can't launch more than 15 of any other type by default.
 TOWER_INST_TYPE=t2.medium
 OCP_MASTER_INST_TYPE=t2.large
 OCP_NODE_INST_TYPE=t2.xlarge
@@ -35,15 +38,15 @@ AZ_1=us-east-1a
 LOFT_SEC_GROUP=scollier-testing-sg
 
 # Tags
-TAG_KEY1="lab_type"
-TAG_VALUE1=${INSTANCE_TYPE}
+TAG_KEY1="lab_name"
+TAG_VALUE1=${LAB_NAME}
 TAG_KEY2="lab_user"
-TAG_VALUE2=${ENV_NAME}
+TAG_VALUE2=${LAB_USER}
 
 # AWS node names
-TOWER_NODE_1=${INSTANCE_TYPE_1}-${ENV_NAME}
-OCP_MASTER_NODE_2=${INSTANCE_TYPE_2}-${ENV_NAME}
-OCP_NODE_NODE_3=${INSTANCE_TYPE_3}-${ENV_NAME}
+TOWER_NODE_1=${LAB_NAME}-${INSTANCE_TYPE_1}-${LAB_USER}
+OCP_MASTER_NODE_2=${LAB_NAME}-${INSTANCE_TYPE_2}-${LAB_USER}
+OCP_NODE_NODE_3=${LAB_NAME}-${INSTANCE_TYPE_3}-${LAB_USER}
 
 # AWS Key
 KEY_NAME=aws-certification
