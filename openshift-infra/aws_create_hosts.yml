@@ -2,85 +2,54 @@
 - name: Create OpenShift Instances
   hosts: localhost
   gather_facts: no
-  vars:
-    aws_access_key: "{{ec2_access_key}}"
-    aws_secret_key: "{{ec2_secret_key}}"
-    lab_name: rhte
-    lab_user: vvaldez
-    domain_name: example.com
-    tower_ami_id: ami-68e9cc13
-    ocp_ami_id: ami-d4e1c4af
-    ocp_master_inst_type: t2.large
-    ocp_node_inst_type: t2.xlarge
-    aws_subnet_cidr: '10.15.5.0/24'
-    aws_subnet_id: subnet-cabb9091
-    aws_region: us-east-1
-    aws_az_1: us-east-1a
-    aws_sec_group: scollier-testing-sg
-    aws_key_name: vvaldez
-    #aws_key_name: aws-certification
-    aws_instances:
-    - name: master
-      type: "{{ ocp_master_inst_type }}"
-      image: "{{ ocp_ami_id }}"
-      meta:
-        masters: 'true'
-        etcd: 'true'
-        nodes: 'true'
-        osev3: 'true'
-        node_type: master
-    - name: node1
-      type: "{{ ocp_node_inst_type }}"
-      image: "{{ ocp_ami_id }}"
-      meta:
-        nodes: 'true'
-        osev3: 'true'
-        node_type: node
+  vars_files:
+    - aws_vars.yml
 
   tasks:
-  - name: Provision AWS Instances
-    ec2:
-      aws_access_key: "{{ec2_access_key}}"
-      aws_secret_key: "{{ec2_secret_key}}"
-      key_name: "{{ aws_key_name }}"
-      group: "{{ aws_sec_group }}"
-      instance_type: "{{ item.type }}"
-      image: "{{ item.image }}"
-      wait: true
-      instance_tags:
-        Name: "{{ lab_name + '-' + item.name + '-' + lab_user }}"
-        lab_name: "{{ lab_name }}"
-        lab_user: "{{ lab_user }}"
-        lab_role: "{{ item.meta.node_type }}"
-      vpc_subnet_id: "{{ aws_subnet_id }}"
-      zone: "{{ aws_az_1 }}"
-      assign_public_ip: yes
-      region: "{{ aws_region }}"
-      state: present
-      user_data: "{{ lookup('template', 'aws_user_data.j2') }}"
-      #  volumes:
-      #  - device_name: /dev/sdb
-      #    volume_type: gp2
-      #    volume_size: 10
-      #    delete_on_termination: true
-    with_items: "{{ aws_instances }}"
-    register: instances_created
-
-  - name: Wait for ssh
-    wait_for:
-      port: 22
-      host: "{{ item.instances.0.public_ip }}"
-      timeout: 600
-    with_items: "{{ instances_created.results }}"
-
-#  - name: Add Volumes to AWS Instances
-#    ec2_vol:
-#      aws_access_key: "{{ec2_access_key}}"
-#      aws_secret_key: "{{ec2_secret_key}}"
-#      instance: "{{ item.id }}"
-#      volume_size: 10
-#      device_name: /dev/sdb
-#      #volume_type: gp2
-#      delete_on_termination: true
-#    with_items: "{{ instances_created.results.instances }}"
-#    register: volumes
+    - name: Provision AWS Instances
+      ec2:
+        aws_access_key: "{{ec2_access_key}}"
+        aws_secret_key: "{{ec2_secret_key}}"
+        key_name: "{{ aws_key_name }}"
+        group: "{{ aws_sec_group }}"
+        instance_type: "{{ item.type }}"
+        image: "{{ item.image }}"
+        wait: true
+        instance_tags:
+          Name: "{{ lab_name + '-' + item.name + '-' + lab_user }}"
+          lab_name: "{{ lab_name }}"
+          lab_user: "{{ lab_user }}"
+          lab_role: "{{ item.meta.node_type }}"
+        vpc_subnet_id: "{{ aws_subnet_id }}"
+        zone: "{{ aws_az_1 }}"
+        assign_public_ip: yes
+        region: "{{ aws_region }}"
+        state: present
+        user_data: "{{ lookup('template', 'aws_user_data.j2') }}"
+        #  volumes:
+        #  - device_name: /dev/sdb
+        #    volume_type: gp2
+        #    volume_size: 10
+        #    delete_on_termination: true
+      with_items: "{{ aws_instances }}"
+      register: instances_created
+  
+    - name: Wait for ssh
+      wait_for:
+        port: 22
+        host: "{{ item.instances.0.public_ip }}"
+        timeout: 600
+      with_items: "{{ instances_created.results }}"
+  
+# Leaving this in in case we have to provision storage, right now the extra volume is included in the image
+#    - name: Add Volumes to AWS Instances
+#      ec2_vol:
+#        aws_access_key: "{{ec2_access_key}}"
+#        aws_secret_key: "{{ec2_secret_key}}"
+#        instance: "{{ item.id }}"
+#        volume_size: 10
+#        device_name: /dev/sdb
+#        #volume_type: gp2
+#        delete_on_termination: true
+#      with_items: "{{ instances_created.results.instances }}"
+#      register: volumes
