@@ -10,48 +10,69 @@ INCLUDE="$(dirname "$0")"
 if [[ ! -f /usr/bin/jq ]] && [[ ! -f /usr/local/bin/jq ]]
     then 
         echo
-        echo "no jq package installed"
-        echo "jq is needed to assign names to infra nodes during launch"
+        echo "ERROR: no jq package installed! jq is needed to assign names to instances during launch"
         echo
-        exit
+        exit 1
     else 
-        echo "jq is installed"
+        echo "Info: Using installed 'jq'"
 fi
 
-# Get security group id for nodes
+echo "Info: Using key: '${KEY_NAME}'"
+echo "Info: Using region: '${REGION}'"
+echo "Info: Using subnet-id: '${SUBNET_ID_1}'"
+echo "Info: Using subnet-cidr: '${SUBNET_ID_1}'"
+
 SEC_GROUP_ID=$(aws ec2 describe-security-groups \
+--region ${REGION} \
 --query 'SecurityGroups[].GroupId[]' \
 --filters Name=group-name,Values=$LOFT_SEC_GROUP \
 --output text)
-echo "Using security group: ${SEC_GROUP_ID}"
+echo "Info: Using security group: '${SEC_GROUP_ID}'"
 
 # Create the instances and assign tags
-for NODE_COUNT in $NODE_COUNT; do
-echo "Creating instance ${NODE_COUNT}"
-aws ec2 create-tags \
+for INSTANCE in $(seq 1 ${STUDENT_COUNT})
+do
+    echo "Info: Creating instances for '${LAB_USER}-${INSTANCE}'"
+    echo "Info: Starting instance '${TOWER_NODE_1}-${INSTANCE}' with ami '${TOWER_AMI_ID}'"
+    aws ec2 create-tags \
+--region ${REGION} \
 --resources $(aws ec2 run-instances \
+--region ${REGION} \
 --image-id $TOWER_AMI_ID \
 --instance-type $TOWER_INST_TYPE \
 --subnet-id $SUBNET_ID_1 \
 --security-group-ids $SEC_GROUP_ID \
 --key-name $KEY_NAME --output json | jq -r ".Instances[0].InstanceId") \
---tags "Key=Name,Value=$TOWER_NODE_1-$NODE_COUNT" "Key=${TAG_KEY1},Value=${TAG_VALUE1}" "Key=${TAG_KEY2},Value=${TAG_VALUE2}"
+--tags "Key=Name,Value=$TOWER_NODE_1-$INSTANCE" "Key=${TAG_KEY1},Value=${TAG_VALUE1}" "Key=${TAG_KEY2},Value=${TAG_VALUE2}" "Key=lab_role,Value=ansible-tower" "Key=student_number,Value=${INSTANCE}"
+    echo "Info: Started '${TOWER_NODE_1}-${INSTANCE}'"
 
-aws ec2 create-tags \
+    echo "Info: Starting '${OCP_MASTER_NODE_2}-${INSTANCE}' with ami '${OCP_AMI_ID}'"
+    aws ec2 create-tags \
+--region ${REGION} \
 --resources $(aws ec2 run-instances \
+--region ${REGION} \
 --image-id $OCP_AMI_ID \
 --instance-type $OCP_MASTER_INST_TYPE \
 --subnet-id $SUBNET_ID_1 \
 --security-group-ids $SEC_GROUP_ID \
 --key-name $KEY_NAME --output json | jq -r ".Instances[0].InstanceId") \
---tags "Key=Name,Value=$OCP_MASTER_NODE_2-$NODE_COUNT" "Key=${TAG_KEY1},Value=${TAG_VALUE1}" "Key=${TAG_KEY2},Value=${TAG_VALUE2}"
+--tags "Key=Name,Value=$OCP_MASTER_NODE_2-$INSTANCE" "Key=${TAG_KEY1},Value=${TAG_VALUE1}" "Key=${TAG_KEY2},Value=${TAG_VALUE2}" "Key=lab_role,Value=openshift-master" "Key=student_number,Value=${INSTANCE}"
+    echo "Info: Started '${OCP_MASTER_NODE_2}-${INSTANCE}'"
 
-aws ec2 create-tags \
+    echo "Info: Starting '${OCP_NODE_NODE_3}-${INSTANCE}' with ami '${OCP_AMI_ID}'"
+    aws ec2 create-tags \
+--region ${REGION} \
 --resources $(aws ec2 run-instances \
+--region ${REGION} \
 --image-id $OCP_AMI_ID \
 --instance-type $OCP_NODE_INST_TYPE \
 --subnet-id $SUBNET_ID_1 \
 --security-group-ids $SEC_GROUP_ID \
 --key-name $KEY_NAME --output json | jq -r ".Instances[0].InstanceId") \
---tags "Key=Name,Value=$OCP_NODE_NODE_3-$NODE_COUNT" "Key=${TAG_KEY1},Value=${TAG_VALUE1}" "Key=${TAG_KEY2},Value=${TAG_VALUE2}"
+--tags "Key=Name,Value=$OCP_NODE_NODE_3-$INSTANCE" "Key=${TAG_KEY1},Value=${TAG_VALUE1}" "Key=${TAG_KEY2},Value=${TAG_VALUE2}" "Key=lab_role,Value=openshift-node" "Key=student_number,Value=${INSTANCE}"
+    echo "Info: Started '${OCP_NODE_NODE_3}-${INSTANCE}'"
+    
+    echo "Info: Completed instances for '${LAB_USER}-${INSTANCE}'"
 done
+
+echo "Info: Completed $0."
