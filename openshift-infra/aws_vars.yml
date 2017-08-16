@@ -1,0 +1,35 @@
+---
+aws_access_key: "{{ec2_access_key}}"
+aws_secret_key: "{{ec2_secret_key}}"
+lab_name: rhte
+lab_user: student
+student_count: 2
+domain_name: example.com
+tower_ami_id: ami-18a5857d
+ocp_ami_id: ami-6fa8880a
+tower_inst_type: t2.medium
+ocp_master_inst_type: t2.large
+ocp_node_inst_type: t2.xlarge
+aws_subnet_cidr: '10.90.5.0/24'
+aws_subnet_id: subnet-bf7125d6
+aws_region: us-east-2
+aws_az_1: us-east-2a
+aws_sec_group: aws-nyc-loft
+aws_key_name: rhte-apac
+aws_instances:
+- name: master
+  type: "{{ ocp_master_inst_type }}"
+  image: "{{ ocp_ami_id }}"
+  meta:
+    masters: 'true'
+    etcd: 'true'
+    nodes: 'true'
+    osev3: 'true'
+    node_type: master
+- name: node1
+  type: "{{ ocp_node_inst_type }}"
+  image: "{{ ocp_ami_id }}"
+  meta:
+    nodes: 'true'
+    osev3: 'true'
+    node_type: node
