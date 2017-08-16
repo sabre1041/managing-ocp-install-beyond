@@ -16,21 +16,17 @@
         image: "{{ item.image }}"
         wait: true
         instance_tags:
-          Name: "{{ lab_name + '-' + item.name + '-' + lab_user }}"
+          Name: "{{ lab_name + '-' + item.name + '-' + lab_creator }}"
           lab_name: "{{ lab_name }}"
-          lab_user: "{{ lab_user }}"
+          lab_creator: "{{ lab_creator }}"
           lab_role: "{{ item.meta.node_type }}"
+          student_id: "{{ student_id }}"
         vpc_subnet_id: "{{ aws_subnet_id }}"
         zone: "{{ aws_az_1 }}"
         assign_public_ip: yes
         region: "{{ aws_region }}"
         state: present
         user_data: "{{ lookup('template', 'aws_user_data.j2') }}"
-        #  volumes:
-        #  - device_name: /dev/sdb
-        #    volume_type: gp2
-        #    volume_size: 10
-        #    delete_on_termination: true
       with_items: "{{ aws_instances }}"
       register: instances_created
   
@@ -40,16 +36,3 @@
         host: "{{ item.instances.0.public_ip }}"
         timeout: 600
       with_items: "{{ instances_created.results }}"
-  
-# Leaving this in in case we have to provision storage, right now the extra volume is included in the image
-#    - name: Add Volumes to AWS Instances
-#      ec2_vol:
-#        aws_access_key: "{{ec2_access_key}}"
-#        aws_secret_key: "{{ec2_secret_key}}"
-#        instance: "{{ item.id }}"
-#        volume_size: 10
-#        device_name: /dev/sdb
-#        #volume_type: gp2
-#        delete_on_termination: true
-#      with_items: "{{ instances_created.results.instances }}"
-#      register: volumes

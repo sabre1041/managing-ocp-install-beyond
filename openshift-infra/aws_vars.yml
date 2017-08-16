@@ -2,8 +2,8 @@
 aws_access_key: "{{ec2_access_key}}"
 aws_secret_key: "{{ec2_secret_key}}"
 lab_name: rhte
-lab_user: student
-student_count: 2
+lab_creator: isaac
+student_count: 1
 domain_name: example.com
 tower_ami_id: ami-18a5857d
 ocp_ami_id: ami-6fa8880a
@@ -20,16 +20,14 @@ aws_instances:
 - name: master
   type: "{{ ocp_master_inst_type }}"
   image: "{{ ocp_ami_id }}"
-  meta:
-    masters: 'true'
-    etcd: 'true'
-    nodes: 'true'
-    osev3: 'true'
-    node_type: master
+  groups:
+    - masters
+    - osev3
+    - creator_"{{ lab_creator }}"
 - name: node1
   type: "{{ ocp_node_inst_type }}"
   image: "{{ ocp_ami_id }}"
-  meta:
-    nodes: 'true'
-    osev3: 'true'
-    node_type: node
+  groups:
+    - nodes
+    - osev3
+    - creator_"{{ lab_creator }}"
