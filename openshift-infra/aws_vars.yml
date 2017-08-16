@@ -5,7 +5,7 @@ lab_name: rhte
 lab_creator: isaac
 student_count: 1
 domain_name: example.com
-tower_ami_id: ami-18a5857d
+tower_ami_id: ami-ba7152df
 ocp_ami_id: ami-6fa8880a
 tower_inst_type: t2.medium
 ocp_master_inst_type: t2.large
