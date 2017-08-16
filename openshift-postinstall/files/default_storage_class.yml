@@ -5,4 +5,4 @@ metadata:
   name: ocp
   annotations:
     storageclass.beta.kubernetes.io/is-default-class: "true"
-provisioner: kubernetes.io/cinder
+provisioner: kubernetes.io/aws-ebs

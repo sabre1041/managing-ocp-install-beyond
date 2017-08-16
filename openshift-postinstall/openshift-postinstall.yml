@@ -5,6 +5,7 @@
     image_streams_query: '{range .items[*]}{.metadata.name}{"\n"}{end}'
     templates_to_keep: ['cakephp-mysql-persistent', 'metrics-deployer-template', 'registry-console']
     image_streams_to_keep: ['php', 'mysql']
+    cfme_template: https://raw.githubusercontent.com/openshift/openshift-ansible/release-1.5/roles/openshift_examples/files/examples/v1.5/cfme-templates/cfme-template.yaml
   tasks:
   - name: Add default storage class
     shell: >
@@ -49,11 +50,6 @@
     - openshift/mysql:5.5
     - openshift/mysql:5.6
 
-  - name: Update image stream tags
+  - name: Setup CFME Template
     command: >
-      oc tag {{ item.source }} {{ item.tag }} --insecure
-    with_items:
-    - source: repo.osp.example.com:5000/rhscl/php-70-rhel7:latest
-      tag: openshift/php:7.0
-    - source: repo.osp.example.com:5000/rhscl/mysql-57-rhel7:latest
-      tag: openshift/mysql:5.7
+      oc create -n openshift -f {{ cfme_template }}
