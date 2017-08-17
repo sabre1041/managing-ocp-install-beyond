@@ -20,6 +20,12 @@ aws_instances:
 - name: master
   type: "{{ ocp_master_inst_type }}"
   image: "{{ ocp_ami_id }}"
+  meta:
+    masters: 'true'
+    etcd: 'true'
+    nodes: 'true'
+    osev3: 'true'
+    node_type: master
   groups:
     - masters
     - osev3
@@ -27,6 +33,10 @@ aws_instances:
 - name: node1
   type: "{{ ocp_node_inst_type }}"
   image: "{{ ocp_ami_id }}"
+  meta:
+    nodes: 'true'
+    osev3: 'true'
+    node_type: node
   groups:
     - nodes
     - osev3

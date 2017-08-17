@@ -16,7 +16,7 @@
         image: "{{ item.image }}"
         wait: true
         instance_tags:
-          Name: "{{ lab_name + '-' + item.name + '-' + lab_creator }}"
+          Name: "{{ lab_name + '-' + item.name + '-' + student_id }}"
           lab_name: "{{ lab_name }}"
           lab_creator: "{{ lab_creator }}"
           lab_role: "{{ item.meta.node_type }}"
