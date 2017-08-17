@@ -6,6 +6,12 @@
     - aws_vars.yml
 
   tasks:
+    - name: Set Hostname Facts
+      set_fact:
+        wildcard_zone: "apps-{{ student_id }}.{{ aws_public_zone }}"
+        openshift_master_cluster_hostname: "master-internal.{{ student_id }}.{{ aws_public_zone }}"
+        openshift_master_cluster_public_hostname: "master-internal.{{ student_id }}.{{ aws_public_zone }}"
+
     - name: Provision AWS Instances
       ec2:
         aws_access_key: "{{ec2_access_key}}"
@@ -36,3 +42,49 @@
         host: "{{ item.instances.0.public_ip }}"
         timeout: 600
       with_items: "{{ instances_created.results }}"
+
+    - name: Register Host DNS
+      route53:
+        command: create
+        aws_access_key: "{{ec2_access_key}}"
+        aws_secret_key: "{{ec2_secret_key}}"
+        zone: "{{ aws_public_zone }}"
+        type: A
+        overwrite: True
+        ttl: 60
+        record: "{{ aws_instances[item.0].name }}-{{ student_id }}.{{ aws_public_zone }}"
+        value: "{{ instances_created.results[item.0]['instances'][0]['public_ip'] }}"
+      register: host_dns_entries
+      with_indexed_items: "{{ aws_instances }}"
+
+    - name: Register Public Environment DNS
+      route53:
+        command: create
+        aws_access_key: "{{ec2_access_key}}"
+        aws_secret_key: "{{ec2_secret_key}}"
+        zone: "{{ aws_public_zone }}"
+        type: A
+        overwrite: True
+        ttl: 60
+        record: "{{ item.1 }}"
+        value: "{{ instances_created.results[aws_instances.index(item.0)]['instances'][0]['public_ip'] }}"
+      with_nested:
+        - "{{ aws_instances }}"
+        - [ "{{ openshift_master_cluster_public_hostname }}", "*.{{ wildcard_zone }}" ]
+      when: "'node_type' in item.0['meta'] and 'master' in item.0['meta']['node_type']"
+
+    - name: Register Private Environment DNS
+      route53:
+        command: create
+        aws_access_key: "{{ec2_access_key}}"
+        aws_secret_key: "{{ec2_secret_key}}"
+        zone: "{{ aws_public_zone }}"
+        type: A
+        overwrite: True
+        ttl: 60
+        record: "{{ item.1 }}"
+        value: "{{ instances_created.results[aws_instances.index(item.0)]['instances'][0]['private_ip'] }}"
+      with_nested:
+        - "{{ aws_instances }}"
+        - [ "{{ openshift_master_cluster_hostname }}" ]
+      when: "'node_type' in item.0['meta'] and 'master' in item.0['meta']['node_type']"
