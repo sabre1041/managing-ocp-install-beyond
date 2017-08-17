@@ -16,9 +16,9 @@
         image: "{{ tower_ami_id }}"
         wait: true
         instance_tags:
-          Name: "{{ lab_name + '-tower-' + lab_user + '-' + item }}"
+          Name: "{{ lab_name + '-tower-' + lab_creator + '-' + item }}"
           lab_name: "{{ lab_name }}"
-          lab_user: "{{ lab_user }}"
+          lab_creator: "{{ lab_creator }}"
           lab_role: "ansible-tower"
           student_count: "{{ item }}"
         vpc_subnet_id: "{{ aws_subnet_id }}"
