@@ -1,6 +1,6 @@
 #cloud-config
 hostname: "{{ item.name }}"
-fqdn: "{{ item.name }}.{{ domain_name }}"
+fqdn: "{{ item.name }}-{{ student_id }}.{{ aws_public_zone }}"
 write_files:
 - path: /etc/sudoers.d/99-ec2-user-requiretty
   permissions: '0440'
