@@ -19,7 +19,7 @@
         lab_name: "{{ lab_name }}"
         lab_creator: "{{ lab_creator }}"
         lab_role: "ansible-tower"
-        student_id: "student-{{ item }}"
+        student_id: "{{ lab_creator }}-{{ item }}"
       vpc_subnet_id: "{{ aws_subnet_id }}"
       zone: "{{ aws_az_1 }}"
       assign_public_ip: yes
