@@ -16,6 +16,8 @@ aws_region: us-east-2
 aws_az_1: us-east-2a
 aws_sec_group: aws-nyc-loft
 aws_key_name: rhte-apac
+tower_username: admin
+tower_password: rhte2017
 aws_instances:
 - name: master
   type: "{{ ocp_master_inst_type }}"

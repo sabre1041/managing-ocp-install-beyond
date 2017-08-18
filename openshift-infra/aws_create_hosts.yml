@@ -6,6 +6,16 @@
     - aws_vars.yml
 
   tasks:
+    - name: Obtain Student ID
+      debug:
+        var: "{{ item }}"
+      with_items:
+        - hostvars
+        - hostvars[inventory_hostname]
+        - groups
+        - student_id
+        - tag_student_id
+
     - name: Provision AWS Instances
       ec2:
         aws_access_key: "{{ec2_access_key}}"
