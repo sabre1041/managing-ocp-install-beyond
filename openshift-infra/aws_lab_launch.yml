@@ -85,7 +85,9 @@
         - boto
 
     - set_fact:
-        filter: "{{ 'tag' + ':' + 'student_id=' + hostvars[inventory_hostname].student_id }}"
+        student_id: "{{ hostvars[inventory_hostname].student_id }}"
+        filter: "{{ 'tag' + ':' + 'student_id=' + student_id }}"
+
     - debug:
         var: "{{ item }}"
         verbosity: 2
@@ -97,27 +99,72 @@
         - tower_password
         - filter
 
-    - name: Update Tower inventory
+    - name: Set Tower CLI Host
+      command: tower-cli config host "{{ hostvars[inventory_hostname].public_ip }}"
+    - name: Set Tower CLI Username
+      command: tower-cli config username "{{ tower_username }}"
+    - name: Set Tower CLI Password
+      command: tower-cli config password "{{ tower_password }}"
+
+    - name: Copy Extra Variables template
+      template:
+        src: aws_job_template_extra_vars.yml
+        dest: "/tmp/{{ tower_job_template_provision_extra_vars_path }}"
+
+    - name: Update Tower Inventory
       tower_inventory:
         tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
-        name: OpenShift
-        organization: Default
+        name: "{{ tower_inventory }}"
+        organization: "{{ tower_org }}"
         variables:
-          - student_id: "{{ hostvars[inventory_hostname].student_id }}"
-    - name: Update tower group
+          - student_id: "{{ student_id }}"
+
+    - name: Update Tower Group
       tower_group:
         tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
-        name: AWS
-        source: ec2
-        credential: AWS
-        inventory: "OpenShift"
-        instance_filters: "{{ 'tag' + ':' + 'student_id=' + hostvars[inventory_hostname].student_id }}"
+        name: "{{ tower_inventory_group }}"
+        source: "{{ tower_inventory_group_source }}"
+        credential: "{{ tower_cloud_credential }}"
+        inventory: "{{ tower_inventory }}"
+        instance_filters: "{{ filter }}"
         source_vars:
           regions: "{{ aws_region }}"
           vpc_destination_variable: public_dns_name
           hostname_variable: tag_Name
         state: present
+
+    - name: Update Job Template
+      tower_job_template:
+        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+        job_type: run
+        name: "{{ tower_job_template_provision }}"
+        state: present
+        project: "{{ tower_project_provision }}"
+        playbook: "{{ tower_job_template_provision_playbook }}"
+        extra_vars_path: "/tmp/{{ tower_job_template_provision_extra_vars_path }}"
+        machine_credential: "{{ tower_machine_credential }}"
+
+    # This is for testing only to replace the branch and url as needed
+    - name: Configure Job Template
+      command: tower-cli job_template modify --name="{{ tower_job_template_provision }}" --survey-enabled=False
+
+    - name: Update Project with dev branch for testing
+      tower_project:
+        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+        name: "{{ tower_project_provision }}"
+        organization: "{{ tower_org }}"
+        state: present
+        scm_type: "{{ tower_project_provision_type }}"
+        scm_url: "{{ tower_project_provision_url }}"
+        scm_branch: "{{ tower_project_provision_branch }}"
+        scm_clean: "{{ tower_project_provision_clean }}"
+        scm_update_on_launch: "{{ tower_project_provision_update_on_launch }}"
+        scm_delete_on_update: "{{ tower_project_provision_delete_on_update }}"
