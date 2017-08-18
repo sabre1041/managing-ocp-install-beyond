@@ -4,7 +4,7 @@ aws_secret_key: "{{ec2_secret_key}}"
 lab_name: rhte
 lab_creator: student
 student_count: 1
-domain_name: sysdeseng.com
+domain_name: rhte-apac.sysdeseng.com
 tower_ami_id: ami-03725166
 ocp_ami_id: ami-6fa8880a
 tower_inst_type: t2.medium

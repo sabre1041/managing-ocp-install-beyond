@@ -140,18 +140,21 @@
     - name: Sync Inventory
       command: tower-cli group sync --name "{{ tower_inventory_group }}"
 
-    - name: Update Job Template
-      tower_job_template:
-        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
-        tower_username: "{{ tower_username }}"
-        tower_password: "{{ tower_password }}"
-        job_type: run
-        name: "{{ tower_job_template_provision }}"
-        state: present
-        project: "{{ tower_project_provision }}"
-        playbook: "{{ tower_job_template_provision_playbook }}"
-        extra_vars_path: "/tmp/{{ tower_job_template_provision_extra_vars_path }}"
-        machine_credential: "{{ tower_machine_credential }}"
+#    - name: Update Job Template
+#      tower_job_template:
+#        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+#        tower_username: "{{ tower_username }}"
+#        tower_password: "{{ tower_password }}"
+#        job_type: run
+#        name: "{{ tower_job_template_provision }}"
+#        state: present
+#        project: "{{ tower_project_provision }}"
+#        playbook: "{{ tower_job_template_provision_playbook }}"
+#        extra_vars_path: "/tmp/{{ tower_job_template_provision_extra_vars_path }}"
+#        machine_credential: "{{ tower_machine_credential }}"
+
+    - name: Upate Job Template
+      command: tower-cli job_template modify --name="{{ tower_job_template_provision }}" --extra-vars="@/tmp/{{ tower_job_template_provision_extra_vars_path }}"
 
     # This is for testing only to replace the branch and url as needed
     - name: Configure Project
