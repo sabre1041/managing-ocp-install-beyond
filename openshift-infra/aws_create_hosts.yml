@@ -30,17 +30,17 @@
       with_items: "{{ aws_instances }}"
       register: instances_created
   
-  - add_host:
-      name: "{{ item.instances.0.public_dns_name }}"
-      friendly_name: "{{ item.instances.0.tags.Name }}"
-      public_ip: "{{ item.instances.0.public_ip }}"
-      groups: OSEv3
-      student_id: "{{ item.instances.0.tags.student_id }}"
-    with_items: "{{ instances_created.results }}"
+    - add_host:
+        name: "{{ item.instances.0.public_dns_name }}"
+        friendly_name: "{{ item.instances.0.tags.Name }}"
+        public_ip: "{{ item.instances.0.public_ip }}"
+        groups: OSEv3
+        student_id: "{{ item.instances.0.tags.student_id }}"
+      with_items: "{{ instances_created.results }}"
 
-  - debug:
-      var: groups
-      verbosity: 2
+    - debug:
+        var: groups
+        verbosity: 2
 
     - name: Wait for ssh
       wait_for:

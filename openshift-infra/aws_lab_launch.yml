@@ -137,6 +137,9 @@
           hostname_variable: tag_Name
         state: present
 
+    - name: Sync Inventory
+      command: tower-cli group sync --name "{{ tower_inventory_group }}"
+
     - name: Update Job Template
       tower_job_template:
         tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
@@ -151,7 +154,7 @@
         machine_credential: "{{ tower_machine_credential }}"
 
     # This is for testing only to replace the branch and url as needed
-    - name: Configure Job Template
+    - name: Configure Project
       command: tower-cli job_template modify --name="{{ tower_job_template_provision }}" --survey-enabled=False
 
     - name: Update Project with dev branch for testing
@@ -168,3 +171,7 @@
         scm_clean: "{{ tower_project_provision_clean }}"
         scm_update_on_launch: "{{ tower_project_provision_update_on_launch }}"
         scm_delete_on_update: "{{ tower_project_provision_delete_on_update }}"
+
+    - name: Update Project
+      command: tower-cli project update --name "{{ tower_project_provision }}"
+
