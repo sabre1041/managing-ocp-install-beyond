@@ -35,15 +35,14 @@ tower_project_provision_delete_on_update: "no"
 tower_job_template_provision: "1 Provision"
 tower_job_template_provision_playbook: "openshift-infra/aws_create_hosts.yml"
 tower_job_template_provision_extra_vars_path: "aws_job_template_extra_vars.yml"
+tower_openshift_install_group: "OSEv3"
+tower_master_tag: "tag_lab_role_master"
+tower_node_tag: "tag_lab_role_node"
 aws_instances:
 - name: master
   type: "{{ ocp_master_inst_type }}"
   image: "{{ ocp_ami_id }}"
   meta:
-    masters: 'true'
-    etcd: 'true'
-    nodes: 'true'
-    osev3: 'true'
     node_type: 'master'
   groups:
     - masters
@@ -53,10 +52,6 @@ aws_instances:
   type: "{{ ocp_node_inst_type }}"
   image: "{{ ocp_ami_id }}"
   meta:
-    masters: 'false'
-    etcd: 'false'
-    nodes: 'true'
-    osev3: 'true'
     node_type: 'node'
   groups:
     - nodes
