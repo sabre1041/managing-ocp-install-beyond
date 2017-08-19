@@ -16,6 +16,7 @@ aws_region: us-east-2
 aws_az_1: us-east-2a
 aws_sec_group: aws-nyc-loft
 aws_key_name: rhte-apac
+tower_config: false
 tower_username: admin
 tower_password: rhte2017
 tower_org: "Default"
@@ -52,6 +53,7 @@ aws_instances:
   type: "{{ ocp_node_inst_type }}"
   image: "{{ ocp_ami_id }}"
   meta:
+    masters: 'false'
     nodes: 'true'
     osev3: 'true'
     node_type: node

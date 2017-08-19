@@ -1,5 +1,5 @@
 ---
-- name: Create Lab For Students
+- name: Create AWS instances for {{ lab_user} for use with Lab {{ lab_name }}
   hosts: localhost
   gather_facts: no
   vars_files:
@@ -15,11 +15,11 @@
       image: "{{ tower_ami_id }}"
       wait: true
       instance_tags:
-        Name: "{{ lab_name + '-tower-' + lab_creator + '-' + item }}"
+        Name: "{{ lab_name + '-tower-' + lab_user + '-' + item }}"
         lab_name: "{{ lab_name }}"
-        lab_creator: "{{ lab_creator }}"
+        lab_user: "{{ lab_user }}"
         lab_role: "ansible-tower"
-        student_id: "{{ lab_creator }}-{{ item }}"
+        student_id: "{{ lab_user }}-{{ item }}"
       vpc_subnet_id: "{{ aws_subnet_id }}"
       zone: "{{ aws_az_1 }}"
       assign_public_ip: yes
@@ -36,7 +36,7 @@
     wait_for:
       port: 22
       host: "{{ item.instances.0.public_ip }}"
-      timeout: 600
+      timeout: 1000
     with_items: "{{ instances_created.results }}"
 
   - add_host:
@@ -51,130 +51,5 @@
       var: groups
       verbosity: 2
 
-- hosts: tower_instances
-  gather_facts: no
-  vars:
-    ansible_ssh_user: ec2-user
-    ansible_python_interpreter: "python"
-    #ansible_python_interpreter: "{{ ansible_playbook_python }}"
-  vars_files:
-    - aws_vars.yml
-
-  tasks:
-    - name: Install package requirements
-      yum:
-        name: "{{ item }}"
-        state: present
-      become: true
-      with_items:
-        - python2-pip
-        - git
-        - pyOpenSSL
-        - python-netaddr
-        - python-six
-        - python2-boto3
-        - python-click
-        - python-httplib2
-    
-    - name: Install Tower CLI
-      pip:
-        name: "{{ item }}"
-      become: true
-      with_items:
-        - ansible-tower-cli
-        - boto
-
-    - set_fact:
-        student_id: "{{ hostvars[inventory_hostname].student_id }}"
-        filter: "{{ 'tag' + ':' + 'student_id=' + student_id }}"
-
-    - debug:
-        var: "{{ item }}"
-        verbosity: 2
-      with_items:
-        - hostvars[inventory_hostname].friendly_name
-        - hostvars[inventory_hostname].public_ip
-        - hostvars[inventory_hostname].student_id
-        - tower_username
-        - tower_password
-        - filter
-
-    - name: Set Tower CLI Host
-      command: tower-cli config host "{{ hostvars[inventory_hostname].public_ip }}"
-    - name: Set Tower CLI Username
-      command: tower-cli config username "{{ tower_username }}"
-    - name: Set Tower CLI Password
-      command: tower-cli config password "{{ tower_password }}"
-
-    - name: Copy Extra Variables template
-      template:
-        src: aws_job_template_extra_vars.yml
-        dest: "/tmp/{{ tower_job_template_provision_extra_vars_path }}"
-
-    - name: Update Tower Inventory
-      tower_inventory:
-        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
-        tower_username: "{{ tower_username }}"
-        tower_password: "{{ tower_password }}"
-        name: "{{ tower_inventory }}"
-        organization: "{{ tower_org }}"
-        variables:
-          - student_id: "{{ student_id }}"
-
-    - name: Update Tower Group
-      tower_group:
-        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
-        tower_username: "{{ tower_username }}"
-        tower_password: "{{ tower_password }}"
-        name: "{{ tower_inventory_group }}"
-        source: "{{ tower_inventory_group_source }}"
-        credential: "{{ tower_cloud_credential }}"
-        inventory: "{{ tower_inventory }}"
-        instance_filters: "{{ filter }}"
-        source_vars:
-          regions: "{{ aws_region }}"
-          vpc_destination_variable: public_dns_name
-          hostname_variable: tag_Name
-        state: present
-
-    - name: Sync Inventory
-      command: tower-cli group sync --name "{{ tower_inventory_group }}"
-
-#    - name: Update Job Template
-#      tower_job_template:
-#        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
-#        tower_username: "{{ tower_username }}"
-#        tower_password: "{{ tower_password }}"
-#        job_type: run
-#        name: "{{ tower_job_template_provision }}"
-#        state: present
-#        project: "{{ tower_project_provision }}"
-#        playbook: "{{ tower_job_template_provision_playbook }}"
-#        extra_vars_path: "/tmp/{{ tower_job_template_provision_extra_vars_path }}"
-#        machine_credential: "{{ tower_machine_credential }}"
-
-    - name: Upate Job Template
-      command: tower-cli job_template modify --name="{{ tower_job_template_provision }}" --extra-vars="@/tmp/{{ tower_job_template_provision_extra_vars_path }}"
-
-    # This is for testing only to replace the branch and url as needed
-    - name: Configure Project
-      command: tower-cli job_template modify --name="{{ tower_job_template_provision }}" --survey-enabled=False
-
-    - name: Update Project with dev branch for testing
-      tower_project:
-        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
-        tower_username: "{{ tower_username }}"
-        tower_password: "{{ tower_password }}"
-        name: "{{ tower_project_provision }}"
-        organization: "{{ tower_org }}"
-        state: present
-        scm_type: "{{ tower_project_provision_type }}"
-        scm_url: "{{ tower_project_provision_url }}"
-        scm_branch: "{{ tower_project_provision_branch }}"
-        scm_clean: "{{ tower_project_provision_clean }}"
-        scm_update_on_launch: "{{ tower_project_provision_update_on_launch }}"
-        scm_delete_on_update: "{{ tower_project_provision_delete_on_update }}"
-
-    - name: Update Project
-      command: tower-cli project update --name "{{ tower_project_provision }}"
-
+- include: tower_config.yml
+  when: tower_config
