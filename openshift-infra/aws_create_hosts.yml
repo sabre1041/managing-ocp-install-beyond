@@ -18,9 +18,13 @@
         instance_tags:
           Name: "{{ lab_name + '-' + item.name + '-' + student_id }}"
           lab_name: "{{ lab_name }}"
-          lab_creator: "{{ lab_creator }}"
+          lab_user: "{{ lab_user }}"
           lab_role: "{{ item.meta.node_type }}"
           student_id: "{{ student_id }}"
+          ocp_masters: "{{ item.meta.masters }}"
+          ocp_nodes: "{{ item.meta.nodes }}"
+          ocp_etcd: "{{ item.meta.etcd }}"
+          ocp_osev3: "{{ item.meta.osev3 }}"
         vpc_subnet_id: "{{ aws_subnet_id }}"
         zone: "{{ aws_az_1 }}"
         assign_public_ip: yes
@@ -30,9 +34,21 @@
       with_items: "{{ aws_instances }}"
       register: instances_created
   
+    - add_host:
+        name: "{{ item.instances.0.public_dns_name }}"
+        friendly_name: "{{ item.instances.0.tags.Name }}"
+        public_ip: "{{ item.instances.0.public_ip }}"
+        groups: OSEv3
+        student_id: "{{ item.instances.0.tags.student_id }}"
+      with_items: "{{ instances_created.results }}"
+
+    - debug:
+        var: groups
+        verbosity: 2
+
     - name: Wait for ssh
       wait_for:
         port: 22
         host: "{{ item.instances.0.public_ip }}"
-        timeout: 600
+        timeout: 1000
       with_items: "{{ instances_created.results }}"
