@@ -21,7 +21,7 @@
           lab_user: "{{ lab_user }}"
           lab_role: "{{ item.meta.node_type }}"
           student_id: "{{ student_id }}"
-          ocp_masters: "{{ item.meta.master }}"
+          ocp_masters: "{{ item.meta.masters }}"
           ocp_nodes: "{{ item.meta.nodes }}"
           ocp_etcd: "{{ item.meta.etcd }}"
           ocp_osev3: "{{ item.meta.osev3 }}"

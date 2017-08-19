@@ -3,4 +3,4 @@
 ec2_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY') }}"
 ec2_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
 student_id: "[% student_id %]"
-lab_creator: "[% lab_creator %]"
+lab_user: "[% lab_user %]"

@@ -1,5 +1,5 @@
 ---
-- name: Create AWS instances for {{ lab_user} for use with Lab {{ lab_name }}
+- name: Create AWS instances for {{ lab_user}} for use with Lab {{ lab_name }}
   hosts: localhost
   gather_facts: no
   vars_files:
