@@ -1,12 +1,11 @@
 #cloud-config
 hostname: "{{ item.name }}"
-fqdn: "{{ item.name }}.{{ domain_name }}"
+fqdn: "{{ item.name }}-{{ student_id }}.{{ domain_name }}"
 write_files:
 - path: /etc/sudoers.d/99-ec2-user-requiretty
   permissions: '0440'
   content: |
     Defaults:ec2-user !requiretty
-{% if item.type in ['infra', 'app'] %}
 - path: /etc/sysconfig/docker-storage-setup
   owner: root:root
   permissions: '0644'
@@ -15,4 +14,3 @@ write_files:
     VG=docker_vg
 mounts:
 - [ sdb ]
-{% endif %}
