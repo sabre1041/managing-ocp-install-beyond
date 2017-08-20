@@ -21,6 +21,7 @@
           lab_user: "{{ lab_user }}"
           lab_role: "{{ item.meta.node_type }}"
           student_id: "{{ student_id }}"
+          node_labels: "{{ item.meta.node_labels }}"
         vpc_subnet_id: "{{ aws_subnet_id }}"
         zone: "{{ aws_az_1 }}"
         assign_public_ip: yes

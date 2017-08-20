@@ -16,7 +16,7 @@ aws_region: us-east-2
 aws_az_1: us-east-2a
 aws_sec_group: aws-nyc-loft
 aws_key_name: rhte-apac
-tower_config: false
+tower_config: true
 tower_username: admin
 tower_password: rhte2017
 tower_org: "Default"
@@ -36,6 +36,8 @@ tower_job_template_provision: "1 Provision"
 tower_job_template_provision_playbook: "openshift-infra/aws_create_hosts.yml"
 tower_job_template_provision_extra_vars_path: "aws_job_template_extra_vars.yml"
 tower_openshift_install_group: "OSEv3"
+tower_openshift_masters_group: "masters"
+tower_openshift_nodes_group: "nodes"
 tower_master_tag: "tag_lab_role_master"
 tower_node_tag: "tag_lab_role_node"
 aws_instances:
@@ -44,6 +46,9 @@ aws_instances:
   image: "{{ ocp_ami_id }}"
   meta:
     node_type: 'master'
+    node_labels:
+      type: infra
+      zone: default
   groups:
     - masters
     - osev3
@@ -53,6 +58,9 @@ aws_instances:
   image: "{{ ocp_ami_id }}"
   meta:
     node_type: 'node'
+    node_labels:
+      type: app
+      zone: default
   groups:
     - nodes
     - osev3
