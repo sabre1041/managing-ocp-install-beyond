@@ -21,6 +21,8 @@ openshift_schedulable: True
 openshift_hosted_router_selector: 'type=infra'
 openshift_metrics_selector: "type=infra"
 openshift_cloudprovider_kind: aws
+openshift_master_cluster_hostname: "{{ openshift_master_internal_dns_prefix }}-{{ student_id }}.{{ domain_name }}"
+openshift_master_cluster_public_hostname: "{{ openshift_master_dns_prefix }}-{{ student_id }}.{{ domain_name }}"
 {% raw %}
 openshift_cloudprovider_aws_access_key: "{{ lookup('env','AWS_ACCESS_KEY') }}"
 openshift_cloudprovider_aws_secret_key: "{{ lookup('env','AWS_SECRET_KEY') }}"

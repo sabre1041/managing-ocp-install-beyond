@@ -40,6 +40,8 @@ tower_openshift_masters_group: "masters"
 tower_openshift_nodes_group: "nodes"
 tower_master_tag: "tag_lab_role_master"
 tower_node_tag: "tag_lab_role_node"
+openshift_master_dns_prefix: "master"
+openshift_master_internal_dns_prefix: "master-internal"
 aws_instances:
 - name: master
   type: "{{ ocp_master_inst_type }}"
