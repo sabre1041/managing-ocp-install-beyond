@@ -1,0 +1,204 @@
+With the installation of the OpenShift Container Platform started and an understanding of the environment as as whole, we are going to take time waiting for the installation to complete to explore the environment in further detail.
+
+==== Exploring Red Hat OpenStack Platform Environment
+
+Red Hat OpenStack Platform (RHOSP) is used to host the servers used for the OpenShift Container Platform installation. Servers (also called _Instances_) are booted from LVM volumes on the RHOSP VM. If you view the list of servers and volumes on the Red Hat OpenStack Platform environment, you should see them in various states of _BUILD_ and _ACTIVE_, though it is possible some may already be built by now. Connect to either the Horizon UI or the CLI to watch the status of servers and volumes.
+
+The RHOSP environment is a KVM virtual machine running on each student machine. This environment will be used to host the Red Hat OpenShift Container Platform. Let’s verify the state of the instances and execute a few commands to validate it is in good working order prior to proceeding.
+
+==== Connecting to Red Hat OpenStack Platform
+
+Username: **user1** +
+Password: **summit2017**
+
+You can use the provided SSH private key to connect:
+
+.kiosk$
+[source, bash]
+----
+eval "$(ssh-agent)"
+curl -o ~/L104353-tower.pem http://repo.osp.example.com/pub/L104353-tower.pem
+chmod -v 600 L104353-tower.pem
+mv L104353-tower.pem ~/.ssh
+ssh-add ~/.ssh/L104353-tower.pem
+----
+
+NOTE: NOTE: Although _root_ access is not required to run any of the commands below in Red Hat OpenStack Platform, _user1_ does have sudo access in case you would like to view logs or config files. However, please DO NOT make any changes to the environment or the lab may not work properly.
+
+To connect via the Horizon UI browse to link: http://rhosp.admin.example.com[http://rhosp.admin.example.com]
+
+Username: **user1** +
+Password: **summit2017**
+
+==== View Servers and Volumes
+
+Connect to the running OpenStack environment and view servers and volumes:
+
+    . From the UI
+        .. In a local web browser open link:http://rhosp.admin.example.com[http://rhosp.admin.example.com]
+        .. Click on Compute -> Instances to view server status
+        .. Click on Compute -> Volumes to view block storage status
+    . From the CLI
+        .. SSH with user **user1** and password **summit2017**
+        .. View server and volume status:
++
+.kiosk$
+[source, bash]
+----
+.kiosk$ ssh user1@rhosp.admin.example.com
+----
++
+.rhosp$
+[source, bash]
+----
+.rhosp$ openstack server list && openstack volume list
+----
+
+==== Further Environment Exploration
+
+List the servers that have been started. Since we kicked off the Tower job, you should see the OpenShift servers in various states of ACTIVE or BUILDING. Use **--format** and **--column** to trim the output for easier viewing:
+
+.rhosp$
+[source, bash]
+----
+rhosp$ openstack server list --format value --column Name --column Status
+
+node1.osp.example.com BUILD
+infra.osp.example.com ACTIVE
+master.osp.example.com ACTIVE
+----
+
+Since the Red Hat OpenShift environment makes use of persistent storage for the integrated router along with applications, Red Hat OpenStack provides Cinder volumes which the environment will make use of.
+
+List the Cinder volumes by executing the following command:
+
+.rhosp$
+[source, bash]
+----
+rhosp$ openstack volume list --format value --column ID --column "Attached to"
+
+eb8a3ad8-d059-47e5-9c84-cda926470b45 Attached to node1.osp.example.com on /dev/sda
+1b79b1c9-055d-41c1-84c4-17229841ffe1 Attached to infra.osp.example.com on /dev/sda
+903d7dc0-2b9b-423f-8f5f-95797fdfbec6 Attached to master.osp.example.com on /dev/sda
+----
+
+If you list out the logical volumes (lvs), you will see the IDs of the volumes match the lvs:
+
+.rhosp$
+[source, bash]
+----
+rhosp$ sudo lvs
+
+LV                                          VG             Attr       LSize  Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+  volume-1b79b1c9-055d-41c1-84c4-17229841ffe1 cinder-volumes -wi-ao---- 10.00g                              
+  volume-903d7dc0-2b9b-423f-8f5f-95797fdfbec6 cinder-volumes -wi-ao---- 10.00g                              
+  volume-eb8a3ad8-d059-47e5-9c84-cda926470b45 cinder-volumes -wi-ao---- 10.00g 
+----
+
+Next, each of the running instances are built from Red Hat Enterprise Linux 7.3. To list the images available for consumption within OpenStack, execute the following command:
+
+.rhosp$
+[source, bash]
+----
+rhosp$ openstack image list --format value --column Name --column ID
+
+e5a369ea-f915-4a59-81e4-1015a7c13f6f openshift-base
+----
+
+Feel free to view the details of the openshift-base image which is used to instantiate the openshift servers by the Ansible Tower playbooks.
+
+.rhosp$
+[source, bash]
+----
+rhosp$ openstack image show openshift-base
+----
+
+Finally, list the networks and subnets that have been configured in the OpenStack environment if curious.
+
+.rhosp$
+[source, bash]
+----
+rhosp$ openstack network list && openstack subnet list
+----
+
+The network is configured as a flat network to use the libvirt network for routing and DNS, so no floating IPs will be used. All server instances will use static IPs based on pre-configured network ports. You can view this with:
+
+.rhosp$
+[source, bash]
+---
+rhosp$ openstack port list --format value --column "Fixed IP Addresses" -c Name
+
+openshift-master ip_address='172.20.17.5', subnet_id='28792deb-8e5f-459e-aa28-aec1d50838ef'
+openshift-infra ip_address='172.20.17.6', subnet_id='28792deb-8e5f-459e-aa28-aec1d50838ef'
+openshift-node1 ip_address='172.20.17.51', subnet_id='28792deb-8e5f-459e-aa28-aec1d50838ef'
+openshift-node3 ip_address='172.20.17.53', subnet_id='28792deb-8e5f-459e-aa28-aec1d50838ef'
+openshift-node2 ip_address='172.20.17.52', subnet_id='28792deb-8e5f-459e-aa28-aec1d50838ef'
+---
+
+Additional commands are available to investigate each one of the prior areas in greater detail. You are free to explore these areas later if time allots but be extremely careful not to change anything in this environment.
+
+=== Exploring Ansible Tower
+
+Since the installation of OpenShift can take anywhere from 20 - 30 mins, let us take this opportunity to explore the features and configurations of Ansible Tower in the lab environment.
+
+Ansible is an agentless automation engine that automates cloud provisioning, configuration management, application deployment, intra-service orchestration, along with many other IT needs. Ansible is used to provision, install and deploy the OpenShift Container Platform to a cluster of instances.
+
+Ansible Tower provides the central management of Ansible workloads to enable complex workflows to manage environments big and small. The entire installation and management of the OpenShift Container Platform can be managed from a centralized Ansible Tower environment.
+
+==== Accessing Ansible Tower
+
+As you saw previously, Ansible Tower has been provisioned as a standalone machine within the lab environment.
+
+From the student machine, open a web browser and navigate to link:https://tower.admin.example.com[https://tower.admin.example.com].
+
+Login with the following credentials:
+
+Username **admin** +
+Password **summit2017**
+
+If successful, will then be placed at the Ansible Tower overview page:
+
+image::images/image7.png[]
+
+===== Job Templates
+
+First, let’s review the job template that we just executed to provision the OpenShift Container Platform. This workflow template consists of three chained job templates:
+
+* OpenShift Pre-Install - Prepares the OpenStack environment by provisioning three instances
+* OpenShift Install - Installs the OpenShift Container Platform
+* OpenShift Post-Install - Customizes the OpenShift cluster for the lab
+
+===== Projects
+
+The Job Templates utilize Projects, or collections of Ansible playbooks, that in this lab are sourced from a Git repository. To view the projects that are being utilized, select the **Projects** link on the menu bar. Two projects are being leveraged:
+
+* openshift-ansible - Installs and configures the OpenShift Container Platform
+* summit-2017-ocp-operator - Customized Ansible tooling to prepare lab exercises
+
+The configuration of each project can be viewed by selecting the pencil (edit) button under the _Actions_ column.
+
+===== Inventory
+
+An link:http://docs.ansible.com/ansible-tower/latest/html/userguide/inventories.html[inventory] within Ansible Tower is similar to a standalone inventory file and contains a collection of host in which jobs may be launched. The inventories defined within Tower can be accessed by clicking on the **Inventories** link on the menu bar. The _OpenShift_ inventory defines the hosts organized within groups to install and configure the environment. Each group along with the host and variables that have been defined can be accessed by selecting the pencil icon under the _Actions_ column next to each group.
+
+===== Credentials
+
+link:http://docs.ansible.com/ansible-tower/latest/html/userguide/credentials.html[Credentials] are a mechanism for authenticating against secure resources including target machines, inventory sources and projects leveraging version control systems. Every one of the previously explored areas makes use of a credential. Credentials are configured within the Ansible Tower settings and can be accessed by selecting the **Settings** icon (gear) on the menu bar. Once within the settings page, select the **Credentials** link. The following credentials have been defined:
+
+* gitlab-creds - Access lab resources from source control
+* osp-guest-creds - Execute actions against OpenStack instances
+* osp-user-creds - Allows for communication with the 
+link:http://docs.ansible.com/ansible-tower/latest/html/userguide/credentials.html#openstack[OpenStack] platform
+
+===== Monitor the Progress of the OpenShift Installation
+
+While browsing through the features of Ansible Tower, keep an eye out on the progress of the job template executing the OpenShift installation. OpenShift will be successfully installed when the status of the job template reports as **Successful** and the play recap reports no errors and appears similar to the following:
+
+image::images/image14.png[]
+
+Click the **Details** link on each rectangle to see the details of each playbook. The overall workflow job is complete when all 3 playbooks are completed successfully.
+
+image::images/image17.png[]
+
+This lab is concluded when the Ansible Tower job is completed successfully.
+
