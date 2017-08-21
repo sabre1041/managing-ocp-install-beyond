@@ -1,0 +1,11 @@
+# AWS Loft Lab 2017: Container Development & OpenShift
+
+1. <<lab0/chapter0.adoc#chapter0,Introduction / Setup>>
+1. <<lab1/chapter1.adoc#chapter1,Lab Overview>>
+1. <<lab2/chapter2.adoc#chapter2,Exploring the Environment>>
+1. <<lab3/chapter3.adoc#chapter3,Verifying Installation of Red Hat OpenShift Container Platform Using Ansible Tower>>
+1. <<lab4/chapter4.adoc#chapter4,Installing Red Hat CloudForms>>
+1. <<lab5/chapter5.adoc#chapter5,Managing the Lifecycle of an Application>>
+1. <<lab6/chapter6.adoc#chapter6,Expanding the OpenShift Container Platform Cluster>>
+1. <<lab7/chapter7.adoc#chapter7,Where do we go from here?>>
+
