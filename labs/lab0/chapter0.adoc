@@ -8,7 +8,7 @@ v1.0, 2017-08-07
 :title-separator: ::
 :sectnumlevels: 5
 
-image::lab0/images/image27.png[]
+image::images/image27.png[]
 
 == Abstract
 _Configuring distributed systems can be difficult. Fortunately, automation tools such as Ansible are available to help manage even the most complex environments. In this lab, you'll take the reigns of your own cluster and experience firsthand how Ansible can be used to install, configure, and maintain OpenShift to support mission-critical systems. Once you install Red Hat OpenShift, you'll learn how to diagnose, troubleshoot, and resolve common platform issues. Managing the platform doesn't stop once the installation is complete. You'll use Ansible to simplify ongoing maintenance in an automated fashion. Finally, the use of centralized management systems will be introduced into the environment in order to demonstrate its importance and to provide a streamlined experience for both platform maintainers and users._
