@@ -23,7 +23,7 @@ Password **summit2017**
 
 If successful, will then be placed at the Ansible Tower overview page:
 
-image::images/image7.png[]
+image::../images/image7.png[]
 
 ===== Job Templates
 
@@ -59,7 +59,7 @@ link:http://docs.ansible.com/ansible-tower/latest/html/userguide/credentials.htm
 
 While browsing through the features of Ansible Tower, keep an eye out on the progress of the job template executing the OpenShift installation. OpenShift will be successfully installed when the status of the job template reports as **Successful** and the play recap reports no errors and appears similar to the following:
 
-image::images/image14.png[]
+image::../images/image14.png[]
 
 Click the **Details** link on each rectangle to see the details of each playbook. The overall workflow job is complete when all 3 playbooks are completed successfully.
 
