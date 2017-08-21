@@ -1,0 +1,171 @@
+== Appendix A - Manually Cleanup Cinder Volume
+
+How to manually clean up a volume that will not delete with openstack volume delete
+
+From the OpenStack server:
+
+.rhosp$
+[bash, source]
+----
+rhosp$ openstack volume list
+rhosp$ sudo -i 
+rhosp# source ~/.keystonerc_admin
+rhosp#openstack volume set --state available 09d601f8-4159-4979-ae77-441920564230
+rhosp$ mysql -u root cinder
+
+# MariaDB [cinder]>  delete from volumes where id='09d601f8-4159-4979-ae77-441920564230';
+# MariaDB [cinder]>  update volumes set attach_status="detached" where id="09d601f8-4159-4979-ae77-441920564230";
+
+rhosp$ openstack volume delete 09d601f8-4159-4979-ae77-441920564230
+----
+
+== Appendix B - Script For Deploying CloudForms
+
+These are pulled directly from <<Lab 4 - Installing Red Hat CloudForms>>
+
+NOTE: This is also available at link:http://repo.admin.example.com/pub/scripts/lab4-cloudforms-validation.sh[http://repo.admin.example.com/pub/scripts/lab4-cloudforms-validation.sh]
+
+.master$
+[source, bash]
+----
+#!/bin/bash
+
+oc new-project cloudforms
+oc config current-context for context
+oc adm policy add-scc-to-user privileged \
+       system:serviceaccount:cloudforms:default
+oc get scc privileged -o yaml | grep cloudforms
+oc adm pod-network join-projects cloudforms --to=openshift-infra
+oc get netnamespace | egrep 'cloudforms|openshift-infra'
+curl -O http://repo.osp.example.com/ocp/templates/cfme-template.yaml
+oc create -n cloudforms -f cfme-template.yaml
+oc get -n cloudforms template cloudforms
+oc new-app -n cloudforms --template=cloudforms
+oc -n cloudforms get pods -w
+----
+
+Proceed to <<Accessing the CloudForms User Interface>>
+
+== Appendix C - Recovering From Failed CloudForms  Deployment
+
+The following output represents a failed deployment:
+
+.master$
+[source, bash]
+----
+NAME                  READY     STATUS              RESTARTS   AGE
+cloudforms-1-deploy   1/1       Running             0          10s
+cloudforms-1-dgvv6    0/1       ContainerCreating   0          4s
+memcached-1-deploy    1/1       Running             0          10s
+memcached-1-s78jr     0/1       ContainerCreating   0          2s
+postgresql-1-deploy   0/1       ContainerCreating   0          10s
+NAME                 READY     STATUS    RESTARTS   AGE
+postgresql-1-oqoyw   0/1       Pending   0          0s
+postgresql-1-oqoyw   0/1       Pending   0         0s
+postgresql-1-oqoyw   0/1       ContainerCreating   0         0s
+postgresql-1-deploy   1/1       Running   0         11s
+memcached-1-s78jr   0/1       Running   0         18s
+memcached-1-s78jr   1/1       Running   0         30s
+memcached-1-deploy   0/1       Completed   0         41s
+memcached-1-deploy   0/1       Terminating   0         41s
+memcached-1-deploy   0/1       Terminating   0         41s
+cloudforms-1-dgvv6   0/1       Running   0         1m
+postgresql-1-deploy   0/1       Error     0         10m
+postgresql-1-oqoyw   0/1       Terminating   0         10m
+cloudforms-1-dgvv6   0/1       Running   1         10m
+postgresql-1-oqoyw   0/1       Terminating   0         10m
+postgresql-1-oqoyw   0/1       Terminating   0         10m
+cloudforms-1-dgvv6   0/1       Running   2         19m
+cloudforms-1-deploy   0/1       Error     0         20m
+cloudforms-1-dgvv6   0/1       Terminating   2         20m
+cloudforms-1-dgvv6   0/1       Terminating   2         20m
+cloudforms-1-dgvv6   0/1       Terminating   2         20m
+cloudforms-1-dgvv6   0/1       Terminating   2         20m
+----
+
+The quickest way to remedy this is to delete the project and start over
+
+.master$
+----
+master$ oc delete project cloudforms
+----
+
+Now return the the lab and try again <<Lab 4 - Installing Red Hat CloudForms>>
+
+== Appendix D - Average Tower Job Times
+
+[options="header]
+|======================
+| Tower Workflow Job | Ansible Playbook | Elapsed Time | Purpose
+|0-Provision and Install OpenShift| | 00:18:06 | Orchestrated workflow to deploy OpenShift
+| | OpenShift Pre-Install | 00:02:38 |Crease servers on OpenStack
+| | OpenShift Install | 00:12:34 | Install OpenShift
+| | OpenShift Post-Install | 00:02:20 | Setup templates and image streams for labs
+| 1-Provision and Scale OpenShift | | 00:07:00
+| O rchestrated workflow to add an additional server to OpenShift
+| | OpenShift Pre-Scaleup | 00:01:19 | Create server on OpenStack
+| | Scaleup OpenShfit | 00:05:24 | Run openshift-ansible to add new node to the OCP
+|======================
+
+Return to <<Lab 4 - Installing Red Hat CloudForms>>
+
+== Appendix E - Troubleshooting CloudForms
+
+Try to curl the CloudForms application, this may fail.
+
+.master$
+[source, bash]
+----
+master$ curl -Ik https://cloudforms-cloudforms.apps.example.com
+----
+
+If this matches the web browser’s output of **Application Not Available** or status code of **503**. then something failed in the deployment.
+
+List the pods in the _default_ project
+
+.master$
+[source, bash]
+----
+master$ oc get pods -n default
+----
+
+List services in the default project
+
+.master$
+[source, bash]
+----
+master$ oc get services
+----
+
+Try curl against the cloudforms service IP
+
+.master$
+[source, bash]
+----
+master$ curl -Ik http://72.30.126.6
+----
+
+If the router is in error state, delete it
+
+.master$
+[source, bash]
+----
+master$ oc delete pod router -n default
+----
+
+Watch the router get deployed
+
+.master$
+[source, bash]
+----
+master$ oc get pods -n default -w
+----
+
+The cloudforms application should work now if the router came up cleanly
+
+.master$
+[source, bash]
+----
+master$ curl -Ik https://cloudforms-cloudforms.apps.example.com
+----
+
