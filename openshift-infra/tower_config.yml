@@ -7,6 +7,7 @@
     ansible_python_interpreter: "python"
   vars_files:
     - aws_vars.yml
+    - tower_vars.yml
 
   tasks:
     - name: Install package requirements for Tower CLI
@@ -54,12 +55,58 @@
     - name: Set Tower CLI Password
       command: tower-cli config password "{{ tower_password }}"
 
-    - name: Copy Extra Variables template
-      template:
-        src: aws_job_template_extra_vars.yml
-        dest: "/tmp/{{ tower_job_template_provision_extra_vars_path }}"
+    - name: Create Tower Organization
+      tower_organization:
+        name: "{{ tower_org }}"
+        state: present
+        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+    
+    - name: Stage {{ tower_machine_credential }} Private Key
+      synchronize:
+        src: "{{ tower_machine_credential_ssh_key_data }}"
+        dest: "/tmp/{{ tower_machine_credential_ssh_key_data }}"
 
-    - name: Update Tower Inventory
+    - name: Add Tower Machine Credential
+      tower_credential:
+        name: "{{ tower_machine_credential }}"
+        kind: "{{ tower_machine_credential_kind }}"
+        organization: "{{ tower_org }}"
+        state: present
+        ssh_key_data: "/tmp/{{ tower_machine_credential_ssh_key_data }}"
+        username: "{{ tower_machine_credential_username }}"
+        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+    
+    - name: Remove {{ tower_machine_credential }} staging file
+      file:
+        path: "/tmp/{{ tower_machine_credential_ssh_key_data }}"
+        state: absent
+
+    - name: Add Tower Cloud Credential
+      tower_credential:
+        name: "{{ tower_cloud_credential }}"
+        kind: "{{ tower_cloud_credential_kind }}"
+        organization: "{{ tower_org }}"
+        state: present
+        username: "{{ tower_cloud_credential_username }}"
+        password: "{{ tower_cloud_credential_password }}"
+        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+    
+    - name: Add Tower inventory
+      tower_inventory:
+        name: "{{ tower_inventory }}"
+        organization: "{{ tower_org }}"
+        state: present
+        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+    
+    - name: Configure Tower Inventory
       tower_inventory:
         tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
         tower_username: "{{ tower_username }}"
@@ -68,8 +115,9 @@
         organization: "{{ tower_org }}"
         variables:
           - student_id: "{{ student_id }}"
+          - lab_user: "{{ lab_user }}"
 
-    - name: Update Tower Group
+    - name: Configure Tower Inventory Group
       tower_group:
         tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
         tower_username: "{{ tower_username }}"
@@ -120,27 +168,7 @@
     - name: Sync Inventory
       command: tower-cli group sync --name "{{ tower_inventory_group }}"
 
-    - name: Update Job Template
-      tower_job_template:
-        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
-        tower_username: "{{ tower_username }}"
-        tower_password: "{{ tower_password }}"
-        job_type: run
-        name: "{{ tower_job_template_provision }}"
-        state: present
-        project: "{{ tower_project_provision }}"
-        playbook: "{{ tower_job_template_provision_playbook }}"
-        extra_vars_path: "/tmp/{{ tower_job_template_provision_extra_vars_path }}"
-        machine_credential: "{{ tower_machine_credential }}"
-
-#    - name: Upate Job Template
-#      command: tower-cli job_template modify --name="{{ tower_job_template_provision }}" --extra-vars="@/tmp/{{ tower_job_template_provision_extra_vars_path }}"
-
-    # This is for testing only to replace the branch and url as needed
-    - name: Configure Project
-      command: tower-cli job_template modify --name="{{ tower_job_template_provision }}" --survey-enabled=False
-
-    - name: Update Project with dev branch for testing
+    - name: Configure Project for Provision
       tower_project:
         tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
         tower_username: "{{ tower_username }}"
@@ -155,6 +183,74 @@
         scm_update_on_launch: "{{ tower_project_provision_update_on_launch }}"
         scm_delete_on_update: "{{ tower_project_provision_delete_on_update }}"
 
-    - name: Update Project
+    - name: Update Project for Provision
       command: tower-cli project update --name "{{ tower_project_provision }}"
+    
+    - name: Copy Extra Variables template
+      template:
+        src: aws_job_template_extra_vars.yml
+        dest: "/tmp/{{ tower_job_template_provision_extra_vars_path }}"
 
+    - name: Configure Job Template for Provision
+      tower_job_template:
+        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+        job_type: run
+        name: "{{ tower_job_template_provision }}"
+        state: present
+        inventory: "{{ tower_inventory }}"
+        project: "{{ tower_project_provision }}"
+        playbook: "{{ tower_job_template_provision_playbook }}"
+        extra_vars_path: "/tmp/{{ tower_job_template_provision_extra_vars_path }}"
+        machine_credential: "{{ tower_machine_credential }}"
+
+    - name: Install playbooks for {{ tower_project_install }}
+      yum:
+        name: openshift-ansible-playbooks
+        state: present
+      become: true
+    
+    - name: Copy openshift-ansible from system dir to Tower project dir
+      synchronize:
+        src: "{{ tower_project_install_source_path }}"
+        dest: "{{ tower_projects_root }}/{{ tower_project_install_local_path }}/"
+      delegate_to: "{{ inventory_hostname }}"
+      become: true
+
+    - name: Set ownership on local project dir
+      file:
+        path: "{{ tower_projects_root }}/{{ tower_project_install_local_path }}/"
+        owner: awx
+        group: awx
+        state: directory
+        recurse: yes
+      become: true
+
+    - name: Add Tower Project for Install
+      tower_project:
+        name: "{{ tower_project_install }}"
+        organization: "{{ tower_org }}"
+        scm_type: "{{ tower_project_install_type }}"
+        local_path: "{{ tower_project_install_local_path }}"
+        state: present
+        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+    
+    - name: Configure Job Template for Install
+      tower_job_template:
+        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+        job_type: run
+        name: "{{ tower_job_template_install }}"
+        state: present
+        inventory: "{{ tower_inventory }}"
+        project: "{{ tower_project_install }}"
+        playbook: "{{ tower_job_template_install_playbook }}"
+        machine_credential: "{{ tower_machine_credential }}"
+
+        #    - name: Create workflow-ocp-aws-install
+        #      command: tower-cli workflow create --name="workflow-ocp-aws-install" --organization="{{ tower_org }}" --description="A workflow for deploying OCP on AWS" -e @workflow-ocp-aws-install-extravars.yaml
+    
