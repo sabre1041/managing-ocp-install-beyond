@@ -1,4 +1,4 @@
-Lab 4 - Installing Red Hat CloudForms
+=== Installing Red Hat CloudForms
 
 Red Hat CloudForms Management Engine (CFME) delivers the insight, control, and automation necessary to address the challenges of managing complex environments. CloudForms is available as a standalone appliance, but is also available as a containerized solution that can be deployed on the OpenShift Container Platform.
 

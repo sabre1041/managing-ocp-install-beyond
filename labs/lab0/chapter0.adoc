@@ -1,9 +1,6 @@
 ---
 ---
 
-[[<chapter0>,xreflabel>]]
-
-
 image::images/image27.png[]
 
 == Abstract

@@ -1,4 +1,4 @@
-=== Introduction
+=== Lab Overview
 
 With the OpenShift installation process kicked off, we can spend some time and provide an overview of the entire lab.
 

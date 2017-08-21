@@ -1,6 +1,6 @@
-In this lab, we will review the install of the OpenShift Container Platform using Ansible Tower that we started at the beginning of this session.
-
 === Reviewing Install of OpenShift
+
+In this lab, we will review the install of the OpenShift Container Platform using Ansible Tower that we started at the beginning of this session.
 
 The OpenShift Container Platform is installed through a collection of ansible resources. This automation toolset allows platform administrations the ability to quickly provision an environment with minimal effort. Ansible Tower has been configured with a link:http://docs.ansible.com/ansible-tower/latest/html/userguide/job_templates.html[Job Template] that makes use of these assets to install OpenShift on instances available in the OpenStack environment.
 
