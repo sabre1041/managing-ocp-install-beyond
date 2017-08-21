@@ -9,24 +9,17 @@ Managing an ecosystem of infrastructure and applications can be challenging. For
 The lab environment that we will utilize today consists of multiple KVM virtual machines running within each student workstation. The details of each virtual machine are listed below:
 
 * Student Workstation - KVM hypervisor (the system you are logged into now)
-* Red Hat OpenStack Environment 10 - has been deployed for you and ready to host instances that will be used for the Red Hat OpenShift Container Platform 3.4.
-    ** KVM VM
-    ** hostname: rhosp.admin.example.com
+* AWS is hosting instances that will be used for the Red Hat OpenShift Container Platform 3.6.
+    ** hostname: <YOUR PUBLIC DNS NAME FROM AWS>
     ** Red Hat OpenShift Container Platform
         *** 1 Master node
-        *** 1 Infrastructure Node
         *** 2 Application Nodes
             **** Red Hat CloudForms (containerized)
     ** Ansible Tower 3.1.2
-        *** KVM VM
         *** hostname: tower.admin.example.com
 
 In addition to the virtual machines that are running on each student workstation, an instructor machine is also contained within the environment and provides additional resources.  
 
-* Repository server
-    ** KVM VM on instructor machine
-    ** Hostname: repo.osp.example.com
-    ** Hosts localized RPM’s, docker registry, and git repository
 +
 image::images/image24.png[]
 +
@@ -47,7 +40,6 @@ There are several components that will be utilized throughout the course of this
 [options="header]
 |======================
 |Item|URL|Access|Virt Level
-|Red Hat OpenStack Platform| link:http://rhosp.admin.example.com[http://rhosp.admin.example.com] | Username: user1 Password: summit2017| L1
 | Ansible Tower|
 link:https://tower.admin.example.com[https://tower.admin.example.com] |
 Username: admin
@@ -65,17 +57,4 @@ Password: smartvm |
 L2 (container)
 |======================
 
-=== Virtualization level
-
-To understand the different layers of virtualization we will use the following classifications:
-
-    . L0 - The hypervisor. In this lab this is the desktop you are sitting at
-    . L1 - KVM virtual machine running on the L0 hypervisor
-    . L2 - OpenStack Instance/Server running in nested virtualization in the OpenStack L1 VM
-    . L2 (container) - Application running in a container on the L2 platform - in this case OpenShift
-
-Keep in mind here, that we are using nested virtualization in this lab. So, while the performance is likely acceptable, it’s not reflective of a production deployment.
-
 Each component plays a critical role into the overall management of the environment. Now let’s get started!
-
-
