@@ -1,0 +1,64 @@
+---
+aws_access_key: "{{ec2_access_key}}"
+aws_secret_key: "{{ec2_secret_key}}"
+lab_name: rhte
+lab_user: student
+student_count: 1
+domain_name: rhte-apac.sysdeseng.com
+tower_ami_id: ami-03725166
+ocp_ami_id: ami-6fa8880a
+tower_inst_type: t2.medium
+ocp_master_inst_type: t2.large
+ocp_node_inst_type: t2.xlarge
+aws_subnet_cidr: '10.90.5.0/24'
+aws_subnet_id: subnet-bf7125d6
+aws_region: us-east-2
+aws_az_1: us-east-2a
+aws_sec_group: aws-nyc-loft
+aws_key_name: rhte-apac
+tower_config: false
+tower_username: admin
+tower_password: rhte2017
+tower_org: "Default"
+tower_cloud_credential: "AWS"
+tower_machine_credential: "RHTE SSH"
+tower_inventory: "OpenShift"
+tower_inventory_group: "AWS"
+tower_inventory_group_source: "ec2"
+tower_project_provision: "Managing OCP from Install and Beyond"
+tower_project_provision_type: "git"
+tower_project_provision_url: "https://github.com/sabre1041/managing-ocp-install-beyond.git"
+tower_project_provision_branch: "rhte"
+tower_project_provision_clean: "yes"
+tower_project_provision_update_on_launch: "yes"
+tower_project_provision_delete_on_update: "no"
+tower_job_template_provision: "1 Provision"
+tower_job_template_provision_playbook: "openshift-infra/aws_create_hosts.yml"
+tower_job_template_provision_extra_vars_path: "aws_job_template_extra_vars.yml"
+aws_instances:
+- name: master
+  type: "{{ ocp_master_inst_type }}"
+  image: "{{ ocp_ami_id }}"
+  meta:
+    masters: 'true'
+    etcd: 'true'
+    nodes: 'true'
+    osev3: 'true'
+    node_type: 'master'
+  groups:
+    - masters
+    - osev3
+    - creator_"{{ lab_user }}"
+- name: node1
+  type: "{{ ocp_node_inst_type }}"
+  image: "{{ ocp_ami_id }}"
+  meta:
+    masters: 'false'
+    etcd: 'false'
+    nodes: 'true'
+    osev3: 'true'
+    node_type: 'node'
+  groups:
+    - nodes
+    - osev3
+    - creator_"{{ lab_user }}"

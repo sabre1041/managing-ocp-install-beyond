@@ -1,0 +1,30 @@
+=== Where do we go from here?
+
+The lab may be coming to a close, but that does not mean that you need to stop once you leave the session.
+
+Let’s recap what you have accomplished during this session.
+
+* Ansible Tower was used to execute Ansible playbooks to provision a Red Hat OpenShift Container Platform cluster
+    ** Instances were created with Red Hat OpenStack
+    ** Red Hat OpenShift Container Platform was installed and configured
+        *** Platform metrics were automatically deployed
+* Red Hat Cloudforms was deployed within the Red Hat Container Platform cluster
+    ** Integrated with Red Hat OpenShift Container Platform to monitor the cluster
+* Sample application using persistent storage deployed on the Red Hat OpenShift Container Platform
+* Ansible Tower was used to execute Ansible platforms to expand the cluster
+    ** New instance deployed within Red Hat OpenStack
+    ** Red Hat OpenShift Container Platform node installed and cluster updated
+
+The following resources are available for your reference:
+
+* Source Code
+    ** link:https://github.com/sabre1041/managing-ocp-install-beyond[https://github.com/sabre1041/managing-ocp-install-beyond]
+* Lab Guide
+    ** https://github.com/sabre1041/managing-ocp-install-beyond/docs/lab-guide.adoc
+* Official Documentation
+    ** link:https://docs.openshift.com/[Red Hat OpenShift Container Platform]
+    ** link:http://docs.ansible.com/ansible-tower/latest/html/userguide/index.html[Ansible Tower]
+    ** link:https://access.redhat.com/documentation/en/red-hat-cloudforms/[Red Hat CloudForms]
+    ** link:https://access.redhat.com/documentation/en/red-hat-openstack-platform/[Red Hat OpenStack]
+
+

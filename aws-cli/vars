@@ -1,0 +1,52 @@
+# Change these variables to ensure a unique launch
+# Example: LAB_USER=student and LAB_NAME=rhsummit2017
+LAB_USER="student"
+LAB_NAME="rhte"
+
+# This next variable will determine the total number of 'sets of instances' (e.g. students) needed. If there are 3 instances per student for this lab, then this variable is multiplied by 3.
+STUDENT_COUNT=1
+
+#################################################################################
+# These remaining variables should only be changed if you know what you are doing
+INSTANCE_TYPE_1="tower"
+INSTANCE_TYPE_2="master"
+INSTANCE_TYPE_3="node"
+
+# AMI IDs
+# This needs to be updated everytime you update the AMI on AWS.
+TOWER_AMI_ID=ami-68e9cc13
+OCP_AMI_ID=ami-d4e1c4af
+
+# Instance types
+# I only requested an extension to 105 instances for this type.  Can't launch more than 15 of any other type by default.
+TOWER_INST_TYPE=t2.medium
+OCP_MASTER_INST_TYPE=t2.large
+OCP_NODE_INST_TYPE=t2.xlarge
+
+# Network info
+# This is all static. Already created in our VPC
+SUBNET_CIDR_1='10.15.5.0/24'
+SUBNET_ID_1=subnet-cabb9091
+
+# Availability Zones
+# Will need to change this once we swap to the west coast.
+REGION=us-east-1
+AZ_1=us-east-1a
+
+# Security Groups
+# This is static
+LOFT_SEC_GROUP=scollier-testing-sg
+
+# Tags
+TAG_KEY1="lab_name"
+TAG_VALUE1=${LAB_NAME}
+TAG_KEY2="lab_user"
+TAG_VALUE2=${LAB_USER}
+
+# AWS node names
+TOWER_NODE_1=${LAB_NAME}-${INSTANCE_TYPE_1}-${LAB_USER}
+OCP_MASTER_NODE_2=${LAB_NAME}-${INSTANCE_TYPE_2}-${LAB_USER}
+OCP_NODE_NODE_3=${LAB_NAME}-${INSTANCE_TYPE_3}-${LAB_USER}
+
+# AWS Key
+KEY_NAME=aws-certification

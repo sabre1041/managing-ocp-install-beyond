@@ -1,0 +1,82 @@
+=== Expanding the OpenShift Container Platform Cluster
+
+In this lab, you will use Ansible Tower to add an additional application node to the OpenShift Container Platform cluster.
+
+One of the benefits of the OpenShift Container Platform architecture is the effective scheduling of workloads onto compute resources (nodes). However, available capacity may result in the need to add additional resources. As an OpenShift cluster administrator, having a defined process for adding resources in an automated manner helps guarantee the stability of the overall cluster.
+
+The OpenShift Container Platform provides methods for link:https://docs.openshift.com/container-platform/latest/install_config/adding_hosts_to_existing_cluster.html[adding resources to an existing cluster], whether it be a master or node. The method for executing the scale up task depends on the installation method used for the cluster. Both methods make use of an Ansible playbook to automate the process. The execution of the playbook can be driven through Ansible Tower to further simplify adding resources to a cluster.
+
+== Review Cluster
+
+Recall the number of nodes in the cluster by either visiting CloudForms or OpenStack.
+
+From the OpenStack server:
+
+.rhosp$
+[source, bash]
+----
+rhosp$ openstack server list && openstack volume list
+----
+
+From the OpenShift master:
+
+.master$
+[source, bash]
+----
+master$ oc get nodes
+
+NAME                     STATUS                     AGE
+infra.osp.example.com    Ready                      1h
+master.osp.example.com   Ready,SchedulingDisabled   1h
+node1.osp.example.com    Ready
+----
+
+== Expand the Cluster
+
+Once again, using the web browser from the student machine, navigate to the Ansible Tower instance:
+
+link:https://tower.admin.example.com[https://tower.admin.example.com] 
+
+If the web session has not been retained from a prior lab, login with the following credentials:
+
+Username **admin** +
+Password **summit2017**
+
+After logging in, navigate to the **Templates** page and locate the **1-Provision and Scale OpenShift** workflow job template. Click the `rocket` icon to start the job.
+
+image::images/image18.png[]
+
+The workflow first creates a new OpenStack instance and once the instance has been created, the scaleup Ansible playbook will be executed to expand the cluster. The workflow job will take a few minutes to complete. Monitor the status until the workflow job completes successfully by selecting **Details** as with the initial workflow job.
+
+image::images/image26.png[]
+
+== Validate the Expanded Cluster
+
+Once the Tower job is completed, there are multiple methods in which to validate the successful expansion of the OpenShift cluster.
+
+First, as an OpenShift cluster administrator, you can use the OpenShift command line interface from the OpenShift master to view the available nodes and their status.
+
+As the root user on the OpenShift master (_master.osp.example.com_), execute the following command to list the available nodes:
+
+.master$
+[source, bash]
+----
+master$ oc get nodes
+----
+
+If successful, you should see four (4) total nodes (1 master and 3 worker nodes) with **Ready** under the _Status_ column, as opposed to (3) total nodes before (1 master and 2 worker nodes).
+
+Red Hat CloudForms can also be used to confirm the total number of nodes has been expanded to four.
+
+From the OpenStack server:
+
+.rhosp$
+[source, bash]
+----
+rhosp$ openstack server list && openstack volume list
+----
+
+Login to CloudForms and once authenticated, hover over _Compute_, then _Containers_, and finally select **Container Nodes**. Confirm four nodes are displayed.
+
+This concludes lab 6.
+
