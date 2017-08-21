@@ -1,13 +1,5 @@
 ---
 ---
-= Managing the Operation of an OpenShift Cluster :: Andrew Block, Scott Collier, Jason DeTiberus, Vinny Valdez
-Andrew Block <ablock@redhat.com>
-v1.0, 2017-08-07
-:toc: macro
-:toc-title:
-:title-separator: ::
-:sectnumlevels: 5
-
 image::images/image27.png[]
 
 == Abstract
