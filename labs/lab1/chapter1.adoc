@@ -21,10 +21,15 @@ The lab environment that we will utilize today consists of multiple KVM virtual 
 In addition to the virtual machines that are running on each student workstation, an instructor machine is also contained within the environment and provides additional resources.  
 
 +
+
 image::../images/image24.png[]
+
 +
+
 The following diagram depicts the network layout within the environment:
+
 +
+
 image::../images/image21.png[]
 
 === Target Environment
