@@ -1,3 +1,5 @@
+=== Exploring the Environment
+
 With the installation of the OpenShift Container Platform started and an understanding of the environment as as whole, we are going to take time waiting for the installation to complete to explore the environment in further detail.
 
 ==== Exploring Red Hat OpenStack Platform Environment

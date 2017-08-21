@@ -1,3 +1,5 @@
+=== Expanding the OpenShift Container Platform Cluster
+
 In this lab, you will use Ansible Tower to add an additional application node to the OpenShift Container Platform cluster.
 
 One of the benefits of the OpenShift Container Platform architecture is the effective scheduling of workloads onto compute resources (nodes). However, available capacity may result in the need to add additional resources. As an OpenShift cluster administrator, having a defined process for adding resources in an automated manner helps guarantee the stability of the overall cluster.

@@ -1,3 +1,5 @@
+=== Managing the lifecycle of an Application
+
 In this lab, you will deploy an application to Red Hat OpenShift Container Platform and use the tools previously deployed to investigate how to manage the application.
 
 == Deploy a Sample Application
