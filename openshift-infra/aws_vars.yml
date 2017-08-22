@@ -9,7 +9,11 @@ lab_user: student
 student_count: 1
 
 ## OpenShift Version to use, this will enable the correct repositories
-ocp_version: 3.6
+openshift_version: 3.6
+
+## OpenShift Variables
+openshift_master_dns_prefix: "master"
+openshift_master_internal_dns_prefix: "master-internal"
 
 ## Domain to use for wildcard
 domain_name: rhte-apac.sysdeseng.com

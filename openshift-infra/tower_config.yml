@@ -13,7 +13,7 @@
     - name: Enable OpenShift repository
       command: >
         subscription-manager repos 
-          --enable="rhel-7-server-ose-{{ ocp_version }}-rpms"
+          --enable="rhel-7-server-ose-{{ openshift_version }}-rpms"
       become: true
 
     - name: Install package requirements for Tower CLI
@@ -168,7 +168,11 @@
         - "{{ tower_node_tag }}"
 
     - name: Associate OSEv3 Groups
-      command: tower-cli group associate --group "{{ item.0 }}" --parent "{{ item.1 }}" --inventory "{{ tower_inventory }}"
+      command: >
+        tower-cli group associate 
+          --group "{{ item.0 }}" 
+          --parent "{{ item.1 }}" 
+          --inventory "{{ tower_inventory }}"
       with_together:
         - [ "{{ tower_openshift_nodes_group }}", "{{ tower_node_tag }}", "{{ tower_openshift_masters_group }}", "{{ tower_master_tag }}" ]
         - [ "{{ tower_openshift_install_group }}", "{{ tower_openshift_nodes_group }}", "{{ tower_openshift_nodes_group }}", "{{ tower_openshift_masters_group }}" ]
@@ -206,7 +210,6 @@
         cloud_credential: "{{ tower_cloud_credential }}"
         project: "{{ tower_project_provision }}"
         playbook: "{{ tower_job_template_provision_playbook }}"
-        extra_vars_path: "/tmp/{{ tower_job_template_provision_extra_vars_path }}"
         machine_credential: "{{ tower_machine_credential }}"
 
     - name: Copy Extra Variables template
@@ -263,14 +266,3 @@
         playbook: "{{ tower_job_template_install_playbook }}"
         machine_credential: "{{ tower_machine_credential }}"
         cloud_credential: "{{ tower_cloud_credential }}"
-
-    - name: Configure Job Template for Install
-      command: >
-        tower-cli job_template create 
-          --name="{{ tower_job_template_install }}" 
-          --job-type=run
-          --inventory="{{ tower_inventory }}"
-          --project="{{ tower_project_install }}"
-          --playbook="{{ tower_job_template_install_playbook }}"
-          --cloud-credential="{{ tower_cloud_credential }}"
-          --machine-credential="{{ tower_machine_credential }}"
