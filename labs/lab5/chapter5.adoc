@@ -25,7 +25,7 @@ Click the **Create** button to create the project
 
 You are presented with a catalog of items that you can add to your project. In a typical OpenShift cluster, this catalog would be filled with numerous programming languages emphasizing polyglot development and tools to implement Continuous Integration. In the lab environment, there is only one programming language option, PHP. Click on the **PHP** language to display the available options.
 
-image::images/image16.png[]
+image::../images/image16.png[]
 
 You are presented with one option; an OpenShift link:https://docs.openshift.com/container-platform/3.4/architecture/core_concepts/templates.html[template] which contains the various OpenShift components to build and deploy a CakePHP based application along with a MySQL database backed by persistent storage. The goal of this lab is to use this template to validate the build and deployment capabilities of the platform along with the dynamic allocation of Persistent Volumes for the storage of the backend database.
 
@@ -50,11 +50,11 @@ View the build by selecting **Builds** and the **Builds**
 
 Select **cakephp-mysql-persistent** to view the builds for the application. From this page, you can view build status along with the logs produced
 
-image::images/image10.png[]
+image::../images/image10.png[]
 
 To investigate the status of all pods within the project, select **Application** and then **Pods**
 
-image::images/image2.png[]
+image::../images/image2.png[]
 
 Pods that are in a healthy condition will either have a status of Running or completed.
 
@@ -66,7 +66,7 @@ Select either mysql and then _cakephp-mysql-persistent_ depending on the applica
 
 On the top right corner, click **Deploy** to trigger a new deployment if needed.
 
-image::images/image11.png[]
+image::../images/image11.png[]
 
 === View Application
 
@@ -74,7 +74,7 @@ Click on **Overview** from the left hand navigation bar to return to the overvie
 
 NOTE: You may see an error getting metrics. This is safe to ignore for now as it will be covered in a subsequent section.
 
-image::images/image22.png[]
+image::../images/image22.png[]
 
 You should be able to see both the CakePHP and MySQL applications running.
 
@@ -82,7 +82,7 @@ The template automatically creates a route to provide external access to the app
 
 link:http://cakephp-mysql-persistent-cakephp-mysql-persistent.apps.example.com[http://cakephp-mysql-persistent-cakephp-mysql-persistent.apps.example.com]
 
-image::images/image9.png[]
+image::../images/image9.png[]
 
 === Viewing Application
 
@@ -95,7 +95,8 @@ With the _cakephp-mysql-persistent_ application deployed, you can use the OpenSh
     . Select the _Running cakephp_ pod
     . Navigate to the Metrics tab.
 +
-image::images/image8.png[]
+
+image::../images/image8.png[]
 
 Click on the link displayed which will connect to the Hawkular endpoint. Accept the self signed certificate and if successful, you will see the Hawkular logo along with additional details about the status of the service.
 
@@ -103,7 +104,7 @@ NOTE: After clicking on the URL noted above, it may hang for a bit as it tries t
 
 Return to the OpenShift overview page for the _cakephp-mysql-persistent_ project by clicking the **Overview** link on the left side where you should be able to see metrics displaying next to each pod.
 
-image::images/image3.png[]
+image::../images/image3.png[]
 
 Additional details relating to the performance of the application can be viewed by revisiting the _Metrics_ tab within each pod as previously described.
 

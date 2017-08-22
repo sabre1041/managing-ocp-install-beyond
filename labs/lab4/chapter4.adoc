@@ -232,7 +232,7 @@ Password: **smartvm**
 
 Once successfully authenticated, you should be taken to the overview page
 
-image::images/image12.png[]
+image::../images/image12.png[]
 
 ==== Configuring the Container Provider
 
@@ -246,7 +246,8 @@ Configure the container provider:
     . No container providers are configured by default. Add a new container provider by clicking on **Configuration** (with a gear icon)
     . Lastly select **Add Existing Container Provider**
 +
-image::images/image13.png[]
+
+image::../images/image13.png[]
 
 Start adding a new Container Provider by specifying **OCP Summit Lab** as the name and **OpenShift Container Platform** as the type.
 
@@ -266,7 +267,7 @@ master$ oc serviceaccounts get-token -n management-infra management-admin
 
 Copy the value returned into the token fields. Click the **Validate** button to verify the configuration.
 
-image::images/image19.png[]
+image::../images/image19.png[]
 
 Next, click on the **Hawkular** tab to configure CloudForms to communicate with the cluster metrics.
 
@@ -285,11 +286,12 @@ To force an immediate refresh of the newly added Provider:
     . Lastly, click the **Refresh** icon just to the left of **Configuration**
     . Now the Relationships should be populated with data from OpenShift
 +
-image::images/image4.png[]
+
+image::../images/image4.png[]
 
 Select **Compute** -> **Containers** -> **Overview** to view the collected data. Once baseline metrics similar to what is shown below appears, you can move on to the next lab. Feel free to explore the CloudForms web console as time permits to view additional details exposed from the OpenShift cluster.
 
-image::images/image5.png[]
+image::../images/image5.png[]
 
 === Configuring the OpenStack Cloud Provider
 
@@ -319,7 +321,8 @@ Configure the OpenStack cloud provider:
     . In the Events section leave **Ceilometer** selected
     . Lastly, **Add** the cloud provider to CloudForms.
 +
-image::images/image23.png[]
+
+image::../images/image23.png[]
 
 You have now configured Red Hat CloudForms to retrieve metrics from Red Hat OpenStack Platform. It may take a few minutes to data to be displayed.
 
@@ -333,7 +336,8 @@ To force a refresh of the newly added Provider:
     . Now the Relationships should be populated with data from OpenStack in a few short minutes
     . Feel free to browse the new objects and get familiar with your newly connected OpenStack environment. In other words, click everything.
 +
-image::images/image20.png[]
+
+image::../images/image20.png[]
 
 This concludes lab 4.
 
