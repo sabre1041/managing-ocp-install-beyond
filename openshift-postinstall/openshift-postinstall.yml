@@ -5,7 +5,7 @@
     image_streams_query: '{range .items[*]}{.metadata.name}{"\n"}{end}'
     templates_to_keep: ['cakephp-mysql-persistent', 'metrics-deployer-template', 'registry-console']
     image_streams_to_keep: ['php', 'mysql']
-    cfme_template: https://raw.githubusercontent.com/openshift/openshift-ansible/release-1.5/roles/openshift_examples/files/examples/v1.5/cfme-templates/cfme-template.yaml
+    cfme_template: https://raw.githubusercontent.com/openshift/openshift-ansible/release-3.6/roles/openshift_examples/files/examples/v3.6/cfme-templates/cfme-template.yaml
   tasks:
   - name: Add default storage class
     shell: >
@@ -26,12 +26,12 @@
     with_items:
     - "{{ templates.stdout_lines }}"
 
-  - name: Get image streams
+  - name: Get ImageStreams
     command: >
       oc get is -n openshift -o jsonpath='{{ image_streams_query }}'
     register: image_streams
 
-  - name: Remove templates
+  - name: Remove ImageStreams
     command: >
       oc delete is -n openshift {{ item }}
     when: item not in image_streams_to_keep
@@ -52,4 +52,4 @@
 
   - name: Setup CFME Template
     command: >
-      oc create -n openshift -f {{ cfme_template }}
+      oc apply -n openshift -f {{ cfme_template }}
