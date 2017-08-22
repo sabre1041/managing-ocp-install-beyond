@@ -128,6 +128,7 @@
         inventory: "{{ tower_inventory }}"
         instance_filters: "{{ filter }}"
         update_on_launch: "{{ tower_inventory_group_update_on_launch }}"
+        overwrite: "{{ tower_inventory_group_overwrite }}"
         source_vars:
           regions: "{{ aws_region }}"
           vpc_destination_variable: public_dns_name

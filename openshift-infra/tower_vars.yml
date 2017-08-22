@@ -21,6 +21,7 @@ tower_inventory: "OpenShift"
 tower_inventory_group: "AWS"
 tower_inventory_group_source: "ec2"
 tower_inventory_group_update_on_launch: "yes"
+tower_inventory_group_overwrite: "yes"
 # Tower assets for provision
 tower_project_provision: "Managing OCP from Install and Beyond"
 tower_project_provision_type: "git"
