@@ -1,0 +1,56 @@
+---
+# Tower config
+tower_config: true
+tower_username: admin
+tower_password: rhte2017
+tower_org: "Default"
+tower_projects_root: "/var/lib/awx/projects"
+# Tower cloud credential
+tower_cloud_credential: "AWS"
+tower_cloud_credential_kind: "aws"
+tower_cloud_credential_username: "{{ec2_access_key}}"
+tower_cloud_credential_password: "{{ec2_secret_key}}"
+# Tower machine credential
+tower_machine_credential: "RHTE SSH"
+tower_machine_credential_kind: "ssh"
+#tower_machine_credential_ssh_key_data: "~/.ssh/id_rsa"
+tower_machine_credential_ssh_key_data: "rhte-apac.pem"
+tower_machine_credential_username: "ec2-user"
+# Tower inventory
+tower_inventory: "OpenShift"
+tower_inventory_group: "AWS"
+tower_inventory_group_source: "ec2"
+tower_inventory_group_update_on_launch: "yes"
+tower_inventory_group_overwrite: "yes"
+tower_openshift_install_group: "OSEv3"
+tower_openshift_masters_group: "masters"
+tower_openshift_nodes_group: "nodes"
+tower_master_tag: "tag_lab_role_master"
+tower_node_tag: "tag_lab_role_node"
+# Tower assets for provision
+tower_project_provision: "Managing OCP from Install and Beyond"
+tower_project_provision_type: "git"
+tower_project_provision_url: "https://github.com/sabre1041/managing-ocp-install-beyond.git"
+tower_project_provision_branch: "rhte"
+tower_project_provision_local_branch: ""
+tower_project_provision_clean: "yes"
+tower_project_provision_update_on_launch: "yes"
+tower_project_provision_delete_on_update: "no"
+tower_job_template_provision: "1 Provision"
+tower_job_template_provision_playbook: "openshift-infra/aws_create_hosts.yml"
+tower_job_template_provision_extra_vars_path: "aws_job_template_extra_vars.yml"
+# Tower assets for install
+tower_project_install_package: "openshift-ansible-playbooks"
+tower_project_install: "openshift-ansible"
+tower_project_install_type: "manual"
+tower_project_install_url: ""
+tower_project_install_branch: ""
+tower_project_install_local_path: "share"
+tower_project_install_source_path: "/usr/share/ansible/openshift-ansible/"
+tower_project_install_clean: "yes"
+tower_project_install_update_on_launch: "no"
+tower_project_install_delete_on_update: "no"
+tower_job_template_install: "2 Install"
+#tower_job_template_install_playbook: "playbooks/byo/config.yml"
+tower_job_template_install_playbook: "ansible/openshift-ansible/playbooks/byo/config.yml"
+tower_job_template_install_extra_vars_path: "aws_job_template_extra_vars.yml"
