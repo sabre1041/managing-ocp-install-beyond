@@ -27,9 +27,9 @@ tower_ami_id_configured_3_6: ami-082c0f6d
 ## Tower AMI ID - This is the only variable used in the Playbooks, set it to one of the above (or override with -e)
 tower_ami_id: "{{ tower_ami_id_unconfigured_3_6 }}"
 ## OCP 3.5 ID
-ocp_ami_id_3_5: ami-6fa8880a
+ocp_ami_id_3_5: ami-3934175c
 ## OCP 3.6 ID
-ocp_ami_id_3_6: ami-812c0fe4
+ocp_ami_id_3_6: ami-9e3417fb
 ## OCP ID - This is the only variable used in the Playbooks, set it to one of the above (or override with -e)
 ocp_ami_id: "{{ ocp_ami_id_3_6 }}"
 
