@@ -85,6 +85,38 @@
           hostname_variable: tag_Name
         state: present
 
+    - name: Add OSEv3 Group
+      tower_group:
+        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+        name: "{{ tower_openshift_install_group }}"
+        source: "manual"
+        inventory: "{{ tower_inventory }}"
+        state: present
+        variables: "{{ lookup('template', 'OSEv3.yml.j2') }}"
+
+    - name: Add OSEv3 Children
+      tower_group:
+        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+        name: "{{ item }}"
+        source: "manual"
+        inventory: "{{ tower_inventory }}"
+        state: present
+      with_items:
+        - "{{ tower_openshift_masters_group }}"
+        - "{{ tower_openshift_nodes_group }}"
+        - "{{ tower_master_tag }}"
+        - "{{ tower_node_tag }}"
+
+    - name: Associate OSEv3 Groups
+      command: tower-cli group associate --group "{{ item.0 }}" --parent "{{ item.1 }}" --inventory "{{ tower_inventory }}"
+      with_together:
+        - [ "{{ tower_openshift_nodes_group }}", "{{ tower_node_tag }}", "{{ tower_openshift_masters_group }}", "{{ tower_master_tag }}" ]
+        - [ "{{ tower_openshift_install_group }}", "{{ tower_openshift_nodes_group }}", "{{ tower_openshift_nodes_group }}", "{{ tower_openshift_masters_group }}" ]
+
     - name: Sync Inventory
       command: tower-cli group sync --name "{{ tower_inventory_group }}"
 
