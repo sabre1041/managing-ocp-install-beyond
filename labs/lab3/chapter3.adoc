@@ -8,11 +8,11 @@ To view the list of Job Templates configured in Ansible Tower, select **Template
 
 All of the job templates configured in Ansible Tower are listed below. Earlier you launched the job template called **0-Provision and Install OpenShift**. This is a link:https://docs.ansible.com/ansible-tower/latest/html/userguide/workflows.html[workflow job] type and will execute multiple chained job templates to provision OpenShift. Review the workflow jobs and playbooks that were run in the **Jobs** page. 
 
-image::images/image6.png[]
+image::../images/image6.png[]
 
 When you execute the job template, you will be transferred to the jobs page where you will be able to track the progress and status of the installation. For more information on the Ansible playbooks see link:https://github.com/openshift/openshift-ansible[https://github.com/openshift/openshift-ansible]
 
-image::images/image15.png[]
+image::../images/image15.png[]
 
 === Validate the OpenShift Installation
 
@@ -23,7 +23,7 @@ link:https://master.osp.example.com:8443[https://master.osp.example.com:8443]
 
 If successful, you should see the following page representing the OpenShift landing page:
 
-image::images/image1.png[]
+image::../images/image1.png[]
 
 Use the following credentials to access the web console:
 
