@@ -44,11 +44,11 @@ Password **summit2017**
 
 After logging in, navigate to the **Templates** page and locate the **1-Provision and Scale OpenShift** workflow job template. Click the `rocket` icon to start the job.
 
-image::images/image18.png[]
+image::../images/image18.png[]
 
 The workflow first creates a new OpenStack instance and once the instance has been created, the scaleup Ansible playbook will be executed to expand the cluster. The workflow job will take a few minutes to complete. Monitor the status until the workflow job completes successfully by selecting **Details** as with the initial workflow job.
 
-image::images/image26.png[]
+image::../images/image26.png[]
 
 == Validate the Expanded Cluster
 
