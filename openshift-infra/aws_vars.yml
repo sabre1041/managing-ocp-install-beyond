@@ -1,15 +1,39 @@
 ---
+## Name of lab. This is used to tag instances
 lab_name: rhte
+
+## Name of the individual using the lab. For full class deploy this is usually 'student' but for development this can be anything to uniquely identify all instances
 lab_user: student
+
+## Count of Tower instances to instantiate
 student_count: 1
+
+## Domain to use for wildcard
 domain_name: rhte-apac.sysdeseng.com
-# AWS info
+
+## AWS credentials (do not save it here, instead override with -e)
 aws_access_key: "{{ec2_access_key}}"
 aws_secret_key: "{{ec2_secret_key}}"
-tower_ami_id_unconfigured: ami-32230057
-tower_ami_id_configured: ami-03725166
-tower_ami_id: "{{ tower_ami_id_unconfigured }}"
-ocp_ami_id: ami-6fa8880a
+
+## Set the AMI IDs here (or override with -e). Some commonly used AMIs are defined here, but ultimately the ones that matter are 'tower_ami_id' and 'ocp_ami_id'
+## Tower AMI with OCP 3.5
+tower_ami_id_unconfigured_3_5: ami-4b2e0d2e
+## Tower AMI with OCP 3.6
+tower_ami_id_unconfigured_3_6: ami-fc331099
+## Tower AMI ID with OCP 3.5 fully configured
+tower_ami_id_configured_3_5: ami-27311242
+## Tower AMI ID with OCP 3.6 fully configured
+tower_ami_id_configured_3_6: ami-082c0f6d
+## Tower AMI ID - This is the only variable used in the Playbooks, set it to one of the above (or override with -e)
+tower_ami_id: "{{ tower_ami_id_unconfigured_3_6 }}"
+## OCP 3.5 ID
+ocp_ami_id_3_5: ami-6fa8880a
+## OCP 3.6 ID
+ocp_ami_id_3_6: ami-812c0fe4
+## OCP ID - This is the only variable used in the Playbooks, set it to one of the above (or override with -e)
+ocp_ami_id: "{{ ocp_ami_id_3_6 }}"
+
+## AWS Info
 tower_inst_type: t2.medium
 ocp_master_inst_type: t2.large
 ocp_node_inst_type: t2.xlarge
@@ -18,9 +42,11 @@ aws_region: us-east-2
 aws_az_1: us-east-2a
 aws_sec_group: aws-nyc-loft
 aws_key_name: rhte-apac
-# Tower config
+
+# Tower config - set this to true to run the tower_config.yml playbook to fully configure the Tower instance (this separate playbook can also be run separately
 tower_config: false
-# Instances
+
+# Instance details
 aws_instances:
 - name: master
   type: "{{ ocp_master_inst_type }}"
