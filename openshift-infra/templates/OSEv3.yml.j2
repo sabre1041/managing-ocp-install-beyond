@@ -24,7 +24,8 @@ openshift_metrics_selector: "type=infra"
 openshift_cloudprovider_kind: aws
 openshift_master_cluster_hostname: "{{ openshift_master_internal_dns_prefix }}-{{ student_id }}.{{ domain_name }}"
 openshift_master_cluster_public_hostname: "{{ openshift_master_dns_prefix }}-{{ student_id }}.{{ domain_name }}"
-openshift_metrics_cassandra_storage_type: emptydir
+openshift_metrics_cassandra_storage_type: dynamic
+openshift_disable_check: memory_availability
 {% raw %}
 openshift_cloudprovider_aws_access_key: "{{ lookup('env','AWS_ACCESS_KEY') }}"
 openshift_cloudprovider_aws_secret_key: "{{ lookup('env','AWS_SECRET_KEY') }}"
