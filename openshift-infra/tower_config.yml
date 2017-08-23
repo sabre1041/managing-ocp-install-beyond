@@ -12,7 +12,7 @@
   tasks:
     - name: Enable OpenShift repository
       command: >
-        subscription-manager repos 
+        subscription-manager repos
           --enable="rhel-7-server-ose-{{ openshift_version }}-rpms"
       become: true
 
@@ -30,7 +30,7 @@
         - python2-boto3
         - python-click
         - python-httplib2
-    
+
     - name: Install Tower CLI
       pip:
         name: "{{ item }}"
@@ -42,33 +42,32 @@
     - set_fact:
         student_id: "{{ hostvars[inventory_hostname].student_id }}"
         filter: "{{ 'tag' + ':' + 'student_id=' + student_id }}"
+        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
 
     - debug:
         var: "{{ item }}"
         verbosity: 2
       with_items:
         - hostvars[inventory_hostname].friendly_name
-        - hostvars[inventory_hostname].public_ip
         - hostvars[inventory_hostname].student_id
-        - tower_username
-        - tower_password
         - filter
+        - tower_host
 
     - name: Set Tower CLI Host
-      command: tower-cli config host "{{ hostvars[inventory_hostname].public_ip }}"
+      command: tower-cli config host "{{ tower_host }}"
+
     - name: Set Tower CLI Username
       command: tower-cli config username "{{ tower_username }}"
+
     - name: Set Tower CLI Password
       command: tower-cli config password "{{ tower_password }}"
+      no_log: True
 
     - name: Create Tower Organization
       tower_organization:
         name: "{{ tower_org }}"
         state: present
-        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
-        tower_username: "{{ tower_username }}"
-        tower_password: "{{ tower_password }}"
-    
+
     - name: Stage {{ tower_machine_credential }} Private Key
       synchronize:
         src: "{{ tower_machine_credential_ssh_key_data }}"
@@ -85,7 +84,7 @@
         tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
-    
+
     - name: Remove {{ tower_machine_credential }} staging file
       file:
         path: "/tmp/{{ tower_machine_credential_ssh_key_data }}"
@@ -102,7 +101,7 @@
         tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
-    
+
     - name: Add Tower inventory
       tower_inventory:
         name: "{{ tower_inventory }}"
@@ -111,7 +110,7 @@
         tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
-    
+
     - name: Configure Tower Inventory
       tower_inventory:
         tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
@@ -169,16 +168,21 @@
 
     - name: Associate OSEv3 Groups
       command: >
-        tower-cli group associate 
-          --group "{{ item.0 }}" 
-          --parent "{{ item.1 }}" 
+        tower-cli group associate
+          --group "{{ item.0 }}"
+          --parent "{{ item.1 }}"
           --inventory "{{ tower_inventory }}"
+          "{{ tower_cli_verbosity }}"
       with_together:
         - [ "{{ tower_openshift_nodes_group }}", "{{ tower_node_tag }}", "{{ tower_openshift_masters_group }}", "{{ tower_master_tag }}" ]
         - [ "{{ tower_openshift_install_group }}", "{{ tower_openshift_nodes_group }}", "{{ tower_openshift_nodes_group }}", "{{ tower_openshift_masters_group }}" ]
 
     - name: Sync Inventory
-      command: tower-cli group sync --name "{{ tower_inventory_group }}" --wait
+      command: >
+        tower-cli group sync
+          --name "{{ tower_inventory_group }}"
+          --wait
+          "{{ tower_cli_verbosity }}"
 
     - name: Configure Project for Provision
       tower_project:
@@ -196,8 +200,12 @@
         scm_delete_on_update: "{{ tower_project_provision_delete_on_update }}"
 
     - name: Update Project for Provision
-      command: tower-cli project update --name "{{ tower_project_provision }}" --wait
-    
+      command: >
+        tower-cli project update
+          --name "{{ tower_project_provision }}"
+          --wait
+          "{{ tower_cli_verbosity }}"
+
     - name: Configure Job Template for Provision
       tower_job_template:
         tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
@@ -212,27 +220,24 @@
         playbook: "{{ tower_job_template_provision_playbook }}"
         machine_credential: "{{ tower_machine_credential }}"
 
-    - name: Copy Extra Variables template
+    - name: Copy Job Template for Provision Extra Variables file
       template:
-        src: aws_job_template_extra_vars.yml
+        src: "{{ tower_job_template_install_extra_vars_path }}"
         dest: "/tmp/{{ tower_job_template_provision_extra_vars_path }}"
-
-    - debug:
-        var: tower_job_templates
-        verbosity: 2
 
     - name: Update Project Provision with Extra Vars
       command: >
-        tower-cli job_template modify 
-          --name="{{ tower_job_template_provision }}" 
+        tower-cli job_template modify
+          --name="{{ tower_job_template_provision }}"
           --extra-vars="@/tmp/{{ tower_job_template_provision_extra_vars_path }}"
+          "{{ tower_cli_verbosity }}"
 
     - name: Install playbooks for {{ tower_project_install }}
       yum:
         name: "{{ tower_project_install_package }}"
         state: present
       become: true
-    
+
     - name: Create symbolic link to /usr/share
       file:
         src: /usr/share
@@ -252,7 +257,7 @@
         tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
-    
+
     - name: Configure Job Template for Install
       tower_job_template:
         tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
@@ -264,5 +269,57 @@
         inventory: "{{ tower_inventory }}"
         project: "{{ tower_project_install }}"
         playbook: "{{ tower_job_template_install_playbook }}"
+        become_enabled: "{{ tower_job_template_install_become_enabled }}"
         machine_credential: "{{ tower_machine_credential }}"
         cloud_credential: "{{ tower_cloud_credential }}"
+
+    - name: Copy Workflow Template Extra Vars
+      template:
+        src: "{{ tower_workflow_template_extra_vars }}"
+        dest: "/tmp/{{ tower_workflow_template_extra_vars }}"
+
+    - name: Create Workflow Template
+      command: >
+        tower-cli workflow create
+          --name="{{ tower_workflow_template }}"
+          --organization="{{ tower_org }}"
+          --extra-vars="@/tmp/{{ tower_workflow_template_extra_vars }}"
+          "{{ tower_cli_verbosity }}"
+
+    - debug:
+        var: "{{ item }}"
+        verbosity: 2
+      with_items:
+        - tower_workflow_template
+        - tower_workflow_template_schema
+
+    - name: Copy Workflow Template Schema
+      template:
+        src: "{{ tower_workflow_template_schema_path }}"
+        dest: "/tmp/{{ tower_workflow_template_schema_path }}"
+
+    - name: Create Workflow Schema
+      command: tower-cli workflow schema {{ tower_workflow_template }} @/tmp/{{ tower_workflow_template_schema_path }}
+          "{{ tower_cli_verbosity }}"
+
+    - name: Unset Tower CLI Host
+      command: >
+        tower-cli config
+          --unset host
+          "{{ tower_cli_verbosity }}"
+      when: not tower_keep_cli_credentials
+
+    - name: Unset Tower CLI Username
+      command: >
+        tower-cli config
+          --unset username
+          "{{ tower_cli_verbosity }}"
+      when: not tower_keep_cli_credentials
+
+    - name: Unset Tower CLI Password
+      command: >
+        tower-cli config
+          --unset password
+          "{{ tower_cli_verbosity }}"
+      no_log: True
+      when: not tower_keep_cli_credentials

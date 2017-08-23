@@ -5,6 +5,8 @@ tower_username: admin
 tower_password: rhte2017
 tower_org: "Default"
 tower_projects_root: "/var/lib/awx/projects"
+tower_keep_cli_credentials: True
+tower_cli_verbosity: "-vv"
 # Tower cloud credential
 tower_cloud_credential: "AWS"
 tower_cloud_credential_kind: "aws"
@@ -36,7 +38,7 @@ tower_project_provision_local_branch: ""
 tower_project_provision_clean: "yes"
 tower_project_provision_update_on_launch: "yes"
 tower_project_provision_delete_on_update: "no"
-tower_job_template_provision: "1 Provision"
+tower_job_template_provision: "1-Provision"
 tower_job_template_provision_playbook: "openshift-infra/aws_create_hosts.yml"
 tower_job_template_provision_extra_vars_path: "aws_job_template_extra_vars.yml"
 # Tower assets for install
@@ -50,7 +52,13 @@ tower_project_install_source_path: "/usr/share/ansible/openshift-ansible/"
 tower_project_install_clean: "yes"
 tower_project_install_update_on_launch: "no"
 tower_project_install_delete_on_update: "no"
-tower_job_template_install: "2 Install"
-#tower_job_template_install_playbook: "playbooks/byo/config.yml"
+tower_job_template_install: "2-Install"
 tower_job_template_install_playbook: "ansible/openshift-ansible/playbooks/byo/config.yml"
-tower_job_template_install_extra_vars_path: "aws_job_template_extra_vars.yml"
+tower_job_template_install_extra_vars_path: "aws_job_template_extra_vars.yml.j2"
+tower_job_template_install_become_enabled: "yes"
+# Tower Workflow Assets
+tower_workflow_template: "0-Push_Button_Deploy_OpenShift_on_AWS"
+# Place any variables that will be available to all job templates and inventory hosts
+tower_workflow_template_extra_vars: "tower_workflow_template_extra_vars.yml"
+# Wire up job_templates in this file
+tower_workflow_template_schema_path: "tower_workflow_template_schema.yml"
