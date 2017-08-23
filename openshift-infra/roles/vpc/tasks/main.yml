@@ -1,0 +1,136 @@
+---
+
+# roles/vpc/tasks/main.yml
+
+
+# First task : creating the VPC.
+# We are using the variables set in the vars.yml file.
+# The module gives us back its result,
+# which contains information about our new VPC. 
+# We register it in the variable my_vpc.
+
+- name:               Create VPC
+  ec2_vpc_net:
+    name:             "{{ aws_vpc_name }}"
+    cidr_block:       "{{ aws_vpc_cidr_block }}"
+    region:           "{{ aws_region }}"
+    aws_access_key:   "{{ ec2_access_key }}"
+    aws_secret_key:   "{{ ec2_secret_key }}"
+    state:            "present"
+  register: my_vpc
+
+
+# We now use the set_fact module 
+# to save the id of the VPC in a new variable.
+
+- name:               Set VPC ID in variable
+  set_fact:
+    vpc_id:           "{{ my_vpc.vpc.id }}"
+
+
+# Creating our only Subnet in the VPC.
+# A subnet needs to be located in an Availability Zone (or AZ).
+# Again, we register the results in a variable for later.
+
+- name:               Create Public Subnet
+  ec2_vpc_subnet:
+    state:            "present"
+    vpc_id:           "{{ vpc_id }}"
+    cidr:             "{{ aws_subnet_cidr }}"
+    az:               "{{ aws_region }}a"
+    region:           "{{ aws_region }}"
+    aws_access_key:   "{{ ec2_access_key }}"
+    aws_secret_key:   "{{ ec2_secret_key }}"
+    resource_tags:
+      Name:           "{{ aws_subnet_name }}"
+  register: my_public_subnet
+
+
+# We save the id of the Public Subnet in a new variable.
+
+- name:               Set Public Subnet ID in variable
+  set_fact:
+    public_subnet_id: "{{ my_public_subnet.subnet.id }}"
+
+
+# Every VPC needs at least one Internet Gateway.
+# This component allows traffic between the VPC and the outside world.
+
+- name:               Create Internet Gateway for VPC
+  ec2_vpc_igw:
+    vpc_id:           "{{ vpc_id }}"
+    region:           "{{ aws_region }}"
+    aws_access_key:   "{{ ec2_access_key }}"
+    aws_secret_key:   "{{ ec2_secret_key }}"
+    state:            "present"
+  register: my_vpc_igw
+
+
+# We save the id of the Internet Gateway in a new variable.
+
+- name:               Set Internet Gateway ID in variable
+  set_fact:
+    igw_id:           "{{ my_vpc_igw.gateway_id }}"
+
+
+# Now we set up a Route Table. 
+# We attach that Route Table to the Public Subnet.
+# The route we create here defines the default routing 
+# of the table, redirecting requests to the Internet Gateway. 
+# We don't see it here, but the route table will also contain 
+# a route for resources inside the VPC, so that if we need 
+# to reach an internal resource, we don't go to the Internet
+# Gateway.
+
+- name:               Set up public subnet route table
+  ec2_vpc_route_table:
+    vpc_id:           "{{ vpc_id }}"
+    region:           "{{ aws_region }}"
+    aws_access_key:   "{{ ec2_access_key }}"
+    aws_secret_key:   "{{ ec2_secret_key }}"
+    tags:
+      Name:           "{{ aws_route_table }}"
+    subnets:
+      - "{{ public_subnet_id }}"
+    routes:
+      - dest:         "0.0.0.0/0"
+        gateway_id:   "{{ igw_id }}"
+
+
+# Finally, we create our Main Security Group.
+
+- name:               Create Main Security Group
+  ec2_group:
+    name:             "{{ aws_sec_grp }}"
+    description:      "{{ aws_sec_grp_desc }}"
+    vpc_id:           "{{ vpc_id }}"
+    region:           "{{ aws_region }}"
+    aws_access_key:   "{{ ec2_access_key }}"
+    aws_secret_key:   "{{ ec2_secret_key }}"
+    rules:
+      - proto:        "tcp"
+        from_port:    "22"
+        to_port:      "22"
+        cidr_ip:      "0.0.0.0/0"
+      - proto:        "tcp"
+        from_port:    "80"
+        to_port:      "80"
+        cidr_ip:      "0.0.0.0/0"
+      - proto:        "tcp"
+        from_port:    "8080"
+        to_port:      "8080"
+        cidr_ip:      "0.0.0.0/0"
+      - proto:        "tcp"
+        from_port:    "443"
+        to_port:      "443"
+        cidr_ip:      "0.0.0.0/0"
+      - proto:        "tcp"
+        from_port:    "8443"
+        to_port:      "8443"
+        cidr_ip:      "0.0.0.0/0"
+      - proto:        "icmp"
+        from_port:    "8"
+        to_port:      "-1"
+        cidr_ip:      "0.0.0.0/0"
+      - proto:        "all"
+        group_name:   "{{ aws_sec_grp }}"
