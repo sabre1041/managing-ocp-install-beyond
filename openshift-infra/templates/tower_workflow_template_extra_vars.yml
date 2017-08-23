@@ -5,4 +5,3 @@ lab_user: "{{ lab_user }}"
 student_id: "{{ student_id }}"
 openshift_deploy_version: "{{ openshift_deploy_version }}"
 domain_name: "{{ domain_name }}"
-blame_on_both_sides: False
