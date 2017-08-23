@@ -1,10 +1,8 @@
 ---
+# Put any variables here that will be available to all members of this workflow
 lab_name: "{{ lab_name }}"
 lab_user: "{{ lab_user }}"
 student_id: "{{ student_id }}"
-openshift_version: "{{ openshift_version }}"
+openshift_deploy_version: "{{ openshift_deploy_version }}"
 domain_name: "{{ domain_name }}"
-fire_and_fury: False
-many_sides: False
 blame_on_both_sides: False
-covfefe: False

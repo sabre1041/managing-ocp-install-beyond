@@ -9,7 +9,7 @@ lab_user: student
 student_count: 1
 
 ## OpenShift Version to use, this will enable the correct repositories
-openshift_version: 3.6
+openshift_deploy_version: 3.6
 
 ## OpenShift Variables
 openshift_master_dns_prefix: "master"

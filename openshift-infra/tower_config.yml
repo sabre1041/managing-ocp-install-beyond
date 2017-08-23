@@ -13,7 +13,7 @@
     - name: Enable OpenShift repository
       command: >
         subscription-manager repos
-          --enable="rhel-7-server-ose-{{ openshift_version }}-rpms"
+          --enable="rhel-7-server-ose-{{ openshift_deploy_version }}-rpms"
       become: true
 
     - name: Install package requirements for Tower CLI
@@ -67,6 +67,9 @@
       tower_organization:
         name: "{{ tower_org }}"
         state: present
+        tower_host: "{{ tower_host }}"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
 
     - name: Stage {{ tower_machine_credential }} Private Key
       synchronize:
@@ -81,7 +84,7 @@
         state: present
         ssh_key_data: "/tmp/{{ tower_machine_credential_ssh_key_data }}"
         username: "{{ tower_machine_credential_username }}"
-        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_host: "{{ tower_host }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
 
@@ -98,7 +101,7 @@
         state: present
         username: "{{ tower_cloud_credential_username }}"
         password: "{{ tower_cloud_credential_password }}"
-        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_host: "{{ tower_host }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
 
@@ -107,13 +110,13 @@
         name: "{{ tower_inventory }}"
         organization: "{{ tower_org }}"
         state: present
-        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_host: "{{ tower_host }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
 
     - name: Configure Tower Inventory
       tower_inventory:
-        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_host: "{{ tower_host }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
         name: "{{ tower_inventory }}"
@@ -124,7 +127,7 @@
 
     - name: Configure Tower Inventory Group
       tower_group:
-        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_host: "{{ tower_host }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
         name: "{{ tower_inventory_group }}"
@@ -142,7 +145,7 @@
 
     - name: Add OSEv3 Group
       tower_group:
-        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_host: "{{ tower_host }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
         name: "{{ tower_openshift_install_group }}"
@@ -153,7 +156,7 @@
 
     - name: Add OSEv3 Children
       tower_group:
-        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_host: "{{ tower_host }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
         name: "{{ item }}"
@@ -186,7 +189,7 @@
 
     - name: Configure Project for Provision
       tower_project:
-        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_host: "{{ tower_host }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
         name: "{{ tower_project_provision }}"
@@ -208,7 +211,7 @@
 
     - name: Configure Job Template for Provision
       tower_job_template:
-        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_host: "{{ tower_host }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
         job_type: run
@@ -254,13 +257,13 @@
         scm_type: "{{ tower_project_install_type }}"
         local_path: "{{ tower_project_install_local_path }}"
         state: present
-        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_host: "{{ tower_host }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
 
     - name: Configure Job Template for Install
       tower_job_template:
-        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_host: "{{ tower_host }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
         job_type: run
