@@ -46,6 +46,19 @@ aws_az_1: us-east-2a
 aws_sec_group: aws-nyc-loft
 aws_key_name: rhte-apac
 
+# AWS VPC configuration
+# Provide a default name for the VPC
+aws_vpc_name: RHTE-APAC-VPC
+# VPC requires a CIDR block. The key is to ensure that it doesn't conflict with an existing CIDR.
+aws_vpc_cidr_block: 10.10.0.0/16
+# Same as CIDR block
+aws_subnet_cidr: 10.10.0.0/24
+# Name the VPC subnet, route table, security group and provide a security group description.
+aws_subnet_name: "RHTE APAC Public Subnet"
+aws_route_table: "RHTE APAC Public"
+aws_sec_grp: "RHTE APAC Security Group"
+aws_sec_grp_desc: "RHTE APAC Security Group"
+
 ## Tower config - set this to true to run the tower_config.yml playbook to fully configure the Tower instance (this separate playbook can also be run separately
 tower_config: false
 
