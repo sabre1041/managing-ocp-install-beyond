@@ -305,6 +305,10 @@
       command: tower-cli workflow schema {{ tower_workflow_template }} @/tmp/{{ tower_workflow_template_schema_path }}
           "{{ tower_cli_verbosity }}"
 
+    - name: Launch Workflow Job (this may take up to 30 minutes, see Tower UI for progress)
+      command: tower-cli workflow_job launch -W {{ tower_workflow_template }}
+      when: tower_workflow_job_launch
+
     - name: Unset Tower CLI Host
       command: >
         tower-cli config
