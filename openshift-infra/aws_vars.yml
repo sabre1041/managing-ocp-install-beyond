@@ -9,7 +9,7 @@ lab_user: student
 student_count: 1
 
 ## OpenShift Version to use, this will enable the correct repositories
-openshift_version: 3.6
+openshift_deploy_version: 3.6
 
 ## OpenShift Variables
 openshift_master_dns_prefix: "master"
@@ -24,9 +24,9 @@ aws_secret_key: "{{ec2_secret_key}}"
 
 ## Set the AMI IDs here (or override with -e). Some commonly used AMIs are defined here, but ultimately the ones that matter are 'tower_ami_id' and 'ocp_ami_id'
 ## Tower AMI unconfigured
-tower_ami_id_unconfigured: ami-1a3a197f
+tower_ami_id_unconfigured: ami-d90427bc
 ## Tower AMI ID fully configured
-tower_ami_id_configured: ami-082c0f6d
+tower_ami_id_configured: ami-800a29e5
 ## Tower AMI ID - This is the only variable used in the Playbooks, set it to one of the above (or override with -e)
 tower_ami_id: "{{ tower_ami_id_unconfigured }}"
 ## OCP 3.5 ID
@@ -46,10 +46,10 @@ aws_az_1: us-east-2a
 aws_sec_group: aws-nyc-loft
 aws_key_name: rhte-apac
 
-# Tower config - set this to true to run the tower_config.yml playbook to fully configure the Tower instance (this separate playbook can also be run separately
+## Tower config - set this to true to run the tower_config.yml playbook to fully configure the Tower instance (this separate playbook can also be run separately
 tower_config: false
 
-# Instance details
+## Instance details
 aws_instances:
 - name: master
   type: "{{ ocp_master_inst_type }}"
