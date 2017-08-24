@@ -55,6 +55,8 @@ cmd virt-customize -a ${OSP_VM_IMAGE_PATH} \
   --run-command 'yum remove cloud-init* -y && \
     rpm -ivh http://rhos-release.virt.bos.redhat.com/repos/rhos-release/rhos-release-latest.noarch.rpm && \
     rhos-release 10 && \
+    yum install -y lvm2 libguestfs-tools && \
+    sed -i -e "s/issue_discards = .*$/issue_discards = 1/" /etc/lvm/lvm.conf && \
     systemctl disable NetworkManager' \
   --write /etc/sysconfig/network-scripts/ifcfg-eth1:'DEVICE=eth1
 BOOTPROTO=static
@@ -132,12 +134,16 @@ then
   echo "WARNING: ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME} link exists, remove first?"
   rm -iv ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME}
 fi
-cmd rsync -avP ${OSP_VM_IMAGE_PATH} ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME}.${DATETIME}
+
+# Sparsify image
+cmd virt-sparsify ${OSP_VM_IMAGE_PATH} ${OSP_VM_IMAGE_PATH}-sparsified
+cmd rsync -avP ${OSP_VM_IMAGE_PATH}-sparsified ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/${OSP_VM_IMAGE_NAME}.${DATETIME}-sparsified
 
 # Create symlink to new image
 pushd ${FILESHARE_DEST_BASE}/${OSP_VM_NAME}/
-ln -s ${OSP_VM_IMAGE_NAME}.${DATETIME} ${OSP_VM_IMAGE_NAME}
+ln -s ${OSP_VM_IMAGE_NAME}.${DATETIME}-sparsified ${OSP_VM_IMAGE_NAME}
 popd
 
 # Remove running rhosp guest
 source remove-rhosp-vm.sh
+cmd rm -iv ${OSP_VM_IMAGE_PATH}-sparsified

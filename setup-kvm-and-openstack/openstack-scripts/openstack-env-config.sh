@@ -42,7 +42,6 @@ prep() {
   fi
 
   # Enable lvm on second partition
-  cmd yum -y install lvm2
   cmd pvcreate /dev/sda2
   cmd vgcreate cinder-volumes /dev/sda2
   cmd vgchange -ay
@@ -58,15 +57,19 @@ packstack-install() {
 
 post-install-config() {
 	cmd echo "INFO: Starting function 'prepare-host'"
-	# Enable discards for lvm
-	cmd sed -i -e 's/issue_discards = .*$/issue_discards = 1/' /etc/lvm/lvm.conf
 
+	openstack-config --set /etc/cinder/cinder.conf lvm volume_clear none
+	openstack-config --set /etc/cinder/cinder.conf lvm image_upload_use_cinder_backend True
+	openstack-config --set /etc/cinder/cinder.conf lvm lvm_type thin
+	openstack-config --set /etc/cinder/cinder.conf DEFAULT glance_api_version 2
+	openstack-config --set /etc/cinder/cinder.conf DEFAULT allowed_direct_url_schemes cinder
+	openstack-config --set /etc/glance/glance-api.conf glance_store stores file,http,swift,cinder
+	openstack-config --set /etc/glance/glance-api.conf DEFAULT show_multiple_locations True
 	openstack-config --set /etc/nova/nova.conf DEFAULT scheduler_default_filters RetryFilter,AvailabilityZoneFilter,RamFilter,ComputeFilter,ComputeCapabilitiesFilter,ImagePropertiesFilter,ServerGroupAntiAffinityFilter,ServerGroupAffinityFilter,CoreFilter
 	openstack-config --set /etc/nova/nova.conf libvirt virt_type kvm
 	openstack-config --set /etc/nova/nova.conf libvirt cpu_mode host-passthrough
 	openstack-config --set /etc/nova/nova.conf libvirt hw_disk_discard unmap
 	openstack-config --set /etc/nova/nova.conf libvirt use_usb_tablet false
-	openstack-config --set /etc/cinder/cinder.conf lvm volume_clear none
 	openstack-config --set /etc/nova/nova.conf DEFAULT block_device_allocate_retries 120
 	openstack-config --set /etc/nova/nova.conf DEFAULT block_device_allocate_retries_interval 10
 	if "${EXTERNAL_ONLY}" == "true"
@@ -142,33 +145,94 @@ chown ${USERNAME}:${USERNAME} /home/${USERNAME}/keystonerc_${USERNAME}
 }
 
 create-images() {
-  # Logging everything except the image creation
-	cmd echo "INFO: Starting function 'create-images'"
-  if [ "${IMAGE_IS_PUBLIC}" = true ]
+  # image creation
+  cmd echo "INFO: Starting function 'create-images'"
+  source /root/keystonerc_${USERNAME}
+
+  if ! glance image-list | grep image-base-src
   then
-    source /root/keystonerc_admin
-    IMAGE_IS_PUBLIC_OPTION="--public"
-  else
-    source /root/keystonerc_${USERNAME}
-    IMAGE_IS_PUBLIC_OPTION=
+    cmd openstack image create \
+      --disk-format raw \
+      --container-format bare \
+      --property hw_scsi_model=virtio-scsi \
+      --property hw_disk_bus=scsi \
+      --min-disk 10 \
+      --file ${OPENSHIFT_IMAGE_PATH} \
+      image-base-src
   fi
-	if [ "${VERBOSE}" = true ]
-	then
-		echo "INFO: Setting IMAGE_IS_PUBLIC_OPTION to '${IMAGE_IS_PUBLIC_OPTION}'"
-	fi
-	if ! glance image-list | grep ${OPENSHIFT_VM_NAME}
-	then
-		cmd openstack image create \
-			 ${IMAGE_IS_PUBLIC_OPTION} \
-			 --disk-format qcow2 \
-       --protected \
-			 --container-format bare \
-			 --property hw_scsi_model=virtio-scsi \
-			 --property hw_disk_bus=scsi \
-			 --min-disk 10 \
-			 --file ${OPENSHIFT_IMAGE_PATH} \
-			 ${OPENSHIFT_VM_NAME}
-	fi
+	# wait for image to become active
+	echo -en "\nWaiting for image-base-src image to create"
+  counter=0
+	while :
+	do
+    counter=$(( $counter + 1 ))
+		echo -n "."
+		sleep 1
+	  if openstack image show image-base-src -f value -c status | grep -q active
+    then
+      break
+    fi
+    if [ $counter -gt $TIMEOUT ]
+    then
+      echo ERROR: something went wrong - check console
+      exit 1
+    elif [ $counter -eq $TIMEOUT_WARN ]
+    then
+      echo -n "WARN: this is taking longer than expected"
+    fi
+	done
+	echo ""
+  if ! glance image-list | grep ${OPENSHIFT_VM_NAME}
+  then
+    cmd openstack volume create \
+      --image image-base-src \
+      --size 10 \
+      ${OPENSHIFT_VM_NAME}
+    cmd openstack image create \
+      --disk-format raw \
+      --protected \
+      --container-format bare \
+      --property hw_scsi_model=virtio-scsi \
+      --property hw_disk_bus=scsi \
+      --min-disk 10 \
+      ${OPENSHIFT_VM_NAME}
+    echo -en "\nWaiting for ${OPENSHIFT_VM_NAME} volume to create"
+    counter=0
+    while :
+    do
+      counter=$(( $counter + 1 ))
+      echo -n "."
+      sleep 2
+      if openstack volume show ${OPENSHIFT_VM_NAME} -f value -c status | grep -q available
+      then
+        break
+      fi
+      if [ $counter -gt $TIMEOUT ]
+      then
+        echo ERROR: something went wrong - check console
+        exit 1
+      elif [ $counter -eq $TIMEOUT_WARN ]
+      then
+        echo -n "WARN: this is taking longer than expected"
+      fi
+    done
+    echo ""
+    VOLUME_ID=$(openstack volume show ${OPENSHIFT_VM_NAME} -f value -c id)
+    IMAGE_ID=$(openstack image show ${OPENSHIFT_VM_NAME} -f value -c id)
+    if openstack image list | grep -qi error
+    then
+      echo "ERROR: Image creation failed"
+      exit 1
+    fi
+    if openstack volume list | grep -qi error
+    then
+      echo "ERROR: Volume creation failed"
+      exit 1
+    fi
+    cmd glance location-add ${IMAGE_ID} --url cinder://${VOLUME_ID}
+    cmd virt-sparsify /dev/cinder-volumes/volume-${VOLUME_ID} --in-place
+    cmd openstack image delete image-base-src
+  fi
   cmd openstack image show ${OPENSHIFT_VM_NAME}
   cmd rm -vf ${OPENSHIFT_IMAGE_PATH}
 }
@@ -246,9 +310,9 @@ build-instances() {
     then
       echo ERROR: something went wrong - check console
       exit 1
-    elif [ $counter -gt $TIMEOUT_WARN ]
+    elif [ $counter -eq $TIMEOUT_WARN ]
     then
-      echo WARN: this is taking longer than expected
+      echo -n "WARN: this is taking longer than expected"
     fi
 	done
 	echo ""
@@ -279,11 +343,11 @@ verify-networking() {
     fi
     if [ $counter -gt $TIMEOUT ]
     then
-      echo ERROR: something went wrong - check console
+      echo "ERROR: something went wrong - check console"
       exit 1
-    elif [ $counter -gt $TIMEOUT_WARN ]
+    elif [ $counter -eq $TIMEOUT_WARN ]
     then
-      echo WARN: this is taking longer than expected
+      echo -n "WARN: this is taking longer than expected"
     fi
 	done
 	echo ""
@@ -309,14 +373,14 @@ cleanup() {
     fi
     if [ $counter -gt $TIMEOUT ]
     then
-      echo ERROR: something went wrong - check console
+      echo "ERROR: something went wrong - check console"
       exit 1
-    elif [ $counter -gt $TIMEOUT_WARN ]
+    elif [ $counter -eq $TIMEOUT_WARN ]
     then
-      echo WARN: this is taking longer than expected
+      echo -n "WARN: this is taking longer than expected"
     fi
   done
-   echo ""
+  echo ""
   echo -n "Waiting for openshift-base-volume to be deleted"
   counter=0
   while :
@@ -330,11 +394,11 @@ cleanup() {
     fi
     if [ $counter -gt $TIMEOUT ]
     then
-      echo ERROR: something went wrong - check console
+      echo "ERROR: something went wrong - check console"
       exit 1
-    elif [ $counter -gt $TIMEOUT_WARN ]
+    elif [ $counter -eq $TIMEOUT_WARN ]
     then
-      echo WARN: this is taking longer than expected
+      echo -n "WARN: this is taking longer than expected"
     fi
   done
   echo ""
@@ -349,6 +413,7 @@ post-install-config 2>&1 | tee -a ${LOGFILE}
 post-install-admin-tasks 2>&1 | tee -a ${LOGFILE}
 create-images 2>&1 | tee -a ${LOGFILE}
 post-install-user-tasks 2>&1 | tee -a ${LOGFILE}
+# Commenting out the following functions intentionally to avoid local image cache creation in /var/lib/nova/instances
 #build-instances 2>&1 | tee -a ${LOGFILE}
 #source /root/keystonerc_${USERNAME}
 #if nova list | grep ERROR

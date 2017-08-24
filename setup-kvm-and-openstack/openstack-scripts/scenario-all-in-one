@@ -1,6 +1,6 @@
 echo "INFO: Loading scenario-all-in-one"
 
-TIMEOUT=60
+TIMEOUT=120
 TIMEOUT_WARN=$(( $TIMEOUT / 2 ))
 # Set the following to the version of RHELOSP to install, see the following array for all versions or run rhos-release -l
 RHELOSP_VERSION=10
@@ -44,9 +44,6 @@ CONTROLLER_HOST=${HOST_IP}
 COMPUTE_HOSTS=${CONTROLLER_HOST}
 NETWORK_HOSTS=${CONTROLLER_HOST}
 PRIVATE_NETWORK=
-
-#Images
-IMAGE_IS_PUBLIC=true
 
 # OpenShift image
 OPENSHIFT_IMAGE_PATH=/tmp/L104353-openshift-base.qcow2
