@@ -37,7 +37,7 @@
     state:            "present"
     vpc_id:           "{{ vpc_id }}"
     cidr:             "{{ aws_subnet_cidr }}"
-    az:               "{{ aws_region }}a"
+    az:               "{{ aws_az_1 }}"
     region:           "{{ aws_region }}"
     aws_access_key:   "{{ ec2_access_key }}"
     aws_secret_key:   "{{ ec2_secret_key }}"
@@ -101,8 +101,8 @@
 
 - name:               Create Main Security Group
   ec2_group:
-    name:             "{{ aws_sec_grp }}"
-    description:      "{{ aws_sec_grp_desc }}"
+    name:             "{{ aws_sec_group }}"
+    description:      "{{ aws_sec_group_description }}"
     vpc_id:           "{{ vpc_id }}"
     region:           "{{ aws_region }}"
     aws_access_key:   "{{ ec2_access_key }}"
@@ -133,4 +133,4 @@
         to_port:      "-1"
         cidr_ip:      "0.0.0.0/0"
       - proto:        "all"
-        group_name:   "{{ aws_sec_grp }}"
+        group_name:   "{{ aws_sec_group }}"
