@@ -1,6 +1,5 @@
 ---
 # Tower config
-tower_config: true
 tower_username: admin
 tower_password: rhte2017
 tower_org: "Default"
@@ -62,3 +61,4 @@ tower_workflow_template: "0-Push_Button_Deploy_OpenShift_on_AWS"
 tower_workflow_template_extra_vars: "tower_workflow_template_extra_vars.yml"
 # Wire up job_templates in this file
 tower_workflow_template_schema_path: "tower_workflow_template_schema.yml"
+tower_workflow_job_launch: true
