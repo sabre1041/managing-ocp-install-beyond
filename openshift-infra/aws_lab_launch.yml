@@ -64,6 +64,6 @@
       value: "{{ instances_created.results[item.0]['instances'][0]['public_ip'] }}"
     with_indexed_items: instances_created
 
-
+# It seems this when conditional is ignored, so will always run tower_config. Will refactor into a role in a future Pr
 - include: tower_config.yml
   when: tower_config

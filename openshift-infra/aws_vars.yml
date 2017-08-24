@@ -26,7 +26,7 @@ aws_secret_key: "{{ec2_secret_key}}"
 ## Tower AMI unconfigured
 tower_ami_id_unconfigured: ami-d90427bc
 ## Tower AMI ID fully configured
-tower_ami_id_configured: ami-fe02219b
+tower_ami_id_configured: ami-800a29e5
 ## Tower AMI ID - This is the only variable used in the Playbooks, set it to one of the above (or override with -e)
 tower_ami_id: "{{ tower_ami_id_unconfigured }}"
 ## OCP 3.5 ID
