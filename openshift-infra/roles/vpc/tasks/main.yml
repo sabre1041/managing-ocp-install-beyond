@@ -102,7 +102,7 @@
 - name:               Create Main Security Group
   ec2_group:
     name:             "{{ aws_sec_group }}"
-    description:      "{{ aws_sec_group_description }}"
+    description:      "{{ aws_sec_group }}"
     vpc_id:           "{{ vpc_id }}"
     region:           "{{ aws_region }}"
     aws_access_key:   "{{ ec2_access_key }}"
