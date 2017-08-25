@@ -15,7 +15,7 @@ tower_cloud_credential_password: "{{ec2_secret_key}}"
 tower_machine_credential: "RHTE SSH"
 tower_machine_credential_kind: "ssh"
 #tower_machine_credential_ssh_key_data: "~/.ssh/id_rsa"
-tower_machine_credential_ssh_key_data: "rhte-apac.pem"
+tower_machine_credential_ssh_key_data: "rhte.pem"
 tower_machine_credential_username: "ec2-user"
 # Tower inventory
 tower_inventory: "OpenShift"
