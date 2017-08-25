@@ -1,0 +1,48 @@
+---
+- hosts: masters
+  vars:
+    templates_query: '{range .items[*]}{.metadata.name}{"\n"}{end}'
+    image_streams_query: '{range .items[*]}{.metadata.name}{"\n"}{end}'
+    templates_to_keep: ['cakephp-mysql-persistent', 'metrics-deployer-template', 'registry-console']
+    image_streams_to_keep: ['php', 'mysql']
+    cfme_template: https://raw.githubusercontent.com/openshift/openshift-ansible/release-3.6/roles/openshift_examples/files/examples/v3.6/cfme-templates/cfme-template.yaml
+  tasks:
+  - name: Get templates
+    command: >
+      oc get templates -n openshift -o jsonpath='{{ templates_query }}'
+    register: templates
+
+  - name: Remove templates
+    command: >
+      oc delete templates -n openshift {{ item }}
+    when: item not in templates_to_keep
+    with_items:
+    - "{{ templates.stdout_lines }}"
+
+  - name: Get ImageStreams
+    command: >
+      oc get is -n openshift -o jsonpath='{{ image_streams_query }}'
+    register: image_streams
+
+  - name: Remove ImageStreams
+    command: >
+      oc delete is -n openshift {{ item }}
+    when: item not in image_streams_to_keep
+    with_items:
+      - "{{ image_streams.stdout_lines }}"
+
+  - name: Delete image stream tags not needed
+    command: >
+      oc tag {{ item }} -d
+    register: tag_delete
+    failed_when: tag_delete.rc != 0 and 'not found' not in tag_delete.stderr
+    changed_when: tag_delete.rc == 0
+    with_items:
+    - openshift/php:5.5
+    - openshift/php:5.6
+    - openshift/mysql:5.5
+    - openshift/mysql:5.6
+
+  - name: Setup CFME Template
+    command: >
+      oc apply -n openshift -f {{ cfme_template }}
