@@ -16,7 +16,7 @@ openshift_master_dns_prefix: "master"
 openshift_master_internal_dns_prefix: "master-internal"
 
 ## Domain to use for wildcard
-domain_name: rhte-apac.sysdeseng.com
+domain_name: rhte.sysdeseng.com
 
 ## AWS credentials (do not save it here, instead override with -e)
 aws_access_key: "{{ec2_access_key}}"
@@ -40,7 +40,7 @@ ocp_ami_id: "{{ ocp_ami_id_3_6 }}"
 tower_inst_type: t2.medium
 ocp_master_inst_type: t2.large
 ocp_node_inst_type: t2.xlarge
-aws_subnet_id: subnet-bf7125d6
+aws_subnet_id: subnet-ed577984
 aws_region: us-east-2
 aws_az_1: us-east-2a
 aws_sec_group: "rhte-apac-security-group"
