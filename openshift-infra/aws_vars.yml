@@ -24,7 +24,7 @@ aws_secret_key: "{{ec2_secret_key}}"
 
 ## Set the AMI IDs here (or override with -e). Some commonly used AMIs are defined here, but ultimately the ones that matter are 'tower_ami_id' and 'ocp_ami_id'
 ## Tower AMI unconfigured
-tower_ami_id_unconfigured: ami-a31676c0
+tower_ami_id_unconfigured: ami-7c65051f
 ## Tower AMI ID fully configured
 tower_ami_id_configured: ami-800a29e5
 ## Tower AMI ID - This is the only variable used in the Playbooks, set it to one of the above (or override with -e)
@@ -45,7 +45,7 @@ aws_subnet_id: subnet-dba04d92
 aws_region: ap-southeast-1
 aws_az_1: "{{ aws_region }}a"
 aws_sec_group: "rhte-apac-security-group"
-aws_key_name: rhte-apac
+aws_key_name: rhte
 
 # AWS VPC configuration - this is used to setup a new Region
 # Provide a default name for the VPC
