@@ -187,25 +187,25 @@
           --wait
           "{{ tower_cli_verbosity }}"
 
-    - name: Configure Project for Provision
+    - name: Configure Project for Provision and Configure
       tower_project:
         tower_host: "{{ tower_host }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
-        name: "{{ tower_project_provision }}"
+        name: "{{ tower_project_provision_and_configure }}"
         organization: "{{ tower_org }}"
         state: present
-        scm_type: "{{ tower_project_provision_type }}"
-        scm_url: "{{ tower_project_provision_url }}"
-        scm_branch: "{{ tower_project_provision_branch }}"
-        scm_clean: "{{ tower_project_provision_clean }}"
-        scm_update_on_launch: "{{ tower_project_provision_update_on_launch }}"
-        scm_delete_on_update: "{{ tower_project_provision_delete_on_update }}"
+        scm_type: "{{ tower_project_provision_and_configure_type }}"
+        scm_url: "{{ tower_project_provision_and_configure_url }}"
+        scm_branch: "{{ tower_project_provision_and_configure_branch }}"
+        scm_clean: "{{ tower_project_provision_and_configure_clean }}"
+        scm_update_on_launch: "{{ tower_project_provision_and_configure_update_on_launch }}"
+        scm_delete_on_update: "{{ tower_project_provision_and_configure_delete_on_update }}"
 
     - name: Update Project for Provision
       command: >
         tower-cli project update
-          --name "{{ tower_project_provision }}"
+          --name "{{ tower_project_provision_and_configure }}"
           --wait
           "{{ tower_cli_verbosity }}"
 
@@ -219,7 +219,7 @@
         state: present
         inventory: "{{ tower_inventory }}"
         cloud_credential: "{{ tower_cloud_credential }}"
-        project: "{{ tower_project_provision }}"
+        project: "{{ tower_project_provision_and_configure }}"
         playbook: "{{ tower_job_template_provision_playbook }}"
         machine_credential: "{{ tower_machine_credential }}"
 
@@ -280,6 +280,20 @@
       template:
         src: "{{ tower_workflow_template_extra_vars }}"
         dest: "/tmp/{{ tower_workflow_template_extra_vars }}"
+
+    - name: Configure Job Template for configure
+      tower_job_template:
+        tower_host: "{{ tower_host }}"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+        job_type: run
+        name: "{{ tower_job_template_configure }}"
+        state: present
+        inventory: "{{ tower_inventory }}"
+        cloud_credential: "{{ tower_cloud_credential }}"
+        project: "{{ tower_project_provision_and_configure }}"
+        playbook: "{{ tower_job_template_configure_playbook }}"
+        machine_credential: "{{ tower_machine_credential }}"
 
     - name: Create Workflow Template
       command: >
