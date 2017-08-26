@@ -49,7 +49,7 @@
         verbosity: 2
       with_items:
         - hostvars[inventory_hostname].friendly_name
-        - hostvars[inventory_hostname].student_id
+        - student_id
         - filter
         - tower_host
 
@@ -305,8 +305,10 @@
       command: tower-cli workflow schema {{ tower_workflow_template }} @/tmp/{{ tower_workflow_template_schema_path }}
           "{{ tower_cli_verbosity }}"
 
-    - name: Launch Workflow Job (this may take up to 30 minutes, see Tower UI for progress)
-      command: tower-cli workflow_job launch -W {{ tower_workflow_template }}
+    - name: Launch Workflow Job - this will block while the job runs and may take up to 30 minutes to complete, see Tower UI Jobs for detailed progress
+      command: tower-cli workflow_job launch -W {{ tower_workflow_template }} --monitor
+      async: "{{ tower_workflow_job_launch_async }}"
+      poll: "{{ tower_workflow_job_launch_poll }}"
       when: tower_workflow_job_launch
 
     - name: Unset Tower CLI Host
@@ -330,3 +332,10 @@
           "{{ tower_cli_verbosity }}"
       no_log: True
       when: not tower_keep_cli_credentials
+
+  handlers:
+    - name: wait_for_workflow_job
+      async_status: jid={{ workflow_job_sleeper.ansible_job_id }}
+      register: workflow_job_job_result
+      until: workflow_job_job_result.finished
+      retries: "{{ tower_workflow_job_launch_status_retries }}"

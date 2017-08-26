@@ -62,3 +62,7 @@ tower_workflow_template_extra_vars: "tower_workflow_template_extra_vars.yml"
 # Wire up job_templates in this file
 tower_workflow_template_schema_path: "tower_workflow_template_schema.yml"
 tower_workflow_job_launch: true
+# Workflow job timeout in seconds (30 minutes)
+tower_workflow_job_launch_async: 1800
+# Workflow job polling (check every minutes)
+tower_workflow_job_launch_poll: 60
