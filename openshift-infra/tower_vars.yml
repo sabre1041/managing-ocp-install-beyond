@@ -66,7 +66,8 @@ tower_workflow_template: "1-Deploy_OpenShift_on_AWS"
 tower_workflow_template_extra_vars: "tower_workflow_template_extra_vars.yml"
 # Wire up job_templates in this file
 tower_workflow_template_schema_path: "tower_workflow_template_schema.yml"
-tower_workflow_job_launch: true
+# Set to true to launch the workflow job at the end of the configuration. Set to true will only have an effect if also setting tower_config: true. This is useful for full end to end testing.
+tower_workflow_job_launch: false
 # Workflow job timeout in seconds (30 minutes)
 tower_workflow_job_launch_async: 1800
 # Workflow job polling (check every minutes)
