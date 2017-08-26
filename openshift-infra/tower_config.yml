@@ -306,8 +306,14 @@
           "{{ tower_cli_verbosity }}"
 
     - name: Launch Workflow Job (this may take up to 30 minutes, see Tower UI for progress)
-      command: tower-cli workflow_job launch -W {{ tower_workflow_template }}
+      command: tower-cli workflow_job launch -W {{ tower_workflow_template }} --monitor
+      async: 2700
+      poll: 60
       when: tower_workflow_job_launch
+      register: workflow_job_sleeper
+      notify:
+        - wait_for_api
+        - wait_for_workflow_job
 
     - name: Unset Tower CLI Host
       command: >
@@ -330,3 +336,18 @@
           "{{ tower_cli_verbosity }}"
       no_log: True
       when: not tower_keep_cli_credentials
+
+  handlers:
+    - name: wait_for_api
+      wait_for:
+        host: "master-{{ student_id }}.{{ domain_name }}"
+        port: 8443
+        delay: 1200
+        sleep: 60
+        timeout: 2700
+
+    - name: wait_for_workflow_job
+      async_status: jid={{ workflow_job_sleeper.ansible_job_id }}
+      register: workflow_job_job_result
+      until: workflow_job_job_result.finished
+      retries: 30
