@@ -10,6 +10,7 @@
     - tower_vars.yml
 
   tasks:
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'prereqs.yml'
     - name: Enable OpenShift repository
       command: >
         subscription-manager repos
@@ -53,6 +54,7 @@
         - filter
         - tower_host
 
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'auth.yml'
     - name: Set Tower CLI Host
       command: tower-cli config host "{{ tower_host }}"
 
@@ -63,6 +65,7 @@
       command: tower-cli config password "{{ tower_password }}"
       no_log: True
 
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'org.yml'
     - name: Create Tower Organization
       tower_organization:
         name: "{{ tower_org }}"
@@ -71,6 +74,7 @@
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
 
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'credentials.yml' and maybe that file includes a separate way 'machine_credential.yml' which is this section only
     - name: Stage {{ tower_machine_credential }} Private Key
       synchronize:
         src: "{{ tower_machine_credential_ssh_key_data }}"
@@ -93,6 +97,7 @@
         path: "/tmp/{{ tower_machine_credential_ssh_key_data }}"
         state: absent
 
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'credentials.yml' and maybe that file includes a separate way 'cloud_credential.yml' which is this section only
     - name: Add Tower Cloud Credential
       tower_credential:
         name: "{{ tower_cloud_credential }}"
@@ -105,6 +110,7 @@
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
 
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'inventory.yml'
     - name: Add Tower inventory
       tower_inventory:
         name: "{{ tower_inventory }}"
@@ -187,6 +193,7 @@
           --wait
           "{{ tower_cli_verbosity }}"
 
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'projects.yml' and it would include this section 'project_provision_and_configure.yml'
     - name: Configure Project for Provision and Configure
       tower_project:
         tower_host: "{{ tower_host }}"
@@ -209,6 +216,7 @@
           --wait
           "{{ tower_cli_verbosity }}"
 
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and it would include this section 'job_template_provision.yml'
     - name: Configure Job Template for Provision
       tower_job_template:
         tower_host: "{{ tower_host }}"
@@ -235,6 +243,7 @@
           --extra-vars="@/tmp/{{ tower_job_template_provision_extra_vars_path }}"
           "{{ tower_cli_verbosity }}"
 
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'projects.yml' and this section would be 'project_install.yml'
     - name: Install playbooks for {{ tower_project_install }}
       yum:
         name: "{{ tower_project_install_package }}"
@@ -261,6 +270,7 @@
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
 
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and this section would be 'job_template_install.yml'
     - name: Configure Job Template for Install
       tower_job_template:
         tower_host: "{{ tower_host }}"
@@ -276,11 +286,7 @@
         machine_credential: "{{ tower_machine_credential }}"
         cloud_credential: "{{ tower_cloud_credential }}"
 
-    - name: Copy Workflow Template Extra Vars
-      template:
-        src: "{{ tower_workflow_template_extra_vars }}"
-        dest: "/tmp/{{ tower_workflow_template_extra_vars }}"
-
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and this section would be 'job_template_configure.yml'
     - name: Configure Job Template for configure
       tower_job_template:
         tower_host: "{{ tower_host }}"
@@ -294,6 +300,12 @@
         project: "{{ tower_project_provision_and_configure }}"
         playbook: "{{ tower_job_template_configure_playbook }}"
         machine_credential: "{{ tower_machine_credential }}"
+
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'workflows.yml'
+    - name: Copy Workflow Template Extra Vars
+      template:
+        src: "{{ tower_workflow_template_extra_vars }}"
+        dest: "/tmp/{{ tower_workflow_template_extra_vars }}"
 
     - name: Create Workflow Template
       command: >
@@ -325,6 +337,7 @@
       poll: "{{ tower_workflow_job_launch_poll }}"
       when: tower_workflow_job_launch
 
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'deauth.yml'
     - name: Unset Tower CLI Host
       command: >
         tower-cli config

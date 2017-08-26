@@ -14,7 +14,6 @@ tower_cloud_credential_password: "{{ec2_secret_key}}"
 # Tower machine credential
 tower_machine_credential: "RHTE SSH"
 tower_machine_credential_kind: "ssh"
-#tower_machine_credential_ssh_key_data: "~/.ssh/id_rsa"
 tower_machine_credential_ssh_key_data: "rhte.pem"
 tower_machine_credential_username: "ec2-user"
 # Tower inventory
@@ -28,7 +27,7 @@ tower_openshift_masters_group: "masters"
 tower_openshift_nodes_group: "nodes"
 tower_master_tag: "tag_lab_role_master"
 tower_node_tag: "tag_lab_role_node"
-# Tower assets for provision and configure playbooks
+# Tower projet for provision and configure playbooks
 tower_project_provision_and_configure: "Managing OCP from Install and Beyond"
 tower_project_provision_and_configure_type: "git"
 tower_project_provision_and_configure_url: "https://github.com/sabre1041/managing-ocp-install-beyond.git"
@@ -37,11 +36,7 @@ tower_project_provision_and_configure_local_branch: ""
 tower_project_provision_and_configure_clean: "yes"
 tower_project_provision_and_configure_update_on_launch: "yes"
 tower_project_provision_and_configure_delete_on_update: "no"
-# Tower assets for Provision
-tower_job_template_provision: "1-Provision"
-tower_job_template_provision_playbook: "openshift-infra/aws_create_hosts.yml"
-tower_job_template_provision_extra_vars_path: "aws_job_template_extra_vars.yml"
-# Tower assets for install
+# Tower project for install
 tower_project_install_package: "openshift-ansible-playbooks"
 tower_project_install: "openshift-ansible"
 tower_project_install_type: "manual"
@@ -52,16 +47,21 @@ tower_project_install_source_path: "/usr/share/ansible/openshift-ansible/"
 tower_project_install_clean: "yes"
 tower_project_install_update_on_launch: "no"
 tower_project_install_delete_on_update: "no"
-tower_job_template_install: "2-Install"
+# Tower job template for deployment provision
+tower_job_template_provision: "Deploy-1-Provision"
+tower_job_template_provision_playbook: "openshift-infra/aws_create_hosts.yml"
+tower_job_template_provision_extra_vars_path: "aws_job_template_extra_vars.yml"
+# Tower job template for deployment install
+tower_job_template_install: "Deploy-2-Install"
 tower_job_template_install_playbook: "ansible/openshift-ansible/playbooks/byo/config.yml"
 tower_job_template_install_extra_vars_path: "aws_job_template_extra_vars.yml.j2"
 tower_job_template_install_become_enabled: "yes"
-# Job template for configure
-tower_job_template_configure: "3-Postinstall"
+# Job template for deployment configure
+tower_job_template_configure: "Deploy-3-Post-Install"
 tower_job_template_configure_playbook: "openshift-infra/openshift_postinstall.yml"
 tower_job_template_configure_become_enabled: "yes"
 # Tower Workflow Assets
-tower_workflow_template: "0-Push_Button_Deploy_OpenShift_on_AWS"
+tower_workflow_template: "1-Deploy_OpenShift_on_AWS"
 # Place any variables that will be available to all job templates and inventory hosts
 tower_workflow_template_extra_vars: "tower_workflow_template_extra_vars.yml"
 # Wire up job_templates in this file
