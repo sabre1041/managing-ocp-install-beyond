@@ -359,10 +359,3 @@
           "{{ tower_cli_verbosity }}"
       no_log: True
       when: not tower_keep_cli_credentials
-
-  handlers:
-    - name: wait_for_workflow_job
-      async_status: jid={{ workflow_job_sleeper.ansible_job_id }}
-      register: workflow_job_job_result
-      until: workflow_job_job_result.finished
-      retries: "{{ tower_workflow_job_launch_status_retries }}"
