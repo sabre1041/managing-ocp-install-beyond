@@ -1,0 +1,6 @@
+---
+- job_template: "{{ tower_job_template_deploy_provision }}"
+  success_nodes:
+  - job_template: "{{ tower_job_template_deploy_install }}"
+    success_nodes:
+    - job_template: "{{ tower_job_template_deploy_configure }}"

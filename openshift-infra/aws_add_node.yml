@@ -1,0 +1,64 @@
+---
+- name: Create OpenShift Instances for Scale Up
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - aws_vars.yml
+  tasks:
+    - name: Provision AWS Instances for Scale Up
+      ec2:
+        aws_access_key: "{{ec2_access_key}}"
+        aws_secret_key: "{{ec2_secret_key}}"
+        key_name: "{{ aws_key_name }}"
+        group: "{{ aws_sec_group }}"
+        instance_type: "{{ item.type }}"
+        image: "{{ item.image }}"
+        wait: true
+        instance_tags:
+          Name: "{{ lab_name + '-' + item.name + '-' + student_id }}"
+          lab_name: "{{ lab_name }}"
+          lab_user: "{{ lab_user }}"
+          lab_role: "{{ item.meta.node_type }}"
+          student_id: "{{ student_id }}"
+          node_labels: "{{ item.meta.node_labels }}"
+        vpc_subnet_id: "{{ aws_subnet_id }}"
+        zone: "{{ aws_az_1 }}"
+        assign_public_ip: yes
+        region: "{{ aws_region }}"
+        state: present
+        user_data: "{{ lookup('template', 'aws_user_data.j2') }}"
+      with_items: "{{ aws_scaleup_instances }}"
+      register: instances_created
+  
+    - add_host:
+        name: "{{ item.instances.0.public_dns_name }}"
+        friendly_name: "{{ item.instances.0.tags.Name }}"
+        public_ip: "{{ item.instances.0.public_ip }}"
+        groups: OSEv3
+        student_id: "{{ item.instances.0.tags.student_id }}"
+      with_items: "{{ instances_created.results }}"
+
+    - debug:
+        var: groups
+        verbosity: 2
+
+    - name: Wait for ssh
+      wait_for:
+        port: 22
+        host: "{{ item.instances.0.public_ip }}"
+        timeout: 1000
+      with_items: "{{ instances_created.results }}"
+
+    - name: Register Host DNS
+      route53:
+        command: create
+        aws_access_key: "{{ec2_access_key}}"
+        aws_secret_key: "{{ec2_secret_key}}"
+        zone: "{{ domain_name }}"
+        type: A
+        overwrite: True
+        ttl: 60
+        record: "{{ aws_scaleup_instances[item.0].name }}-{{ student_id }}.{{ domain_name }}"
+        value: "{{ instances_created.results[item.0]['instances'][0]['public_ip'] }}"
+      register: host_dns_entries
+      with_indexed_items: "{{ aws_scaleup_instances }}"
