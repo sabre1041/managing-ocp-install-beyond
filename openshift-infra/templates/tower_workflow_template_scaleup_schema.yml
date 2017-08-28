@@ -1,0 +1,6 @@
+---
+- job_template: "{{ tower_job_template_scaleup_provision }}"
+  success_nodes:
+  - job_template: "{{ tower_job_template_scaleup_install }}"
+    success_nodes:
+    - job_template: "{{ tower_job_template_scaleup_configure }}"

@@ -5,17 +5,20 @@ tower_password: rhte2017
 tower_org: "Default"
 tower_projects_root: "/var/lib/awx/projects"
 tower_keep_cli_credentials: True
-tower_cli_verbosity: "-vv"
+tower_cli_verbosity: "-v"
+
 # Tower cloud credential
 tower_cloud_credential: "AWS"
 tower_cloud_credential_kind: "aws"
 tower_cloud_credential_username: "{{ec2_access_key}}"
 tower_cloud_credential_password: "{{ec2_secret_key}}"
+
 # Tower machine credential
 tower_machine_credential: "RHTE SSH"
 tower_machine_credential_kind: "ssh"
 tower_machine_credential_ssh_key_data: "rhte.pem"
 tower_machine_credential_username: "ec2-user"
+
 # Tower inventory
 tower_inventory: "OpenShift"
 tower_inventory_group: "AWS"
@@ -27,6 +30,7 @@ tower_openshift_masters_group: "masters"
 tower_openshift_nodes_group: "nodes"
 tower_master_tag: "tag_lab_role_master"
 tower_node_tag: "tag_lab_role_node"
+
 # Tower projet for provision and configure playbooks
 tower_project_provision_and_configure: "Managing OCP from Install and Beyond"
 tower_project_provision_and_configure_type: "git"
@@ -36,6 +40,7 @@ tower_project_provision_and_configure_local_branch: ""
 tower_project_provision_and_configure_clean: "yes"
 tower_project_provision_and_configure_update_on_launch: "yes"
 tower_project_provision_and_configure_delete_on_update: "no"
+
 # Tower project for install
 tower_project_install_package: "openshift-ansible-playbooks"
 tower_project_install: "openshift-ansible"
@@ -47,28 +52,59 @@ tower_project_install_source_path: "/usr/share/ansible/openshift-ansible/"
 tower_project_install_clean: "yes"
 tower_project_install_update_on_launch: "no"
 tower_project_install_delete_on_update: "no"
-# Tower job template for deployment provision
-tower_job_template_provision: "Deploy-1-Provision"
-tower_job_template_provision_playbook: "openshift-infra/aws_create_hosts.yml"
-tower_job_template_provision_extra_vars_path: "aws_job_template_extra_vars.yml"
-# Tower job template for deployment install
-tower_job_template_install: "Deploy-2-Install"
-tower_job_template_install_playbook: "ansible/openshift-ansible/playbooks/byo/config.yml"
-tower_job_template_install_extra_vars_path: "aws_job_template_extra_vars.yml.j2"
-tower_job_template_install_become_enabled: "yes"
-# Job template for deployment configure
-tower_job_template_configure: "Deploy-3-Post-Install"
-tower_job_template_configure_playbook: "openshift-infra/openshift_postinstall.yml"
-tower_job_template_configure_become_enabled: "yes"
-# Tower Workflow Assets
-tower_workflow_template: "1-Deploy_OpenShift_on_AWS"
+
+# Tower job template for deployment-provision
+tower_job_template_deploy_provision: "Deploy-1-Provision"
+tower_job_template_deploy_provision_playbook: "openshift-infra/aws_create_hosts.yml"
+tower_job_template_deploy_provision_extra_vars_path: "aws_job_template_extra_vars.yml.j2"
+
+# Tower job template for deployment-install
+tower_job_template_deploy_install: "Deploy-2-Install"
+tower_job_template_deploy_install_playbook: "ansible/openshift-ansible/playbooks/byo/config.yml"
+tower_job_template_deploy_install_become_enabled: "yes"
+
+# Job template for deployment-configure
+tower_job_template_deploy_configure: "Deploy-3-Post-Install"
+tower_job_template_deploy_configure_playbook: "openshift-infra/openshift_postinstall.yml"
+tower_job_template_deploy_configure_become_enabled: "yes"
+
+# Tower job template for scaleup-provision
+tower_job_template_scaleup_provision: "Scaleup-1-Provision"
+tower_job_template_scaleup_provision_playbook: "openshift-infra/aws_add_node.yml"
+tower_job_template_scaleup_provision_extra_vars_path: "{{ tower_job_template_deploy_provision_extra_vars_path }}"
+
+# Tower job template for scaleup-install
+tower_job_template_scaleup_install: "Scaleup-2-Install"
+tower_job_template_scaleup_install_playbook: "ansible/openshift-ansible/playbooks/byo/openshift-node/scaleup.yml"
+tower_job_template_scaleup_install_become_enabled: "yes"
+
+# Job template for scaleup-configure
+tower_job_template_scaleup_configure: "Scaleup-3-Post-Install"
+tower_job_template_scaleup_configure_playbook: "openshift-infra/openshift_postinstall.yml"
+tower_job_template_scaleup_configure_become_enabled: "yes"
+
+# Tower Workflow Assets for Deploy job
+tower_workflow_template_deploy: "1-Deploy_OpenShift_on_AWS"
 # Place any variables that will be available to all job templates and inventory hosts
-tower_workflow_template_extra_vars: "tower_workflow_template_extra_vars.yml"
-# Wire up job_templates in this file
-tower_workflow_template_schema_path: "tower_workflow_template_schema.yml"
+tower_workflow_template_deploy_extra_vars: "tower_workflow_template_deploy_extra_vars.yml"
+# Wire up job_templates for Deploy in this file
+tower_workflow_template_deploy_schema_path: "tower_workflow_template_deploy_schema.yml"
 # Set to true to launch the workflow job at the end of the configuration. Set to true will only have an effect if also setting tower_config: true. This is useful for full end to end testing.
-tower_workflow_job_launch: false
-# Workflow job timeout in seconds (30 minutes)
-tower_workflow_job_launch_async: 1800
-# Workflow job polling (check every minutes)
-tower_workflow_job_launch_poll: 60
+tower_workflow_job_deploy_launch: false
+# Workflow job timeout in seconds
+tower_workflow_job_deploy_launch_async: 2400
+# Workflow job polling 
+tower_workflow_job_deploy_launch_poll: 60
+
+# Tower Workflow Assets for Scaleup job
+tower_workflow_template_scaleup: "2-Scaleup_OpenShift_on_AWS"
+# Place any variables that will be available to all job templates and inventory hosts
+tower_workflow_template_scaleup_extra_vars: "{{ tower_workflow_template_deploy_extra_vars }}"
+# Wire up job_templates for Scaleup in this file
+tower_workflow_template_scaleup_schema_path: "tower_workflow_template_scaleup_schema.yml"
+# Set to true to launch the workflow job at the end of the configuration. Set to true will only have an effect if also setting tower_config: true. This is useful for full end to end testing.
+tower_workflow_job_scaleup_launch: false
+# Workflow job timeout in seconds 
+tower_workflow_job_scaleup_launch_async: 1800
+# Workflow job polling
+tower_workflow_job_scaleup_launch_poll: 60

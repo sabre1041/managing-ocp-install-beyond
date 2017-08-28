@@ -10,6 +10,7 @@
     - tower_vars.yml
 
   tasks:
+#### Prereqs Begin ####
 # TODO: Split into role - This should be in a file included by main.yml, named something like 'prereqs.yml'
     - name: Enable OpenShift repository
       command: >
@@ -53,7 +54,9 @@
         - student_id
         - filter
         - tower_host
+#### Prereqs End ####
 
+#### Authenticaiton Begin ####
 # TODO: Split into role - This should be in a file included by main.yml, named something like 'auth.yml'
     - name: Set Tower CLI Host
       command: tower-cli config host "{{ tower_host }}"
@@ -64,7 +67,9 @@
     - name: Set Tower CLI Password
       command: tower-cli config password "{{ tower_password }}"
       no_log: True
+#### Authenticaiton End ####
 
+#### Organization Begin ####
 # TODO: Split into role - This should be in a file included by main.yml, named something like 'org.yml'
     - name: Create Tower Organization
       tower_organization:
@@ -73,7 +78,9 @@
         tower_host: "{{ tower_host }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
+#### Organization End ####
 
+#### Credentials Begin ####
 # TODO: Split into role - This should be in a file included by main.yml, named something like 'credentials.yml' and maybe that file includes a separate way 'machine_credential.yml' which is this section only
     - name: Stage {{ tower_machine_credential }} Private Key
       synchronize:
@@ -109,7 +116,9 @@
         tower_host: "{{ tower_host }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
+#### Credentials End ####
 
+#### Inventory Begin ####
 # TODO: Split into role - This should be in a file included by main.yml, named something like 'inventory.yml'
     - name: Add Tower inventory
       tower_inventory:
@@ -192,7 +201,9 @@
           --name "{{ tower_inventory_group }}"
           --wait
           "{{ tower_cli_verbosity }}"
+#### Inventory Begin ####
 
+#### Projects Begin ####
 # TODO: Split into role - This should be in a file included by main.yml, named something like 'projects.yml' and it would include this section 'project_provision_and_configure.yml'
     - name: Configure Project for Provision and Configure
       tower_project:
@@ -209,38 +220,11 @@
         scm_update_on_launch: "{{ tower_project_provision_and_configure_update_on_launch }}"
         scm_delete_on_update: "{{ tower_project_provision_and_configure_delete_on_update }}"
 
-    - name: Update Project for Provision
+    - name: Update Project for Provision and Configure
       command: >
         tower-cli project update
           --name "{{ tower_project_provision_and_configure }}"
           --wait
-          "{{ tower_cli_verbosity }}"
-
-# TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and it would include this section 'job_template_provision.yml'
-    - name: Configure Job Template for Provision
-      tower_job_template:
-        tower_host: "{{ tower_host }}"
-        tower_username: "{{ tower_username }}"
-        tower_password: "{{ tower_password }}"
-        job_type: run
-        name: "{{ tower_job_template_provision }}"
-        state: present
-        inventory: "{{ tower_inventory }}"
-        cloud_credential: "{{ tower_cloud_credential }}"
-        project: "{{ tower_project_provision_and_configure }}"
-        playbook: "{{ tower_job_template_provision_playbook }}"
-        machine_credential: "{{ tower_machine_credential }}"
-
-    - name: Copy Job Template for Provision Extra Variables file
-      template:
-        src: "{{ tower_job_template_install_extra_vars_path }}"
-        dest: "/tmp/{{ tower_job_template_provision_extra_vars_path }}"
-
-    - name: Update Project Provision with Extra Vars
-      command: >
-        tower-cli job_template modify
-          --name="{{ tower_job_template_provision }}"
-          --extra-vars="@/tmp/{{ tower_job_template_provision_extra_vars_path }}"
           "{{ tower_cli_verbosity }}"
 
 # TODO: Split into role - This should be in a file included by main.yml, named something like 'projects.yml' and this section would be 'project_install.yml'
@@ -269,74 +253,214 @@
         tower_host: "{{ tower_host }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
+#### Projects End ####
 
-# TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and this section would be 'job_template_install.yml'
-    - name: Configure Job Template for Install
+#### Job Templates Begin ####
+#### Job Template Deploy Begin ####
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and it would include this section 'job_template_deploy_provision.yml'
+    - name: Configure Job Template for Deploy-Provision
       tower_job_template:
         tower_host: "{{ tower_host }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
         job_type: run
-        name: "{{ tower_job_template_install }}"
-        state: present
-        inventory: "{{ tower_inventory }}"
-        project: "{{ tower_project_install }}"
-        playbook: "{{ tower_job_template_install_playbook }}"
-        become_enabled: "{{ tower_job_template_install_become_enabled }}"
-        machine_credential: "{{ tower_machine_credential }}"
-        cloud_credential: "{{ tower_cloud_credential }}"
-
-# TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and this section would be 'job_template_configure.yml'
-    - name: Configure Job Template for configure
-      tower_job_template:
-        tower_host: "{{ tower_host }}"
-        tower_username: "{{ tower_username }}"
-        tower_password: "{{ tower_password }}"
-        job_type: run
-        name: "{{ tower_job_template_configure }}"
+        name: "{{ tower_job_template_deploy_provision }}"
         state: present
         inventory: "{{ tower_inventory }}"
         cloud_credential: "{{ tower_cloud_credential }}"
         project: "{{ tower_project_provision_and_configure }}"
-        playbook: "{{ tower_job_template_configure_playbook }}"
+        playbook: "{{ tower_job_template_deploy_provision_playbook }}"
         machine_credential: "{{ tower_machine_credential }}"
 
-# TODO: Split into role - This should be in a file included by main.yml, named something like 'workflows.yml'
-    - name: Copy Workflow Template Extra Vars
+    - name: Copy Job Template for Deploy-Provision Extra Variables file
       template:
-        src: "{{ tower_workflow_template_extra_vars }}"
-        dest: "/tmp/{{ tower_workflow_template_extra_vars }}"
+        src: "{{ tower_job_template_deploy_provision_extra_vars_path }}"
+        dest: "/tmp/{{ tower_job_template_deploy_provision_extra_vars_path }}"
 
-    - name: Create Workflow Template
+    - name: Update Job Template for Deploy-Provision with Extra Vars
+      command: >
+        tower-cli job_template modify
+          --name="{{ tower_job_template_deploy_provision }}"
+          --extra-vars="@/tmp/{{ tower_job_template_deploy_provision_extra_vars_path }}"
+          "{{ tower_cli_verbosity }}"
+
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and this section would be 'job_template_deploy_install.yml'
+    - name: Configure Job Template for Deploy-Install
+      tower_job_template:
+        tower_host: "{{ tower_host }}"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+        job_type: run
+        name: "{{ tower_job_template_deploy_install }}"
+        state: present
+        inventory: "{{ tower_inventory }}"
+        project: "{{ tower_project_install }}"
+        playbook: "{{ tower_job_template_deploy_install_playbook }}"
+        become_enabled: "{{ tower_job_template_deploy_install_become_enabled }}"
+        machine_credential: "{{ tower_machine_credential }}"
+        cloud_credential: "{{ tower_cloud_credential }}"
+
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and this section would be 'job_template_deploy_configure.yml'
+    - name: Configure Job Template for Deploy-Configure
+      tower_job_template:
+        tower_host: "{{ tower_host }}"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+        job_type: run
+        name: "{{ tower_job_template_deploy_configure }}"
+        state: present
+        inventory: "{{ tower_inventory }}"
+        cloud_credential: "{{ tower_cloud_credential }}"
+        project: "{{ tower_project_provision_and_configure }}"
+        playbook: "{{ tower_job_template_deploy_configure_playbook }}"
+        machine_credential: "{{ tower_machine_credential }}"
+#### Job Template Deploy End ####
+
+#### Job Template Scaleup Begin ####
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and it would include this section 'job_template_scaleup_provision.yml'
+    - name: Configure Job Template for Scaleup-Provision
+      tower_job_template:
+        tower_host: "{{ tower_host }}"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+        job_type: run
+        name: "{{ tower_job_template_scaleup_provision }}"
+        state: present
+        inventory: "{{ tower_inventory }}"
+        cloud_credential: "{{ tower_cloud_credential }}"
+        project: "{{ tower_project_provision_and_configure }}"
+        playbook: "{{ tower_job_template_scaleup_provision_playbook }}"
+        machine_credential: "{{ tower_machine_credential }}"
+
+    - name: Copy Job Template for Scaleup-Provision Extra Variables file
+      template:
+        src: "{{ tower_job_template_scaleup_provision_extra_vars_path }}"
+        dest: "/tmp/{{ tower_job_template_scaleup_provision_extra_vars_path }}"
+
+    - name: Update Job Template for Scaleup-Provision with Extra Vars
+      command: >
+        tower-cli job_template modify
+          --name="{{ tower_job_template_scaleup_provision }}"
+          --extra-vars="@/tmp/{{ tower_job_template_scaleup_provision_extra_vars_path }}"
+          "{{ tower_cli_verbosity }}"
+
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and this section would be 'job_template_scaleup_install.yml'
+    - name: Configure Job Template for Scaleup-Install
+      tower_job_template:
+        tower_host: "{{ tower_host }}"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+        job_type: run
+        name: "{{ tower_job_template_scaleup_install }}"
+        state: present
+        inventory: "{{ tower_inventory }}"
+        project: "{{ tower_project_install }}"
+        playbook: "{{ tower_job_template_scaleup_install_playbook }}"
+        become_enabled: "{{ tower_job_template_scaleup_install_become_enabled }}"
+        machine_credential: "{{ tower_machine_credential }}"
+        cloud_credential: "{{ tower_cloud_credential }}"
+
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and this section would be 'job_template_scaleup_configure.yml'
+    - name: Configure Job Template for Scaleup-Configure
+      tower_job_template:
+        tower_host: "{{ tower_host }}"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+        job_type: run
+        name: "{{ tower_job_template_scaleup_configure }}"
+        state: present
+        inventory: "{{ tower_inventory }}"
+        cloud_credential: "{{ tower_cloud_credential }}"
+        project: "{{ tower_project_provision_and_configure }}"
+        playbook: "{{ tower_job_template_scaleup_configure_playbook }}"
+        machine_credential: "{{ tower_machine_credential }}"
+#### Job Template Scaleup End ####
+#### Job Templates End ####
+
+#### Workflows Templates Begin ####
+#### Workflow Template Deploy Begin ####
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'workflows.yml' and this section should be 'workflow_deploy.yml'
+    - name: Copy Workflow Template Extra Vars for Deploy
+      template:
+        src: "{{ tower_workflow_template_deploy_extra_vars }}"
+        dest: "/tmp/{{ tower_workflow_template_deploy_extra_vars }}"
+
+    - name: Create Workflow Template for Deploy
       command: >
         tower-cli workflow create
-          --name="{{ tower_workflow_template }}"
+          --name="{{ tower_workflow_template_deploy }}"
           --organization="{{ tower_org }}"
-          --extra-vars="@/tmp/{{ tower_workflow_template_extra_vars }}"
+          --extra-vars="@/tmp/{{ tower_workflow_template_deploy_extra_vars }}"
           "{{ tower_cli_verbosity }}"
 
     - debug:
         var: "{{ item }}"
         verbosity: 2
       with_items:
-        - tower_workflow_template
-        - tower_workflow_template_schema
+        - tower_workflow_template_deploy
+        - tower_workflow_template_deploy_schema
 
-    - name: Copy Workflow Template Schema
+    - name: Copy Workflow Template Schema for Deploy
       template:
-        src: "{{ tower_workflow_template_schema_path }}"
-        dest: "/tmp/{{ tower_workflow_template_schema_path }}"
+        src: "{{ tower_workflow_template_deploy_schema_path }}"
+        dest: "/tmp/{{ tower_workflow_template_deploy_schema_path }}"
 
-    - name: Create Workflow Schema
-      command: tower-cli workflow schema {{ tower_workflow_template }} @/tmp/{{ tower_workflow_template_schema_path }}
+    - name: Create Workflow Schema for Deploy
+      command: tower-cli workflow schema {{ tower_workflow_template_deploy }} @/tmp/{{ tower_workflow_template_deploy_schema_path }}
+          "{{ tower_cli_verbosity }}"
+#### Workflow Template Deploy End ####
+#### Workflow Template Scaleup Begin ####
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'workflows.yml' and this section should be 'workflow_scaleup.yml'
+    - name: Copy Workflow Template Extra Vars for Scaleup
+      template:
+        src: "{{ tower_workflow_template_scaleup_extra_vars }}"
+        dest: "/tmp/{{ tower_workflow_template_scaleup_extra_vars }}"
+
+    - name: Create Workflow Template for Scaleup
+      command: >
+        tower-cli workflow create
+          --name="{{ tower_workflow_template_scaleup }}"
+          --organization="{{ tower_org }}"
+          --extra-vars="@/tmp/{{ tower_workflow_template_scaleup_extra_vars }}"
           "{{ tower_cli_verbosity }}"
 
-    - name: Launch Workflow Job - this will block while the job runs and may take up to 30 minutes to complete, see Tower UI Jobs for detailed progress
-      command: tower-cli workflow_job launch -W {{ tower_workflow_template }} --monitor
-      async: "{{ tower_workflow_job_launch_async }}"
-      poll: "{{ tower_workflow_job_launch_poll }}"
-      when: tower_workflow_job_launch
+    - debug:
+        var: "{{ item }}"
+        verbosity: 2
+      with_items:
+        - tower_workflow_template_scaleup
+        - tower_workflow_template_scaleup_schema
 
+    - name: Copy Workflow Template Schema for Scaleup
+      template:
+        src: "{{ tower_workflow_template_scaleup_schema_path }}"
+        dest: "/tmp/{{ tower_workflow_template_scaleup_schema_path }}"
+
+    - name: Create Workflow Schema for Scaleup
+      command: tower-cli workflow schema {{ tower_workflow_template_scaleup }} @/tmp/{{ tower_workflow_template_scaleup_schema_path }}
+          "{{ tower_cli_verbosity }}"
+#### Workflow Template Scaleup End ####
+#### Workflows Templates End ####
+
+#### Workflows Job Launch Begin ####
+#### Workflow Job Launch Deploy Begin ####
+    - name: Launch Workflow Job for Deploy - this will block while the job runs and will wait up to {{ tower_workflow_job_deploy_launch_async // 60 }} minutes to complete, see Tower UI Jobs for detailed progress
+      command: tower-cli workflow_job launch -W {{ tower_workflow_template_deploy }} --monitor
+      async: "{{ tower_workflow_job_deploy_launch_async }}"
+      poll: "{{ tower_workflow_job_deploy_launch_poll }}"
+      when: tower_workflow_job_deploy_launch
+#### Workflow Job Launch Deploy End ####
+
+#### Workflow Job Launch Scaleup Begin ####
+    - name: Launch Workflow Job for Scaleup - this will block while the job runs and will wait up to {{ tower_workflow_job_scaleup_launch_async // 60 }} minutes to complete, see Tower UI Jobs for detailed progress
+      command: tower-cli workflow_job launch -W {{ tower_workflow_template_scaleup }} --monitor
+      async: "{{ tower_workflow_job_scaleup_launch_async }}"
+      poll: "{{ tower_workflow_job_scaleup_launch_poll }}"
+      when: tower_workflow_job_scaleup_launch
+#### Workflow Job Launch Scaleup End ####
+#### Workflows Job Launch End ####
+
+#### Deauth Begin ####
 # TODO: Split into role - This should be in a file included by main.yml, named something like 'deauth.yml'
     - name: Unset Tower CLI Host
       command: >
@@ -359,3 +483,4 @@
           "{{ tower_cli_verbosity }}"
       no_log: True
       when: not tower_keep_cli_credentials
+#### Deauth End ####
