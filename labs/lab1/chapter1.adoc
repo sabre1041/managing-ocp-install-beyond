@@ -1,24 +1,21 @@
 === Lab Overview
 
-With the OpenShift installation process kicked off, we can spend some time and provide an overview of the entire lab.
-
-Managing an ecosystem of infrastructure and applications can be challenging. Fortunately, there are automation tools and technologies available to handle the most intense workloads. Today, we will leverage tools such as Ansible to automate the provisioning of the OpenShift Container Platform on top of Red Hat OpenStack Platform to provide the foundation for running containerized applications. Afterward, Red Hat CloudForms will be deployed to manage and monitor the underlying infrastructure and applications that run in the environment. Finally, we will walk through expanding the environment by adding new compute resources to the environment. By the conclusion of the lab, you will learn how each of these technologies complement one another to offer solutions to effectively manage the most complex environment.
+Managing an ecosystem of infrastructure and applications can be challenging. Fortunately, there are automation tools and technologies available to handle the most intense workloads. Today, we will leverage tools such as Ansible Tower to automate the provisioning of the OpenShift Container Platform on top of Amazon Web Services to provide the foundation for running containerized applications. Afterward, Red Hat CloudForms will be deployed to manage and monitor the underlying infrastructure and applications that run in the environment. Finally, we will walk through expanding the environment by adding new compute resources to the environment. By the conclusion of the lab, you will learn how each of these technologies complement one another to offer solutions to effectively manage the most complex environment.
 
 === Environment Overview
 
-The lab environment that we will utilize today consists of multiple KVM virtual machines running within each student workstation. The details of each virtual machine are listed below:
+The lab environment that we will utilize today consists of multiple virtual machines running in Amazon Web Services.  The details of each virtual machine are listed below:
 
-* Student Workstation - KVM hypervisor (the system you are logged into now)
+* Student Workstation - This is the workstation / laptop that you brought with you to the lab.
 * AWS is hosting instances that will be used for the Red Hat OpenShift Container Platform 3.6.
-    ** hostname: <YOUR PUBLIC DNS NAME FROM AWS>
-    ** Red Hat OpenShift Container Platform
-        *** 1 Master node
-        *** 2 Application Nodes
-            **** Red Hat CloudForms (containerized)
-    ** Ansible Tower 3.1.2
-        *** hostname: tower.admin.example.com
+    * Red Hat OpenShift Container Platform
+        ** 1 Master node
+        ** 2 Application Nodes
+           *** Red Hat CloudForms (containerized)
+    * Ansible Tower 3.1.4
+        ** hostname: tower-<student_id>.rhte.sysdeseng.com
 
-In addition to the virtual machines that are running on each student workstation, an instructor machine is also contained within the environment and provides additional resources.  
+In addition to the virtual machines that are running in AWS, an instructor machine is also contained within the environment and provides additional resources such as the AWS private key.
 
 +
 
@@ -46,20 +43,20 @@ There are several components that will be utilized throughout the course of this
 |======================
 |Item|URL|Access|Virt Level
 | Ansible Tower|
-link:https://tower.admin.example.com[https://tower.admin.example.com] |
+link:https://tower-<student_id>.rhte.sysdeseng.com[https://tower-<student_id>.rhte.sysdeseng.com] |
 Username: admin
-Password: summit2017 |
+Password: rhte2017 |
 L1
 | OpenShift Container Platform |
-link:https://master.osp.example.com:8443[https://master.osp.example.com:8443] |
-Username: user1 
-Password: summit2017 |
+link:https://:tower-<student_id>.rhte.sysdeseng.com:8443[https://tower-<student_id>.rhte.sysdeseng.com:8443] |
+Username: student 
+Password: rhte2017 |
 L2
 | Red Hat CloudForms |
-link:https://cloudforms-cloudforms.apps.example.com[https://cloudforms-cloudforms.apps.example.com] |
+link:https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com] |
 Username: admin
 Password: smartvm |
-L2 (container)
+L2 (containert)
 |======================
 
 Each component plays a critical role into the overall management of the environment. Now let’s get started!
