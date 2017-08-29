@@ -1,0 +1,25 @@
+---
+- name: Remove OpenShift Instances
+  hosts: all
+  gather_facts: yes
+  vars_files:
+    - aws_vars.yml
+
+  tasks:
+    - action: ec2_facts
+
+    - debug:
+        var: hostvars
+        verbosity: 2
+
+    - name: Pause on Tower instance to allow OCP instances time to receive terminate request
+      pause:
+        seconds: 10
+      when: "'tower' in inventory_hostname"
+
+    - name: Terminate AWS Instance {{ ansible_ec2_instance_id }}
+      local_action:
+        module: ec2
+        state: 'absent'
+        region: "{{ aws_region }}"
+        instance_ids: "{{ ansible_ec2_instance_id }}"

@@ -90,6 +90,7 @@
     - name: Add Tower Machine Credential
       tower_credential:
         name: "{{ tower_machine_credential }}"
+        description: "{{ tower_machine_credential_description }}"
         kind: "{{ tower_machine_credential_kind }}"
         organization: "{{ tower_org }}"
         state: present
@@ -108,6 +109,7 @@
     - name: Add Tower Cloud Credential
       tower_credential:
         name: "{{ tower_cloud_credential }}"
+        description: "{{ tower_cloud_credential_description }}"
         kind: "{{ tower_cloud_credential_kind }}"
         organization: "{{ tower_org }}"
         state: present
@@ -123,6 +125,7 @@
     - name: Add Tower inventory
       tower_inventory:
         name: "{{ tower_inventory }}"
+        description: "{{ tower_inventory_description }}"
         organization: "{{ tower_org }}"
         state: present
         tower_host: "{{ tower_host }}"
@@ -135,6 +138,7 @@
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
         name: "{{ tower_inventory }}"
+        description: "{{ tower_inventory_description }}"
         organization: "{{ tower_org }}"
         variables:
           - student_id: "{{ student_id }}"
@@ -146,6 +150,7 @@
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
         name: "{{ tower_inventory_group }}"
+        description: "{{ tower_inventory_group_description }}"
         source: "{{ tower_inventory_group_source }}"
         credential: "{{ tower_cloud_credential }}"
         inventory: "{{ tower_inventory }}"
@@ -164,6 +169,7 @@
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
         name: "{{ tower_openshift_install_group }}"
+        description: "{{ tower_openshift_install_group_description }}"
         source: "manual"
         inventory: "{{ tower_inventory }}"
         state: present
@@ -175,6 +181,7 @@
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
         name: "{{ item }}"
+        description: "{{ item + '_description' }}"
         source: "manual"
         inventory: "{{ tower_inventory }}"
         state: present
@@ -211,6 +218,7 @@
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
         name: "{{ tower_project_provision_and_configure }}"
+        description: "{{ tower_project_provision_and_configure_description }}"
         organization: "{{ tower_org }}"
         state: present
         scm_type: "{{ tower_project_provision_and_configure_type }}"
@@ -246,6 +254,7 @@
     - name: Add Tower Project for Install
       tower_project:
         name: "{{ tower_project_install }}"
+        description: "{{ tower_project_install_description }}"
         organization: "{{ tower_org }}"
         scm_type: "{{ tower_project_install_type }}"
         local_path: "{{ tower_project_install_local_path }}"
@@ -265,6 +274,7 @@
         tower_password: "{{ tower_password }}"
         job_type: run
         name: "{{ tower_job_template_deploy_provision }}"
+        description: "{{ tower_job_template_deploy_provision_description }}"
         state: present
         inventory: "{{ tower_inventory }}"
         cloud_credential: "{{ tower_cloud_credential }}"
@@ -292,6 +302,7 @@
         tower_password: "{{ tower_password }}"
         job_type: run
         name: "{{ tower_job_template_deploy_install }}"
+        description: "{{ tower_job_template_deploy_install_description }}"
         state: present
         inventory: "{{ tower_inventory }}"
         project: "{{ tower_project_install }}"
@@ -308,6 +319,7 @@
         tower_password: "{{ tower_password }}"
         job_type: run
         name: "{{ tower_job_template_deploy_configure }}"
+        description: "{{ tower_job_template_deploy_configure_description }}"
         state: present
         inventory: "{{ tower_inventory }}"
         cloud_credential: "{{ tower_cloud_credential }}"
@@ -325,6 +337,7 @@
         tower_password: "{{ tower_password }}"
         job_type: run
         name: "{{ tower_job_template_scaleup_provision }}"
+        description: "{{ tower_job_template_scaleup_provision_description }}"
         state: present
         inventory: "{{ tower_inventory }}"
         cloud_credential: "{{ tower_cloud_credential }}"
@@ -352,6 +365,7 @@
         tower_password: "{{ tower_password }}"
         job_type: run
         name: "{{ tower_job_template_scaleup_install }}"
+        description: "{{ tower_job_template_scaleup_install_description }}"
         state: present
         inventory: "{{ tower_inventory }}"
         project: "{{ tower_project_install }}"
@@ -368,6 +382,7 @@
         tower_password: "{{ tower_password }}"
         job_type: run
         name: "{{ tower_job_template_scaleup_configure }}"
+        description: "{{ tower_job_template_scaleup_configure_description }}"
         state: present
         inventory: "{{ tower_inventory }}"
         cloud_credential: "{{ tower_cloud_credential }}"
@@ -375,6 +390,39 @@
         playbook: "{{ tower_job_template_scaleup_configure_playbook }}"
         machine_credential: "{{ tower_machine_credential }}"
 #### Job Template Scaleup End ####
+#### Job Template Terminate Begin ####
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and it would include this section 'job_template_terminate_ocp.yml'
+    - name: Configure Job Template for Terminate-OCP
+      tower_job_template:
+        tower_host: "{{ tower_host }}"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+        job_type: run
+        name: "{{ tower_job_template_terminate_ocp }}"
+        description: "{{ tower_job_template_terminate_ocp_description }}"
+        state: present
+        inventory: "{{ tower_inventory }}"
+        cloud_credential: "{{ tower_cloud_credential }}"
+        project: "{{ tower_project_provision_and_configure }}"
+        playbook: "{{ tower_job_template_terminate_ocp_playbook }}"
+        machine_credential: "{{ tower_machine_credential }}"
+
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and this section would be 'job_template_terminate_all.yml'
+    - name: Configure Job Template for Terminate-All
+      tower_job_template:
+        tower_host: "{{ tower_host }}"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+        job_type: run
+        name: "{{ tower_job_template_terminate_all }}"
+        description: "{{ tower_job_template_terminate_all_description }}"
+        state: present
+        inventory: "{{ tower_inventory }}"
+        cloud_credential: "{{ tower_cloud_credential }}"
+        project: "{{ tower_project_provision_and_configure }}"
+        playbook: "{{ tower_job_template_terminate_all_playbook }}"
+        machine_credential: "{{ tower_machine_credential }}"
+#### Job Template Terminate End ####
 #### Job Templates End ####
 
 #### Workflows Templates Begin ####
@@ -389,6 +437,7 @@
       command: >
         tower-cli workflow create
           --name="{{ tower_workflow_template_deploy }}"
+          --description="{{ tower_workflow_template_deploy_description }}"
           --organization="{{ tower_org }}"
           --extra-vars="@/tmp/{{ tower_workflow_template_deploy_extra_vars }}"
           "{{ tower_cli_verbosity }}"
@@ -420,6 +469,7 @@
       command: >
         tower-cli workflow create
           --name="{{ tower_workflow_template_scaleup }}"
+          --description="{{ tower_workflow_template_scaleup_description }}"
           --organization="{{ tower_org }}"
           --extra-vars="@/tmp/{{ tower_workflow_template_scaleup_extra_vars }}"
           "{{ tower_cli_verbosity }}"
@@ -440,6 +490,32 @@
       command: tower-cli workflow schema {{ tower_workflow_template_scaleup }} @/tmp/{{ tower_workflow_template_scaleup_schema_path }}
           "{{ tower_cli_verbosity }}"
 #### Workflow Template Scaleup End ####
+#### Workflow Template Terminate Begin ####
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'workflows.yml' and this section should be 'workflow_terminate.yml'
+    - name: Create Workflow Template for Terminate
+      command: >
+        tower-cli workflow create
+          --name="{{ tower_workflow_template_terminate }}"
+          --description="{{ tower_workflow_template_terminate_description }}"
+          --organization="{{ tower_org }}"
+          "{{ tower_cli_verbosity }}"
+
+    - debug:
+        var: "{{ item }}"
+        verbosity: 2
+      with_items:
+        - tower_workflow_template_terminate
+        - tower_workflow_template_terminate_schema
+
+    - name: Copy Workflow Template Schema for Terminate
+      template:
+        src: "{{ tower_workflow_template_terminate_schema_path }}"
+        dest: "/tmp/{{ tower_workflow_template_terminate_schema_path }}"
+
+    - name: Create Workflow Schema for Terminate
+      command: tower-cli workflow schema {{ tower_workflow_template_terminate }} @/tmp/{{ tower_workflow_template_terminate_schema_path }}
+          "{{ tower_cli_verbosity }}"
+#### Workflow Template Terminate End ####
 #### Workflows Templates End ####
 
 #### Workflows Job Launch Begin ####
@@ -458,6 +534,14 @@
       poll: "{{ tower_workflow_job_scaleup_launch_poll }}"
       when: tower_workflow_job_scaleup_launch
 #### Workflow Job Launch Scaleup End ####
+
+#### Workflow Job Launch Terminate Begin ####
+    - name: Launch Workflow Job for Terminate - this will block while the job runs and will wait up to {{ tower_workflow_job_terminate_launch_async // 60 }} minutes to complete, see Tower UI Jobs for detailed progress
+      command: tower-cli workflow_job launch -W {{ tower_workflow_template_terminate }} --monitor
+      async: "{{ tower_workflow_job_terminate_launch_async }}"
+      poll: "{{ tower_workflow_job_terminate_launch_poll }}"
+      when: tower_workflow_job_terminate_launch
+#### Workflow Job Launch Terminate End ####
 #### Workflows Job Launch End ####
 
 #### Deauth Begin ####
