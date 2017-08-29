@@ -12,7 +12,6 @@ openshift_master_htpasswd_users:
   student: $apr1$5/tyREyX$faNZX.wbId4LGDkNYxJQZ0
 openshift_master_image_policy_config:
   maxImagesBulkImportedPerRepository: 100
-osm_default_node_selector: 'type=app'
 openshift_hosted_metrics_deploy: yes
 openshift_hosted_metrics_storage_kind: dynamic
 os_sdn_network_plugin_name: redhat/openshift-ovs-multitenant
@@ -26,8 +25,12 @@ openshift_master_cluster_hostname: "{{ openshift_master_internal_dns_prefix }}-{
 openshift_master_cluster_public_hostname: "{{ openshift_master_dns_prefix }}-{{ student_id }}.{{ domain_name }}"
 openshift_metrics_cassandra_storage_type: dynamic
 openshift_disable_check: memory_availability
+openshift_enable_service_catalog: true
 {% raw %}
 openshift_cloudprovider_aws_access_key: "{{ lookup('env','AWS_ACCESS_KEY') }}"
 openshift_cloudprovider_aws_secret_key: "{{ lookup('env','AWS_SECRET_KEY') }}"
 openshift_node_labels: "{{ ec2_tag_node_labels }}"
 {% endraw %}
+
+# Default Node Selector Cannot be Used Due to Issue With Service Catalog Deployment. Is set during Postinstall playbook
+#osm_default_node_selector: 'type=app'
