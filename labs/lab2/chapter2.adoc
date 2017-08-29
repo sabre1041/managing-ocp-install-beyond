@@ -14,12 +14,12 @@ Ansible Tower provides the central management of Ansible workloads to enable com
 
 As you saw previously, Ansible Tower has been provisioned as a standalone machine within the lab environment.
 
-From the student machine, open a web browser and navigate to link:https://tower.admin.example.com[https://tower.admin.example.com].
+From the student machine, open a web browser and navigate to link:https://tower-<student_id>.rhte.sysdeseng.com[https://https://tower-<student_id>.rhte.sysdeseng.com].
 
 Login with the following credentials:
 
 Username **admin** +
-Password **summit2017**
+Password **rhte2017**
 
 If successful, will then be placed at the Ansible Tower overview page:
 
@@ -29,31 +29,30 @@ image::../images/image7.png[]
 
 First, let’s review the job template that we just executed to provision the OpenShift Container Platform. This workflow template consists of three chained job templates:
 
-* OpenShift Pre-Install - Prepares the OpenStack environment by provisioning three instances
-* OpenShift Install - Installs the OpenShift Container Platform
-* OpenShift Post-Install - Customizes the OpenShift cluster for the lab
+* Deployment-1-Provision - Prepares the AWS environment by provisioning two instances, a master and a node
+* Deployment-2-Install - This step performs a dynamic inventory of AWS and then installs the OpenShift Container Platform
+* Deployment-3-Post-Install - Customizes the OpenShift cluster for the lab
 
 ===== Projects
 
 The Job Templates utilize Projects, or collections of Ansible playbooks, that in this lab are sourced from a Git repository. To view the projects that are being utilized, select the **Projects** link on the menu bar. Two projects are being leveraged:
 
 * openshift-ansible - Installs and configures the OpenShift Container Platform
-* summit-2017-ocp-operator - Customized Ansible tooling to prepare lab exercises
+* Managing OCP from Install and Beyond - Customized Ansible tooling to prepare lab exercises
 
 The configuration of each project can be viewed by selecting the pencil (edit) button under the _Actions_ column.
 
 ===== Inventory
 
-An link:http://docs.ansible.com/ansible-tower/latest/html/userguide/inventories.html[inventory] within Ansible Tower is similar to a standalone inventory file and contains a collection of host in which jobs may be launched. The inventories defined within Tower can be accessed by clicking on the **Inventories** link on the menu bar. The _OpenShift_ inventory defines the hosts organized within groups to install and configure the environment. Each group along with the host and variables that have been defined can be accessed by selecting the pencil icon under the _Actions_ column next to each group.
+An link:http://docs.ansible.com/ansible-tower/latest/html/userguide/inventories.html[inventory] within Ansible Tower is similar to a standalone inventory file and contains a collection of hosts in which jobs may be launched. The inventories defined within Tower can be accessed by clicking on the **Inventories** link on the menu bar. The _OpenShift_ inventory defines the hosts organized within groups to install and configure the environment. Each group along with the host and variables that have been defined can be accessed by selecting the pencil icon under the _Actions_ column next to each group.
 
 ===== Credentials
 
 link:http://docs.ansible.com/ansible-tower/latest/html/userguide/credentials.html[Credentials] are a mechanism for authenticating against secure resources including target machines, inventory sources and projects leveraging version control systems. Every one of the previously explored areas makes use of a credential. Credentials are configured within the Ansible Tower settings and can be accessed by selecting the **Settings** icon (gear) on the menu bar. Once within the settings page, select the **Credentials** link. The following credentials have been defined:
 
-* gitlab-creds - Access lab resources from source control
-* osp-guest-creds - Execute actions against OpenStack instances
-* osp-user-creds - Allows for communication with the 
-link:http://docs.ansible.com/ansible-tower/latest/html/userguide/credentials.html#openstack[OpenStack] platform
+* AWS - Allows API access to AWS resources
+* RHTE SSH - Allows Tower to log in and configure instances running in AWS
+link:http://docs.ansible.com/ansible-tower/latest/html/userguide/credentials.html#amazon-web-services[AWS] platform
 
 ===== Monitor the Progress of the OpenShift Installation
 
