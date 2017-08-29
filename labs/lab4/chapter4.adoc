@@ -10,7 +10,7 @@ NOTE: If you are repeating this lab due to an issue encountered, consider using 
 
 Since Red Hat CloudForms is available as a container, it can be deployed to the OpenShift Container Platform in a few short steps.
 
-A user with cluster-admin permissions must be used to configure the environment as CloudForms requires access to privileged resources
+A user with _cluster-admin_ permissions must be used to configure the environment as CloudForms requires access to privileged resources
 
 First, using the OpenShift Command Line, create a new project called **cloudforms**
 
@@ -28,7 +28,7 @@ By creating a new project, the context of the CLI is automatically switched into
 master$ oc config current-context for context
 ----
 
-When creating a new project, a set of service accounts are automatically provisioned. These accounts are used when building, deploying and running containers. The _default_ service account is the de facto service account used by pods. Since CloudForms is deployed within a pod and requires access to key metrics in the OpenShift environment along with the host, it must be granted elevated access as a privileged resource. In OpenShift, permissions associated to pods are managed by link:https://docs.openshift.com/container-platform/3.4/admin_guide/manage_scc.html[Security Context Constraints] and the service account that is used to run them.
+When creating a new project, a set of service accounts are automatically provisioned. These accounts are used when building, deploying and running containers. The _default_ service account is the de facto service account used by pods. Since CloudForms is deployed within a pod and requires access to key metrics in the OpenShift environment along with the host, it must be granted elevated access as a privileged resource. In OpenShift, permissions associated to pods are managed by link:https://docs.openshift.com/container-platform/latest/admin_guide/manage_scc.html[Security Context Constraints] and the service account that is used to run them.
 
 Execute the following command to add the default service account in the cloudforms project to the privileged SCC:
 
@@ -49,7 +49,7 @@ master$ oc get scc privileged -o yaml
 
 Confirm _system:serviceaccount:cloudforms:default_ is in the result returned.
 
-CloudForms retrieves metrics from applications deployed within OpenShift, and its leverages the data exposed by the onboard metrics infrastructure (Hawkular). Since the platform metrics are deployed in the _openshift-infra_ project and CloudForms is deployed in the cloudforms project, they cannot communicate with each other due to use of the link:https://docs.openshift.com/container-platform/3.4/architecture/additional_concepts/sdn.html[multitenant SDN plugin] which isolates each project at a network level.
+CloudForms retrieves metrics from applications deployed within OpenShift, and it leverages the data exposed by the onboard metrics infrastructure (Hawkular). Since the platform metrics are deployed in the _openshift-infra_ project and CloudForms is deployed in the cloudforms project, they cannot communicate with each other due to use of the link:https://docs.openshift.com/container-platform/latest/architecture/additional_concepts/sdn.html[multitenant SDN plugin] which isolates each project at a network level.
 
 Fortunately, as a cluster administrator, you can manage the configuration of the pod overlay network to allow traffic to traverse between specific projects or be exposed to all projects. Execute the following command to join the _cloudforms_ project to the _openshift-infra_ project
 
@@ -69,41 +69,37 @@ master$ oc get netnamespace | egrep 'cloudforms|openshift-infra'
 
 ==== Instantiate CloudForms Templates
 
-The components representing the containerized deployment of Red Hat CloudForms is available as a template and located on the repository server. Execute the following command to download the file to the openshift master VM and explore it:
-
-
-.master$
-[source, bash]
-----
-master$ curl -o cfme.yaml http://repo.osp.example.com/ocp/templates/cfme-template.yaml
-master$ cat cfme-template.yaml
-----
-
-Notice how the services are set up, how variables are passed along, which containers are used, etc...  This is how we are defining how CloudForms is being configured.
-
-Add the template to the OpenShift cloudforms project
-
-NOTE: The `-n cloudforms` parameters specifies the namespace explicitly. You can omit this if you are sure you are in the _cloudforms_ project. Use `oc project -q` to verify.
+The components representing the containerized deployment of Red Hat CloudForms are available as a template and was automatically installed into the OpenShift cluster as part of the installation completed previously.
 
 Verify the template is available in the OpenShift environment
 
 .master$
 [source, bash]
 ----
-master$ oc get -n cloudforms template cloudforms
+master$ oc get -n openshift template cloudforms
 
 NAME     DESCRIPTION                  PARAMETERS   OBJECTS
 cloudforms  CloudForms appliance with persistent storage  23 (1 blank)  12
 ----
 
-The persistent storage required by CloudForms will be dynamically provisioned by the link:https://docs.openshift.com/container-platform/3.4/install_config/configuring_openstack.html#install-config-configuring-openstack[OpenStack cloud provider].
-
-Instantiate the template to deploy Red Hat CloudForms. Since no parameters were specified, the default values as defined in the template will be utilized.
+The describe operation provides additional details about the teamplate. Execute the following command to execute this action against the CloudForms template:
 
 .master$
 [source, bash]
 ----
-master$ oc new-app -n cloudforms --template=cloudforms
+master$ oc describe -n openshift template cloudforms
+----
+
+Notice the different types of information that is displayed including the objects that will be created along with parameters that can be specified.
+
+The persistent storage required by CloudForms will be dynamically provisioned by the link:https://docs.openshift.com/container-platform/3.6/install_config/configuring_aws.html[AWS cloud provider].
+
+Instantiate the template to deploy Red Hat CloudForms. A parameter called _APPLICATION_MEM_REQ_ will be also specified in order to properly tune the resources for the environment.
+
+.master$
+[source, bash]
+----
+master$ oc new-app -p APPLICATION_MEM_REQ=3072Mi --template=cloudforms
 ----
 
 Red Hat CloudForms will now be deployed into the _cloudforms_ project.
@@ -203,7 +199,7 @@ You can also check volumes:
 master$oc -n cloudforms get pv
 ----
 
-NOTE: If the project may have to be removed and start over again.  **Only perform this task if there was an irrecoverable failure. Let and instructor know before doing this.** <<Appendix C - Recovering From Failed CloudForms  Deployment>>
+NOTE: If for any reason failures are observed, you may need to remove the project and start this section over again.  **Only perform this task if there was an irrecoverable failure. Let and instructor know before doing this.** <<Appendix C - Recovering From Failed CloudForms  Deployment>>
 
 ==== Accessing the CloudForms User Interface
 
@@ -219,7 +215,7 @@ cloudforms  cloudforms-cloudforms.apps.example.com       cloudforms  https   pas
 ----
 
 Open a web browser and navigate securely to the to the hostname retrieved above:
-link:https://cloudforms-cloudforms.apps.example.com[https://cloudforms-cloudforms.apps.example.com].
+link:https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com].
 
 NOTE: If you get an error such as Application Not Available see <<Appendix E - Troubleshooting CloudForms>>
 
@@ -242,16 +238,18 @@ Configure the container provider:
 
     . Hover your mouse over the **Compute** tab.
     . Once over the compute tab, additional panes will appear. (do not click anything yet)
-    .Hover over **Containers** and then click on **Providers**.
+    . Hover over **Containers** and then click on **Providers**.
     . No container providers are configured by default. Add a new container provider by clicking on **Configuration** (with a gear icon)
     . Lastly select **Add Existing Container Provider**
 +
 
 image::../images/image13.png[]
 
-Start adding a new Container Provider by specifying **OCP Summit Lab** as the name and **OpenShift Container Platform** as the type.
+Start adding a new Container Provider by specifying **OCP** as the name and **OpenShift Container Platform** as the type.
 
-As mentioned previously, there are two endpoints in which CloudForms retrieves metrics from. First, configure the connection details to the OpenShift API. Since CloudForms is deployed within OpenShift, we can leverage the internal service associated with API called _kubernetes_ in the default project. Internal service names can be referenced across projects in the form _<service_name>.<namespace>_
+As mentioned previously, there are two endpoints in which CloudForms retrieves metrics from. First, configure the connection details to the OpenShift API. 
+
+Since CloudForms is deployed within OpenShift, we can leverage the internal service associated with API called _kubernetes_ in the default project. Internal service names can be referenced across projects in the form _<service_name>.<namespace>_
 
 Enter **kubernetes.default** in the _hostname_ field and **443** in the _port_ field.
 
@@ -265,22 +263,28 @@ Execute the following command to retrieve the token.
 master$ oc serviceaccounts get-token -n management-infra management-admin
 ----
 
-Copy the value returned into the token fields. Click the **Validate** button to verify the configuration.
+Copy the value returned into the token fields.
+
+Finally, since the SSL certificates for the OpenShift API are not currently configured within CloudForms, SSL validation would fail. To work around this issue, select the dropdown next to _Security Protocol_ and select **SSL without validation**
+
+Click the **Validate** button to verify the configuration.
 
 image::../images/image19.png[]
 
 Next, click on the **Hawkular** tab to configure CloudForms to communicate with the cluster metrics.
 
-Enter **hawkular-metrics.openshift-infra** in the _hostname_ field and **443** in the _port_ field.
+Enter **hawkular-metrics.openshift-infra** in the _hostname_ field, **443** in the _port_ field and **SSL without validation** for the _Security Protocol_ dropdown.
 
-Click **Add** to add the new container provider.
+Click **Validate** to confirm the configuration is correct.
+
+Finally, click **Add** to add the new container provider.
 
 You have now configured Red Hat CloudForms to retrieve metrics from OpenShift. It may take a few minutes to data to be displayed.
 
 To force an immediate refresh of the newly added Provider:
  
-    . Select the **OCP Summit Lab** provider icon
-    . Notice all of the **Relationships** have 0 items
+    . Select the **OCP** provider icon
+    . Notice all of the components have 0 items
     . Now select the **Configuration** drop-down again
     . Choose **Refresh Items and Relationships**
     . Lastly, click the **Refresh** icon just to the left of **Configuration**
@@ -289,9 +293,8 @@ To force an immediate refresh of the newly added Provider:
 
 image::../images/image4.png[]
 
-Select **Compute** -> **Containers** -> **Overview** to view the collected data. Once baseline metrics similar to what is shown below appears, you can move on to the next lab. Feel free to explore the CloudForms web console as time permits to view additional details exposed from the OpenShift cluster.
+Feel free to explore the CloudForms web console as time permits to view additional details exposed from the OpenShift cluster.
 
-image::../images/image5.png[]
 
 === Configuring the OpenStack Cloud Provider
 
