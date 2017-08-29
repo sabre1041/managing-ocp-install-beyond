@@ -58,6 +58,11 @@
   - name: Set Default Node Selector
     become: true
     lineinfile: dest=/etc/origin/master/master-config.yaml  state=present regexp="defaultNodeSelector" line='  defaultNodeSelector{{ ':' }} {{ default_node_selector }}'
+
+  - name: Locate OpenShift API Server
+    command: >
+      oc whoami --show-server=true
+    register: whoami_result
   
   - name: Restart OpenShift Master
     become: true
@@ -72,6 +77,20 @@
       name: atomic-openshift-master-api
       state: restarted
     when: "groups['masters'] | length > 1"
+
+  - name: Verify API Server
+    become: true
+    command: >
+      curl --silent
+      --cacert /etc/origin/master/ca-bundle.crt
+      {{ whoami_result.stdout }}/healthz/ready
+    args:
+      warn: no
+    register: l_api_available_output
+    until: l_api_available_output.stdout == 'ok'
+    retries: 120
+    delay: 1
+    changed_when: false
 
   - name: Delete Service Catalog Pods
     command: >
