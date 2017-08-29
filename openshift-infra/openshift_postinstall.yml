@@ -56,15 +56,18 @@
     with_items: "{{ service_catalog_projects_to_annotate }}"
 
   - name: Set Default Node Selector
+    become: true
     lineinfile: dest=/etc/origin/master/master-config.yaml  state=present regexp="defaultNodeSelector" line='  defaultNodeSelector{{ ':' }} {{ default_node_selector }}'
   
   - name: Restart OpenShift Master
+    become: true
     systemd:
       name: atomic-openshift-master
       state: restarted
     when: "groups['masters'] | length  == 1"
 
   - name: Restart OpenShift Master API
+    become: true
     systemd:
       name: atomic-openshift-master-api
       state: restarted
