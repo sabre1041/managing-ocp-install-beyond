@@ -12,7 +12,7 @@
         var: hostvars
         verbosity: 2
 
-    - name: Pause on Tower instance to allow OCP instances time to receive API call
+    - name: Pause on Tower instance to allow OCP instances time to receive terminate request
       pause:
         seconds: 10
       when: "'tower' in inventory_hostname"
