@@ -5,6 +5,9 @@
     image_streams_query: '{range .items[*]}{.metadata.name}{"\n"}{end}'
     templates_to_keep: ['cakephp-mysql-persistent', 'metrics-deployer-template', 'registry-console']
     image_streams_to_keep: ['php', 'mysql']
+    service_catalog_projects_to_annotate: ['kube-service-catalog']
+    default_node_selector: 'type=app'
+    service_catalog_default_node_selector: 'openshift-infra=apiserver'
     cfme_template: https://raw.githubusercontent.com/openshift/openshift-ansible/release-3.6/roles/openshift_examples/files/examples/v3.6/cfme-templates/cfme-template.yaml
   tasks:
   - name: Get templates
@@ -46,3 +49,28 @@
   - name: Setup CFME Template
     command: >
       oc apply -n openshift -f {{ cfme_template }}
+  
+  - name: Annotate Service Catalog Projects
+    command: >
+      oc annotate namespace {{ item }} openshift.io/node-selector='{{ service_catalog_default_node_selector }}' --overwrite
+    with_items: "{{ service_catalog_projects_to_annotate }}"
+
+  - name: Set Default Node Selector
+    lineinfile: dest=/etc/origin/master/master-config.yaml  state=present regexp="defaultNodeSelector" line='  defaultNodeSelector{{ ':' }} {{ default_node_selector }}'
+  
+  - name: Restart OpenShift Master
+    systemd:
+      name: atomic-openshift-master
+      state: restarted
+    when: "groups['masters'] | length  == 1"
+
+  - name: Restart OpenShift Master API
+    systemd:
+      name: atomic-openshift-master-api
+      state: restarted
+    when: "groups['masters'] | length > 1"
+
+  - name: Delete Service Catalog Pods
+    command: >
+      oc delete pods --all -n {{ item}}
+    with_items: "{{ service_catalog_projects_to_annotate }}"
