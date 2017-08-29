@@ -407,6 +407,13 @@
         playbook: "{{ tower_job_template_terminate_ocp_playbook }}"
         machine_credential: "{{ tower_machine_credential }}"
 
+    - name: Update Job Template for Terminate-OCP with Extra Vars
+      command: >
+        tower-cli job_template modify
+          --name="{{ tower_job_template_terminate_ocp }}"
+          --extra-vars="{{ tower_job_template_terminate_ocp_extra_vars }}"
+          "{{ tower_cli_verbosity }}"
+
 # TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and this section would be 'job_template_terminate_all.yml'
     - name: Configure Job Template for Terminate-All
       tower_job_template:
@@ -422,6 +429,13 @@
         project: "{{ tower_project_provision_and_configure }}"
         playbook: "{{ tower_job_template_terminate_all_playbook }}"
         machine_credential: "{{ tower_machine_credential }}"
+
+    - name: Update Job Template for Terminate-All with Extra Vars
+      command: >
+        tower-cli job_template modify
+          --name="{{ tower_job_template_terminate_all }}"
+          --extra-vars="{{ tower_job_template_terminate_all_extra_vars }}"
+          "{{ tower_cli_verbosity }}"
 #### Job Template Terminate End ####
 #### Job Templates End ####
 
