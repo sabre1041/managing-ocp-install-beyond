@@ -35,22 +35,16 @@ There are several components that will be utilized throughout the course of this
 
 [options="header]
 |======================
-|Item|URL|Access|Virt Level
+| *Item* | *URL* | *Access*
 | Ansible Tower|
 link:https://tower-<student_id>.rhte.sysdeseng.com[https://tower-<student_id>.rhte.sysdeseng.com] |
-Username: admin
-Password: rhte2017 |
-L1
+Username: admin + Password: rhte2017
 | OpenShift Container Platform |
-link:https://:master-<student_id>.rhte.sysdeseng.com:8443[https://tower-<student_id>.rhte.sysdeseng.com:8443] |
-Username: student 
-Password: rhte2017 |
-L2
+link:https://:master-<student_id>.rhte.sysdeseng.com:8443[https://master-<student_id>.rhte.sysdeseng.com:8443] |
+Username: student + Password: rhte2017
 | Red Hat CloudForms |
 link:https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com] |
-Username: admin
-Password: smartvm |
-L2 (container)
+Username: admin + Password: smartvm
 |======================
 
 Each component plays a critical role into the overall management of the environment. Now let’s get started!
