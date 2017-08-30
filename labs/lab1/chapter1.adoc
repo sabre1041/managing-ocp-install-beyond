@@ -2,51 +2,39 @@
 
 Welcome! We are going to jump right into the lab implementation and then review the overall architecture and strategy afterward. You have been tasked with managing a Red Hat Container Platform environment running on the Red Hat OpenStack platform. Ansible Tower is also available and being used to execute and manage the overall installation of OpenShift.
 
-Let’s perform some brief validation of the environment and kick off the OpenShift installation.
-
 NOTE: The installation of OpenShift Container Platform can take 20-25 minutes so must be started immediately. If bullet point 1 below takes longer than 1 minute to complete, skip it and go directly to bullet point 2.
 
-
-. Connect to Ansible Tower to start the configuration of Ansible Tower:
-  .. From a local web browser open https://tower-<student_id>.rhte.sysdeseng.com[https://tower-<student_id>.rhte.sysdeseng.com]
-  .. **NOTE**: If you get an error **internal server error ** then SSH to the Tower VM and restart services. SSH with password **summit2017**
-+
-[source, bash]
-----
-local_workstation$ ssh root@tower-<student_id>.rhte.sysdeseng.com
-tower# ansible-tower-service restart
-----
-  .. Login with the following credentials:
-    ... Username: **admin**
-    ... Password: **summit2017**
-  .. On Ansible Tower overview page, select **Templates** on the menu bar at the top of the screen.
-  .. Locate the job template called **0-Provision and Install OpenShift**
-  .. Execute the job by clicking the rocket ship icon on the right hand side of the screen under the _Actions_ column
+## Configure Ansible Tower:
+* From a local web browser open https://tower-<student_id>.rhte.sysdeseng.com[https://tower-<student_id>.rhte.sysdeseng.com]. This will be the tower instance that you checked out from the spreadsheet.
+* Login with the following credentials:
+ ** Username: **admin**
+ ** Password: **summit2017**
+* On Ansible Tower overview page, select **Templates** on the menu bar at the top of the screen.
+* Locate the job template called **0-Provision and Install OpenShift**
+* Execute the job by clicking the rocket ship icon on the right hand side of the screen under the _Actions_ column
 +
 image::images/image28.png[]
 
 
-# Create Inventory
-
- .. Click "INVENTORIES" on the top navigation pane.
-
- .. Click "+ADD".
-
- .. Provide a name of: OpenShift
-
- .. Add “VARIABLES”
-
- ... - student_id: <YOUR STUDENT ID>
-
+##  Create Inventory
 
 TIP: Whatever you put for “<YOUR STUDENT ID>” needs to be consistent throughout the lab.
 
+. Click "INVENTORIES" on the top navigation pane.
 
- .. Click “SAVE”
+. Click "+ADD".
 
- .. Click "ADD GROUP"
+. Provide a name of: OpenShift
 
- .. Provide a name of "AWS"
+. Add “VARIABLES”
+
+.. - student_id: <YOUR STUDENT ID>
+
+. Click “SAVE”
+
+. Click "ADD GROUP"
+
+. Provide a name of "AWS"
 
  .. Choose a "SOURCE" of "Amazon EC2"
 
