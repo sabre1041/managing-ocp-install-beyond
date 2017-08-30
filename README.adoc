@@ -1,4 +1,4 @@
-# AWS Loft Lab 2017: Container Development & OpenShift
+# RHTE 2017: Managing the Operation of an OpenShift Cluster
 
 :numbered!:
 
