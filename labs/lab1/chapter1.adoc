@@ -56,7 +56,7 @@ L2
 link:https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com] |
 Username: admin
 Password: smartvm |
-L2 (containert)
+L2 (container)
 |======================
 
 Each component plays a critical role into the overall management of the environment. Now let’s get started!
