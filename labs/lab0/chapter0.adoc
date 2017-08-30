@@ -1,16 +1,16 @@
-=== Lab Overview
+=== Lab Overview and Introduction
 
-Managing an ecosystem of infrastructure and applications can be challenging. Fortunately, there are automation tools and technologies available to handle the most intense workloads. Today, we will leverage tools such as Ansible Tower to automate the provisioning of the OpenShift Container Platform on top of Amazon Web Services to provide the foundation for running containerized applications. Afterward, Red Hat CloudForms will be deployed to manage and monitor the underlying infrastructure and applications that run in the environment. Finally, we will walk through expanding the environment by adding new compute resources to the environment. By the conclusion of the lab, you will learn how each of these technologies complement one another to offer solutions to effectively manage the most complex environment.
+Managing an ecosystem of infrastructure and applications can be challenging. Fortunately, there are automation tools and technologies available to handle the most intense workloads. Today, we will leverage tools such as Ansible Tower to automate the provisioning of the OpenShift Container Platform on top of Amazon Web Services to provide the foundation for running containerized applications. Afterward, Red Hat CloudForms will be deployed to manage and monitor the underlying infrastructure and applications that run in the environment. Finally, we will walk through expanding the environment by adding new OpenShift compute resources to the environment. By the conclusion of the lab, you will learn how each of these technologies complement one another to offer solutions to effectively manage the most complex environment.
 
 === Environment Overview
 
-The lab environment that we will utilize today consists of multiple virtual machines running in Amazon Web Services.  The details of each virtual machine are listed below:
+The lab environment that we will utilize today consists of the workstation that you brought with you multiple virtual machines running in Amazon Web Services.  The details of each virtual machine are listed below:
 
 * Student Workstation - This is the workstation / laptop that you brought with you to the lab.
 * AWS is hosting instances that will be used for the Red Hat OpenShift Container Platform 3.6.
     * Red Hat OpenShift Container Platform
         ** 1 Master node
-        ** 2 Application Nodes
+        ** 2 Application Nodes (1 Application node intitially, then scaled up to 2)
            *** Red Hat CloudForms (containerized)
     * Ansible Tower 3.1.4
         ** hostname: tower-<student_id>.rhte.sysdeseng.com
