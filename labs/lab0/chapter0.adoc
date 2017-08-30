@@ -1,3 +1,10 @@
+toc::[]
+
+image::images/image27.png[]
+
+== Abstract
+_Configuring distributed systems can be difficult. Fortunately, automation tools such as Ansible are available to help manage even the most complex environments. In this lab, you'll take the reigns of your own cluster and experience firsthand how Ansible can be used to install, configure, and maintain OpenShift to support mission-critical systems. Once you install Red Hat OpenShift, you'll learn how to diagnose, troubleshoot, and resolve common platform issues. Managing the platform doesn't stop once the installation is complete. You'll use Ansible to simplify ongoing maintenance in an automated fashion. Finally, the use of centralized management systems will be introduced into the environment in order to demonstrate its importance and to provide a streamlined experience for both platform maintainers and users._
+
 === Lab Overview and Introduction
 
 Managing an ecosystem of infrastructure and applications can be challenging. Fortunately, there are automation tools and technologies available to handle the most intense workloads. Today, we will leverage tools such as Ansible Tower to automate the provisioning of the OpenShift Container Platform on top of Amazon Web Services to provide the foundation for running containerized applications. Afterward, Red Hat CloudForms will be deployed to manage and monitor the underlying infrastructure and applications that run in the environment. Finally, we will walk through expanding the environment by adding new OpenShift compute resources to the environment. By the conclusion of the lab, you will learn how each of these technologies complement one another to offer solutions to effectively manage the most complex environment.
@@ -17,6 +24,8 @@ The lab environment that we will utilize today consists of the workstation that 
 
 In addition to the virtual machines that are running in AWS, an instructor machine is also contained within the environment and provides additional resources such as the AWS private key.
 
+The following diagram depicts a high level overview of the environment:
+
 image::../images/image24.png[]
 
 The following diagram depicts the network layout within the environment:
@@ -31,7 +40,7 @@ image::../images/image25.png[]
 
 === Connectivity Details
 
-There are several components that will be utilized throughout the course of this lab. The following table outlines how to connect to each resource:
+There are several components that will be utilized throughout the course of this lab. During the lab, you will be asked to `SSH` into the VMs running on AWS. We will provide you access to the private key. The following table outlines how to connect to each resource:
 
 [options="header"]
 |======================
@@ -48,6 +57,10 @@ Password: rhte2017
 link:https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com] |
 Username: admin +
 Password: smartvm
+| Instructor Host|
+link:https://instructor.rhte.sysdeseng.com/privatekey[https://instructor.rhte.sysdeseng.com/privatekey] |
+Username: rhte +
+Password: INSTRUCTOR WILL PROVIDE
 |======================
 
 Each component plays a critical role into the overall management of the environment. Now let’s get started!
