@@ -1,120 +1,56 @@
----
----
+=== Lab Overview
 
-image::images/image27.png[]
+Managing an ecosystem of infrastructure and applications can be challenging. Fortunately, there are automation tools and technologies available to handle the most intense workloads. Today, we will leverage tools such as Ansible Tower to automate the provisioning of the OpenShift Container Platform on top of Amazon Web Services to provide the foundation for running containerized applications. Afterward, Red Hat CloudForms will be deployed to manage and monitor the underlying infrastructure and applications that run in the environment. Finally, we will walk through expanding the environment by adding new compute resources to the environment. By the conclusion of the lab, you will learn how each of these technologies complement one another to offer solutions to effectively manage the most complex environment.
 
-== Abstract
-_Configuring distributed systems can be difficult. Fortunately, automation tools such as Ansible are available to help manage even the most complex environments. In this lab, you'll take the reigns of your own cluster and experience firsthand how Ansible can be used to install, configure, and maintain OpenShift to support mission-critical systems. Once you install Red Hat OpenShift, you'll learn how to diagnose, troubleshoot, and resolve common platform issues. Managing the platform doesn't stop once the installation is complete. You'll use Ansible to simplify ongoing maintenance in an automated fashion. Finally, the use of centralized management systems will be introduced into the environment in order to demonstrate its importance and to provide a streamlined experience for both platform maintainers and users._
+=== Environment Overview
 
-toc::[]
+The lab environment that we will utilize today consists of multiple virtual machines running in Amazon Web Services.  The details of each virtual machine are listed below:
 
-== Lab 0 - Pre-Lab Setup
+* Student Workstation - This is the workstation / laptop that you brought with you to the lab.
+* AWS is hosting instances that will be used for the Red Hat OpenShift Container Platform 3.6.
+    * Red Hat OpenShift Container Platform
+        ** 1 Master node
+        ** 2 Application Nodes
+           *** Red Hat CloudForms (containerized)
+    * Ansible Tower 3.1.4
+        ** hostname: tower-<student_id>.rhte.sysdeseng.com
 
-Welcome! We are going to jump right into the lab implementation and then review the overall architecture and strategy afterward. You have been tasked with managing a Red Hat Container Platform environment running on the Red Hat OpenStack platform. Ansible Tower is also available and being used to execute and manage the overall installation of OpenShift.
+In addition to the virtual machines that are running in AWS, an instructor machine is also contained within the environment and provides additional resources such as the AWS private key.
 
-Let’s perform some brief validation of the environment and kick off the OpenShift installation.
+image::../images/image24.png[]
 
-NOTE: The installation of OpenShift Container Platform can take 20-25 minutes so must be started immediately. If bullet point 1 below takes longer than 1 minute to complete, skip it and go directly to bullet point 2.
+The following diagram depicts the network layout within the environment:
 
+image::../images/image21.png[]
 
-. Connect to Ansible Tower to start the OpenShift deployment:
-    .. From a local web browser open https://tower.admin.example.com[https://tower.admin.example.com]
-    .. **NOTE**: If you get an error **internal server error ** then SSH to the Tower VM and restart services. SSH with password **summit2017**
-+
-[source, bash]
-----
-kiosk$ ssh root@tower.admin.example.com
-tower# ansible-tower-service restart
-----
-    .. Login with the following credentials:
-        ... Username: **admin**
-        ... Password: **summit2017**
-    .. On Ansible Tower overview page, select **Templates** on the menu bar at the top of the screen.
-    .. Locate the job template called **0-Provision and Install OpenShift**
-    .. Execute the job by clicking the rocket ship icon on the right hand side of the screen under the _Actions_ column
-+
-image::images/image28.png[]
+=== Target Environment
 
-Pre Requisites that need to be done on the AWS account
+As you progress through the series of labs, you will build increased capabilities for effectively managing containerized workloads. The diagram below represents the environment that we will be building today.
 
-* Created rhte-tower user
-* Created tower group
- - permissions include
- ** AmazonEC2FullAccess
- ** AmazonS3FullAccess
- ** AmazonS3FullAccess
-* Create a key pair
+image::../images/image25.png[]
 
-Login to Tower host
+=== Connectivity Details
 
-Create AWS user credentials
+There are several components that will be utilized throughout the course of this lab. The following table outlines how to connect to each resource:
 
-* Top right click the "Settings" gear icon.
-* Click the "Credentials" pane.
-* Click "+ADD".
-* Provide a name of "AWS Credential".
-* Choose a type of "Amazon Web Services".
-* Copy in the "ACCESS KEY", and the "SECRET KEY".
-* Click "Save".
+[options="header]
+|======================
+|Item|URL|Access|Virt Level
+| Ansible Tower|
+link:https://tower-<student_id>.rhte.sysdeseng.com[https://tower-<student_id>.rhte.sysdeseng.com] |
+Username: admin
+Password: rhte2017 |
+L1
+| OpenShift Container Platform |
+link:https://:tower-<student_id>.rhte.sysdeseng.com:8443[https://tower-<student_id>.rhte.sysdeseng.com:8443] |
+Username: student 
+Password: rhte2017 |
+L2
+| Red Hat CloudForms |
+link:https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com] |
+Username: admin
+Password: smartvm |
+L2 (container)
+|======================
 
-Create AWS machine credentials
-
-* Click "+ADD".
-* Provide a name of "AWS Machine".
-* Choose a type of "Machine".
-* Provide a "USERNAME" of "ec2-user".
-* Paste in the following private key.
-* Click "Save"
-
-Create Inventory
-
-* Click "INVENTORIES" on the top navigation pane.
-* Click "+ADD".
-* Provide a name of "OpenShift Inventory"
-* Click "ADD GROUP"
-* Provide a name of "AWS"
-* Choose a "SOURCE" of "Amazon EC2"
-* Search for the "CLOUD CREDENTIAL" and select "AWS Credential" and click "SELECT"
-* Provide a "REGIONS" of "US East Ohio"
-* Provide the following "INSTANCE FILTER" of "tag:lab_user=<YOUR NAME HERE>"
-* Select "Overwrite", and "Update on Launch"
-* Click "SAVE"
-
-TIME: 8:11  into video
-
-* Add the following variables to the "SOURCE VARIABLES" of the inventory script
- - hostname_variable: tag_Name
-
-
-Create Project
-
-* Click "PROJECTS" in the top navigation pane.
-* Click "ADD".
-* Chooset "SCM TYPE" of "Git".
-* Provide "SCM URL" of "https://github.com/sabre1041/managing-ocp-install-beyond.git" with a "SCM BRANCH" of "master".
-* Select "Clean" in the "SCM UPDATE OPTIONS",
-* Click "SAVE"
-* On the bottom navigation pane, click the cloud icon which triggers an SCM update.
-
-
-Create Template
-
-* Click "TEMPLATES" on the top navigation pane.
-* Click "+ADD", select "Job Template"
-* Provide a name of "Provision OCP Nodes"
-* Click the "SEARCH" icon for the "INVENTORY" input box and select "OpenShift Inventory" and then click "SELECT".
-* Click the "SEARCH" icon for the "PROJECT" input box and select "RHTE" and then click "SELECT".
-* Click the "Choose a playbook" in the "PLAYBOOK" input box and select the "openshift-infra/create_hosts.yml" playbook.
-* Click the "SEARCH" icon for the "MACHINE CREDENTIAL" input box and select "AWS Machine" and then click "SELECT".
-* Click the "SEARCH" icon for the "SELECT CLOUD CREDENTIAL" input box and select "AWS Credential" and then click "SELECT".
-* Click the "ADD SURVEY" button towards the top of the screen.
- - Provide a "PROMPT" of "Student ID".
- - Provide an "ANSWER VARIABLE NAME" of "student_id".
- - Choose an "ANSWER TYPE" of "Text".
- - Click "ADD".
- - Click Save.
-* Add the following to the "EXTRA VARIABLES" pane.
- - ec2_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY') }}"
- - ec2_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
-* Click "SAVE".
-
+Each component plays a critical role into the overall management of the environment. Now let’s get started!

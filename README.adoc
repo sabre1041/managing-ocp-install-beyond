@@ -2,8 +2,8 @@
 
 :numbered!:
 
-=== <<labs/lab1/chapter1.adoc#chapter1,Ch. 0 - Lab Overview>>
-=== <<labs/lab0/chapter0.adoc#chapter0,Ch. 1 - Introduction / Setup>>
+=== <<labs/lab0/chapter0.adoc#chapter0,Ch. 0 - Lab Overview>>
+=== <<labs/lab1/chapter1.adoc#chapter1,Ch. 1 - Introduction / Setup>>
 === <<labs/lab2/chapter2.adoc#chapter2,Ch. 2 - Exploring the Environment>>
 === <<labs/lab3/chapter3.adoc#chapter3,Ch. 3 - Verifying Installation of Red Hat OpenShift Container Platform Using Ansible Tower>>
 === <<labs/lab4/chapter4.adoc#chapter4,Ch. 4 - Installing Red Hat CloudForms>>
