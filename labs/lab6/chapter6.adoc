@@ -8,15 +8,14 @@ The OpenShift Container Platform provides methods for link:https://docs.openshif
 
 == Review Cluster
 
-Recall the number of nodes in the cluster by either visiting CloudForms or OpenStack.
+Recall the number of nodes in the cluster by either visiting CloudForms or Ansible Tower.
 
-From the OpenStack server:
+From the Ansible Tower:
 
-.rhosp$
-[source, bash]
-----
-rhosp$ openstack server list && openstack volume list
-----
+* Click on "Inventories" in the top navigation pane
+* Click on "OpenShift Inventory"
+
+Review the nodes on the right hand navigation pane
 
 From the OpenShift master:
 
@@ -25,28 +24,27 @@ From the OpenShift master:
 ----
 master$ oc get nodes
 
-NAME                     STATUS                     AGE
-infra.osp.example.com    Ready                      1h
-master.osp.example.com   Ready,SchedulingDisabled   1h
-node1.osp.example.com    Ready
+NAME                                            STATUS    AGE       VERSION
+ip-10-10-0-25.ap-southeast-1.compute.internal   Ready     2h        v1.6.1+5115d708d7
+ip-10-10-0-60.ap-southeast-1.compute.internal   Ready     2h        v1.6.1+5115d708d7
 ----
 
 == Expand the Cluster
 
 Once again, using the web browser from the student machine, navigate to the Ansible Tower instance:
 
-link:https://tower.admin.example.com[https://tower.admin.example.com] 
+link:https://tower-<Student-ID>.rhte.sysdeseng.com[https://<student_id>.rhte.sysdeseng.com] 
 
 If the web session has not been retained from a prior lab, login with the following credentials:
 
 Username **admin** +
-Password **summit2017**
+Password **rhte2017**
 
 After logging in, navigate to the **Templates** page and locate the **1-Provision and Scale OpenShift** workflow job template. Click the `rocket` icon to start the job.
 
 image::../images/image18.png[]
 
-The workflow first creates a new OpenStack instance and once the instance has been created, the scaleup Ansible playbook will be executed to expand the cluster. The workflow job will take a few minutes to complete. Monitor the status until the workflow job completes successfully by selecting **Details** as with the initial workflow job.
+The workflow first creates a new AWS instance and once the instance has been created, the scaleup Ansible playbook will be executed to expand the cluster. The workflow job will take a few minutes to complete. Monitor the status until the workflow job completes successfully by selecting **Details** as with the initial workflow job.
 
 image::../images/image26.png[]
 
@@ -56,7 +54,7 @@ Once the Tower job is completed, there are multiple methods in which to validate
 
 First, as an OpenShift cluster administrator, you can use the OpenShift command line interface from the OpenShift master to view the available nodes and their status.
 
-As the root user on the OpenShift master (_master.osp.example.com_), execute the following command to list the available nodes:
+As the root user on the OpenShift master (_master-<student_id>.rhte.sysdeseng.com_), execute the following command to list the available nodes:
 
 .master$
 [source, bash]
@@ -64,17 +62,9 @@ As the root user on the OpenShift master (_master.osp.example.com_), execute the
 master$ oc get nodes
 ----
 
-If successful, you should see four (4) total nodes (1 master and 3 worker nodes) with **Ready** under the _Status_ column, as opposed to (3) total nodes before (1 master and 2 worker nodes).
+If successful, you should see four (3) total nodes (1 master and 2 worker nodes) with **Ready** under the _Status_ column, as opposed to (2) total nodes before (1 master and 1 worker nodes).
 
 Red Hat CloudForms can also be used to confirm the total number of nodes has been expanded to four.
-
-From the OpenStack server:
-
-.rhosp$
-[source, bash]
-----
-rhosp$ openstack server list && openstack volume list
-----
 
 Login to CloudForms and once authenticated, hover over _Compute_, then _Containers_, and finally select **Container Nodes**. Confirm four nodes are displayed.
 
