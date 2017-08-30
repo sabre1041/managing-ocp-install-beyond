@@ -42,7 +42,7 @@ Username: admin
 Password: rhte2017 |
 L1
 | OpenShift Container Platform |
-link:https://:tower-<student_id>.rhte.sysdeseng.com:8443[https://tower-<student_id>.rhte.sysdeseng.com:8443] |
+link:https://:master-<student_id>.rhte.sysdeseng.com:8443[https://tower-<student_id>.rhte.sysdeseng.com:8443] |
 Username: student 
 Password: rhte2017 |
 L2
