@@ -35,7 +35,7 @@ Within the newly created _OpenShift_ group, add a new group called _AWS_
 * Click **ADD GROUP**
 ** Provide a name of **AWS**
 ** Choose a _SOURCE_ of **Amazon EC2**
-** Under _CLOUD CREDENTIAL click the search icon and select the preconfigured **AWS** credential radio button. Click **SELECT** to choose the value.
+** Under _CLOUD CREDENTIAL_ click the search icon and select the preconfigured **AWS** credential radio button. Click **SELECT** to choose the value.
 ** In the _REGIONS_ dropdown, select **Asia Pacific (Singapore)**
 ** Provide the following in the _INSTANCE FILTER_
 +
@@ -45,8 +45,7 @@ tag:student_id=<student_id>
 ----
 +
 ** Select the **Update on Launch** checkbox
-** Click **SAVE** to apply the changes
-*** Add the following variables to the _SOURCE VARIABLES_ pane:
+** Add the following variables to the _SOURCE VARIABLES_ pane:
 +
 [source, text]
 ----
@@ -150,7 +149,7 @@ Create another project that references content provided by the _openshift-ansibl
 *** Click *ADD**
 *** Provide a _NAME_ of **openshift-ansible**
 *** Choose _SCM TYPE_ of **Manual**.
-*** Provide a PLAYBOOK DIRECTORY_ of **share**
+*** Provide a _PLAYBOOK DIRECTORY_ of **share**
 *** Click **SAVE**
 
 Now you should have two projects: _openshift-ansible_ and _Managing OCP from Install and Beyond_.
@@ -166,8 +165,8 @@ First a new job template will need to be created in order to provision new insta
 ** Provide a _NAME_ of **Deployment-1-Provision**
 ** Click the _SEARCH_ icon for the _INVENTORY_ input box and select **OpenShift Inventory** and then click **SELECT**.
 ** Click the _SEARCH_ icon for the _PROJECT_ input box and select **Managing OCP from Install and Beyond** and then click **SELECT**.
-** Click the _Choose a playbook_ in the _PLAYBOOK_ input box and select the **openshift-infra/aws_create_hosts.yml** playbook.
-** Click the _SEARCH_ icon for the _MACHINE CREDENTIAL_ input box and select **RHTE SSH Machine** and then click **SELECT**.
+** Click the _Choose a playbook_ in the _PLAYBOOK_ input box and select the **aws_create_hosts.yml** playbook.
+** Click the _SEARCH_ icon for the _MACHINE CREDENTIAL_ input box and select **RHTE SSH** and then click **SELECT**.
 ** Click the _SEARCH_ icon for the _SELECT CLOUD CREDENTIAL_ input box and select **AWS** and then click **SELECT**.
 ** Add the following to the _EXTRA VARIABLES_ pane. Be sure to replace the `<student_id>` with the student ID assigned to you.
 
@@ -189,7 +188,7 @@ This job template will be used to execute the installation of the OpenShift Cont
 * From within the _TEMPLATES_ page, click **+ADD** and then select **Job Template**
 ** Provide a _NAME_ of **Deployment-2-Install**
 ** Click the _SEARCH_ icon for the _INVENTORY_ input box and select **OpenShift Inventory** and then click **SELECT**.
-** Click the _SEARCH" icon for the _PROJECT_ input box and select "openshift-ansible" and then click **SELECT**.
+** Click the _SEARCH_ icon for the _PROJECT_ input box and select "openshift-ansible" and then click **SELECT**.
 ** Click the _Choose a playbook_ in the _PLAYBOOK_ input box and select the **ansible/openshift-ansible/playbooks/byo/config.yml** playbook.
 ** Click the _SEARCH_ icon for the _MACHINE CREDENTIAL_ input box and select **RHTE SSH** and then click **SELECT**.
 ** Click the _SEARCH_ icon for the _SELECT CLOUD CREDENTIAL_ input box and select **AWS Credential** and then click **SELECT**.
@@ -204,11 +203,10 @@ The final job template that needs to be configured in this lab will execute acti
 ** Provide a _NAME_ of **Deployment-3-Post-Install**
 ** Click the _SEARCH_ icon for the _INVENTORY_ input box and select **OpenShift Inventory** and then click **SELECT**.
 ** Click the _SEARCH_ icon for the _PROJECT_ input box and select "Managing OCP from Install and Beyond" and then click **SELECT**.
-** Click the _Choose a playbook_ in the _PLAYBOOK_ input box and select the "openshift-infra/openshift_postinstall.yml** playbook.
+** Click the _Choose a playbook_ in the _PLAYBOOK_ input box and select the "openshift_postinstall.yml** playbook.
 ** Click the _SEARCH_ icon for the _MACHINE CREDENTIAL_ input box and select "RHTE SSH" and then click **SELECT**.
 ** Click the _SEARCH_ icon for the _SELECT CLOUD CREDENTIAL_ input box and select **AWS Credential** and then click **SELECT**.
 ** Click **SAVE**
 
 You should have 3 job templates: _1-Deploy OpenShift on AWS_, _Deployment-2-Install_, and _Deployment-3-Post-Install_
 
-image::images/image28.png[]
