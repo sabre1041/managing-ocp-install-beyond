@@ -58,9 +58,11 @@ link:https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com[https://
 Username: admin +
 Password: smartvm
 | Instructor Host|
-link:https://instructor.rhte.sysdeseng.com/privatekey[https://instructor.rhte.sysdeseng.com/privatekey] |
+link:https://rhte-instructor.rhte.sysdeseng.com/privatekey[https://rhte-instructor.rhte.sysdeseng.com/key] |
 Username: rhte +
 Password: INSTRUCTOR WILL PROVIDE
 |======================
+
+Retrieve the key from the instructor host so that you can `SSH` into the OpenShift instances. Grab the key from the password protected directory, copy it locally into a file called: rhte.pem.  Change the permissions on it to 600.
 
 Each component plays a critical role into the overall management of the environment. Now let’s get started!
