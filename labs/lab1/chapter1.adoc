@@ -128,6 +128,7 @@ INVENTORIES -> OpenShift -> OSEv3 -> nodes -> masters -> tag_lab_role_master
 
 ## Create Projects for Provision and Post-install Playbooks
 
+
 * Click "PROJECTS" in the top navigation pane.
 ** Click "ADD".
 ** Provide a “NAME” of “Managing OCP from Install and Beyond”
@@ -135,11 +136,22 @@ INVENTORIES -> OpenShift -> OSEv3 -> nodes -> masters -> tag_lab_role_master
 ** Provide "SCM URL" of "https://github.com/sabre1041/managing-ocp-install-beyond.git" with a "SCM BRANCH" of "rhte".
 ** Select "Clean" and “Update on Launch” in the "SCM UPDATE OPTIONS"
 ** Click "SAVE"
-*** Click “ADD”
-*** Name: openshift-ansible
-*** SCM TYPE: Manual
-*** Playbook Directory: share
-*** Click “SAVE”
+
+* SSH to Tower - ssh -i rhte.pem ec2-user@<public_hostname_of_tower_VM>
++
+[source, bash]
+----
+sudo -i
+
+subscription-manager repos --enable="rhel-7-server-ose-3.6-rpms" && yum -y install openshift-ansible-playbooks && ln -s /usr/share /var/lib/awx/projects
+----
++
+** Click “ADD”
+** Name: openshift-ansible
+** SCM TYPE: Manual
+** Playbook Directory: share
+** Click “SAVE”
+
 
 Now you should have two projects: "openshift-ansible" and "Managing OCP from Install and Beyond".
 
@@ -190,5 +202,104 @@ openshift_cluster_public_url: "https{{':'}}//master-{{ student_id }}.{{ domain_n
 ** Click “SAVE”
 
 You should have 3 job templates: "1-Deploy OpenShift on AWS", "Deployment-2-Install", and "Deployment-3-Post-Install"
+
+=======
+## Add Scaleup Job Templates
+
+Refer to the previous lab on creating Job Templates for details. Here are the overall requirements:
+
+### Create Job Template for Scaleup Provision
+
+** Create Job Template
+** Name: “Scaleup Provision”
+** Playbook: “openshift-infra/aws_add_node.yml”
+** Add following variables:
+
+[source, bash]
+----
+ec2_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY') }}"
+ec2_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
+student_id: <STUDENT ID HERE>
+----
+
+** Same inventory, project, machine cred, cloud cred as “Deployment Provision”
+** Click “SAVE”
+
+### Create Job Templte for Scaleup Install
+
+** Create Job Template
+** Name: “Scaleup Install”
+** Playbook: “ansible/openshift-ansible/playbooks/byo/openshift-node/scaleup.yml”
+** Same inventory, project, machine cred, cloud cred as “Deployment Install”
+** Enable Priveliged Escalation
+** Click “SAVE”
+
+### Create Job Templte for Scaleup Post Install
+
+** Create Job Template
+** Name: “Scaleup Post Install”
+** Playbook: “openshift-infra/openshift_postinstall.yml”
+** Same inventory, project, machine cred, cloud cred as “Deployment Install”
+** Click “SAVE”
+
+## Create Workflow Job Template for the Deployment
+
+** Click "+ADD", select "Workflow Job Template"
+** Provide a name of "1-Deploy OpenShift on AWS"
+** Click “SAVE”
+** Click “Workflow Editor”
+** Click “Start” and a box will appear to the right.
+** On the right under “Add Template” select “Deployment Provision” and “Select”
+** Now click on the box after start labeled “Deploy Provision” and click the green “+” in the top right.
+** Again, on the right under “Add a Template” select “Deployment Install” and “Select”
+** Lastly, click on the new box again, green “+” in the top right.
+** Select “Deployment Post-install” and “Select
+** Select “SAVE” at the bottom right.
+** Launch Workflow Job
+** Click “Templates”
+** Click rocket ship icon next to “1-Deploy OpenShift on AWS”
+** Watch progress.
+
+## Create Workflow Job Template for Scale Up
+
+** Add Scaleup Workflow Job Template
+** Refer to the previous lab on creating the Workflow for Deployment. Here are the overall requirements:
+** Create Workflow Job Template
+** Connect Job Templates as follows: “Scaleup Provision” -> “Scaleup Install” -> “Scaleup Post-install”
+** Launch Scaleup Workflow Job
+** Click “Templates”
+** Click rocket ship icon next to “Scaleup”
+** Watch progress.
+
+## Ansible Tower CLI
+
+[source, bash]
+----
+# yum -y install python2-pip git pyOpenSSL python-netaddr python-six python2-boto3 python-click python-httplib2
+
+# pip install ansible-tower-cli
+# pip install boto
+
+# tower-cli config host <hostname>
+# tower-cli config username admin
+# tower-cli config password <password>
+----
+
+ .. After Student kicks off scale up playbook -
+ .. SSH to tower instance, run some commands
+
+** SSH to Tower - ssh -i rhte.pem ec2-user@<public_hostname_of_tower_VM>
+
+[source, bash]
+----
+ .. sudo tower-manage --help
+ .. Evaluate tower-cli on the Ansible Tower host
+ .. sudo tower-cli version
+ .. sudo tower-cli host list
+ .. sudo tower-cli inventory list
+ .. sudo tower-cli job list
+ .. sudo tower-cli credential list
+ .. sudo tower-cli job_template list
+----
 
  image::images/image28.png[]
