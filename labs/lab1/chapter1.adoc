@@ -126,46 +126,34 @@ INVENTORIES -> OpenShift -> OSEv3 -> nodes -> tag_lab_role_node
 INVENTORIES -> OpenShift -> OSEv3 -> nodes -> masters -> tag_lab_role_master
 ----
 
-## Create Project for Provision and Post-install Playbooks
+## Create Projects for Provision and Post-install Playbooks
 
 * Click "PROJECTS" in the top navigation pane.
 ** Click "ADD".
- .. Provide a “NAME” of “Managing OCP from Install and Beyond”
- .. Choose "SCM TYPE" of "Git".
- .. Provide "SCM URL" of "https://github.com/sabre1041/managing-ocp-install-beyond.git" with a "SCM BRANCH" of "rhte".
- .. Select "Clean" and “Update on Launch” in the "SCM UPDATE OPTIONS"
- .. Click "SAVE"
- .. Pre-reqs for openshift-ansible Project
- .. SSH to Tower - ssh -i rhte.pem ec2-user@<public_hostname_of_tower_VM>
+** Provide a “NAME” of “Managing OCP from Install and Beyond”
+** Choose "SCM TYPE" of "Git".
+** Provide "SCM URL" of "https://github.com/sabre1041/managing-ocp-install-beyond.git" with a "SCM BRANCH" of "rhte".
+** Select "Clean" and “Update on Launch” in the "SCM UPDATE OPTIONS"
+** Click "SAVE"
+*** Click “ADD”
+*** Name: openshift-ansible
+*** SCM TYPE: Manual
+*** Playbook Directory: share
+*** Click “SAVE”
 
-+
-[source, bash]
-----
-sudo -i
+Now you should have two projects: "openshift-ansible" and "Managing OCP from Install and Beyond".
 
-subscription-manager repos --enable="rhel-7-server-ose-3.6-rpms" && yum -y install openshift-ansible-playbooks && ln -s /usr/share /var/lib/awx/projects
-----
+## Create Job Template for Deployment Provision
 
- .. Go back to Tower, Click “PROJECTS”
- .. Click “ADD”
- .. Name: openshift-ansible
- .. SCM TYPE: Manual
- .. Playbook Directory: share
- .. Click “SAVE”
-
-
-## Job Templates
- * Create Job Template for Deployment Provision
- .. Click "TEMPLATES" on the top navigation pane.
- .. Click "+ADD", select "Job Template"
- .. Provide a name of: Deployment-1-Provision
- .. Click the "SEARCH" icon for the "INVENTORY" input box and select "OpenShift Inventory" and then click "SELECT".
- .. Click the "SEARCH" icon for the "PROJECT" input box and select "Managing OCP from Install and Beyond" and then click "SELECT".
- .. Click the "Choose a playbook" in the "PLAYBOOK" input box and select the "openshift-infra/aws_create_hosts.yml" playbook.
- .. Click the "SEARCH" icon for the "MACHINE CREDENTIAL" input box and select "RHTE SSH Machine" and then click "SELECT".
- .. Click the "SEARCH" icon for the "SELECT CLOUD CREDENTIAL" input box and select "AWS" and then click "SELECT".
-
- .. Add the following to the "EXTRA VARIABLES" pane.
+* Click "TEMPLATES" on the top navigation pane.
+** Click "+ADD", select "Job Template"
+** Provide a name of: Deployment-1-Provision
+** Click the "SEARCH" icon for the "INVENTORY" input box and select "OpenShift Inventory" and then click "SELECT".
+** Click the "SEARCH" icon for the "PROJECT" input box and select "Managing OCP from Install and Beyond" and then click "SELECT".
+** Click the "Choose a playbook" in the "PLAYBOOK" input box and select the "openshift-infra/aws_create_hosts.yml" playbook.
+** Click the "SEARCH" icon for the "MACHINE CREDENTIAL" input box and select "RHTE SSH Machine" and then click "SELECT".
+** Click the "SEARCH" icon for the "SELECT CLOUD CREDENTIAL" input box and select "AWS" and then click "SELECT".
+** Add the following to the "EXTRA VARIABLES" pane.
 
 +
 [source, bash]
@@ -176,83 +164,83 @@ student_id: <YOUR STUDENT ID>
 openshift_cluster_public_url: "https{{':'}}//master-{{ student_id }}.{{ domain_name }}{{':'}}8443"
 ----
 
- .. Click "SAVE".
+** Click "SAVE".
 
 ## Create Job Template for Deployment Install
 
- .. Click "+ADD", select "Job Template"
- .. Provide a name of: Deployment-2-Install
- .. Click the "SEARCH" icon for the "INVENTORY" input box and select "OpenShift Inventory" and then click "SELECT".
- .. Click the "SEARCH" icon for the "PROJECT" input box and select "openshift-ansible" and then click "SELECT".
- .. Click the "Choose a playbook" in the "PLAYBOOK" input box and select the "ansible/openshift-ansible/playbooks/byo/config.yml" playbook.
- .. Click the "SEARCH" icon for the "MACHINE CREDENTIAL" input box and select "RHTE SSH" and then click "SELECT".
- .. Click the "SEARCH" icon for the "SELECT CLOUD CREDENTIAL" input box and select "AWS Credential" and then click "SELECT".
- .. Under Options, check “Enable Privilege Escalation”
- .. Click “SAVE”
+* Click "+ADD", select "Job Template"
+** Provide a name of: Deployment-2-Install
+** Click the "SEARCH" icon for the "INVENTORY" input box and select "OpenShift Inventory" and then click "SELECT".
+** Click the "SEARCH" icon for the "PROJECT" input box and select "openshift-ansible" and then click "SELECT".
+** Click the "Choose a playbook" in the "PLAYBOOK" input box and select the "ansible/openshift-ansible/playbooks/byo/config.yml" playbook.
+** Click the "SEARCH" icon for the "MACHINE CREDENTIAL" input box and select "RHTE SSH" and then click "SELECT".
+** Click the "SEARCH" icon for the "SELECT CLOUD CREDENTIAL" input box and select "AWS Credential" and then click "SELECT".
+** Under Options, check “Enable Privilege Escalation”
+** Click “SAVE”
 
 ## Create Job Template for Deployment Post-Install
 
- .. Click "+ADD", select "Job Template"
- .. Provide a name of: Deployment-3-Post-Install
- .. Click the "SEARCH" icon for the "INVENTORY" input box and select "OpenShift Inventory" and then click "SELECT".
- .. Click the "SEARCH" icon for the "PROJECT" input box and select "Managing OCP from Install and Beyond" and then click "SELECT".
- .. Click the "Choose a playbook" in the "PLAYBOOK" input box and select the "openshift-infra/openshift_postinstall.yml" playbook.
- .. Click the "SEARCH" icon for the "MACHINE CREDENTIAL" input box and select "RHTE SSH" and then click "SELECT".
- .. Click the "SEARCH" icon for the "SELECT CLOUD CREDENTIAL" input box and select "AWS Credential" and then click "SELECT".
- .. Click “SAVE”
+* Click "+ADD", select "Job Template"
+** Provide a name of: Deployment-3-Post-Install
+** Click the "SEARCH" icon for the "INVENTORY" input box and select "OpenShift Inventory" and then click "SELECT".
+** Click the "SEARCH" icon for the "PROJECT" input box and select "Managing OCP from Install and Beyond" and then click "SELECT".
+** Click the "Choose a playbook" in the "PLAYBOOK" input box and select the "openshift-infra/openshift_postinstall.yml" playbook.
+** Click the "SEARCH" icon for the "MACHINE CREDENTIAL" input box and select "RHTE SSH" and then click "SELECT".
+** Click the "SEARCH" icon for the "SELECT CLOUD CREDENTIAL" input box and select "AWS Credential" and then click "SELECT".
+** Click “SAVE”
 
-## Create Workflow Job Template for the Deployment
-
- .. Click "+ADD", select "Workflow Job Template"
- .. Provide a name of "1-Deploy OpenShift on AWS"
- .. Click “SAVE”
- .. Click “Workflow Editor”
- .. Click “Start” and a box will appear to the right.
- .. On the right under “Add Template” select “Deployment Provision” and “Select”
- .. Now click on the box after start labeled “Deploy Provision” and click the green “+” in the top right.
- .. Again, on the right under “Add a Template” select “Deployment Install” and “Select”
- .. Lastly, click on the new box again, green “+” in the top right.
- .. Select “Deployment Post-install” and “Select
- .. Select “SAVE” at the bottom right.
- .. Launch Workflow Job
- .. Click “Templates”
- .. Click rocket ship icon next to “1-Deploy OpenShift on AWS”
- .. Watch progress.
-
+You should have 3 job templates: "1-Deploy OpenShift on AWS", "Deployment-2-Install", and "Deployment-3-Post-Install"
 
 ## Add Scaleup Job Templates
 
 Refer to the previous lab on creating Job Templates for details. Here are the overall requirements:
 
- .. Create Job Template
- .. Name: “Scaleup Provision”
- .. Playbook: “openshift-infra/aws_add_node.yml”
- .. Add following variables:
+** Create Job Template
+** Name: “Scaleup Provision”
+** Playbook: “openshift-infra/aws_add_node.yml”
+** Add following variables:
 
+[source, bash]
+----
 ec2_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY') }}"
 ec2_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
 student_id: <STUDENT ID HERE>
+----
 
+** Same inventory, project, machine cred, cloud cred as “Deployment Provision”
+** Create Job Template
+** Name: “Scaleup Install”
+** Playbook: “ansible/openshift-ansible/playbooks/byo/openshift-node/scaleup.yml”
+** Same inventory, project, machine cred, cloud cred as “Deployment Install”
+** Enable Priveliged Escalation
+** Add Scaleup Workflow Job Template
+** Refer to the previous lab on creating the Workflow for Deployment. Here are the overall requirements:
+** Create Workflow Job Template
+** Connect Job Templates as follows: “Scaleup Provision” -> “Scaleup Install” -> “Scaleup Post-install”
+** Launch Scaleup Workflow Job
 
- .. Same inventory, project, machine cred, cloud cred as “Deployment Provision”
- .. Create Job Template
- .. Name: “Scaleup Install”
- .. Playbook: “ansible/openshift-ansible/playbooks/byo/openshift-node/scaleup.yml”
- .. Same inventory, project, machine cred, cloud cred as “Deployment Install”
- .. Enable Priveliged Escalation
+## Create Workflow Job Template for the Deployment
 
- .. Add Scaleup Workflow Job Template
-
- .. Refer to the previous lab on creating the Workflow for Deployment. Here are the overall requirements:
- .. Create Workflow Job Template
- .. Connect Job Templates as follows: “Scaleup Provision” -> “Scaleup Install” -> “Scaleup Post-install”
-
-
- .. Launch Scaleup Workflow Job
-
+** Click "+ADD", select "Workflow Job Template"
+** Provide a name of "1-Deploy OpenShift on AWS"
+** Click “SAVE”
+** Click “Workflow Editor”
+** Click “Start” and a box will appear to the right.
+** On the right under “Add Template” select “Deployment Provision” and “Select”
+** Now click on the box after start labeled “Deploy Provision” and click the green “+” in the top right.
+** Again, on the right under “Add a Template” select “Deployment Install” and “Select”
+** Lastly, click on the new box again, green “+” in the top right.
+** Select “Deployment Post-install” and “Select
+** Select “SAVE” at the bottom right.
+** Launch Workflow Job
+** Click “Templates”
+** Click rocket ship icon next to “1-Deploy OpenShift on AWS”
+** Watch progress.
 
 ## Ansible Tower CLI
 
+[source, bash]
+----
 # yum -y install python2-pip git pyOpenSSL python-netaddr python-six python2-boto3 python-click python-httplib2
 
 # pip install ansible-tower-cli
@@ -261,9 +249,13 @@ student_id: <STUDENT ID HERE>
 # tower-cli config host <hostname>
 # tower-cli config username admin
 # tower-cli config password <password>
+----
 
  .. After Student kicks off scale up playbook -
  .. SSH to tower instance, run some commands
+
+[source, bash]
+----
  .. sudo tower-manage --help
  .. Evaluate tower-cli on the Ansible Tower host
  .. sudo tower-cli version
@@ -272,5 +264,6 @@ student_id: <STUDENT ID HERE>
  .. sudo tower-cli job list
  .. sudo tower-cli credential list
  .. sudo tower-cli job_template list
+----
 
  image::images/image28.png[]
