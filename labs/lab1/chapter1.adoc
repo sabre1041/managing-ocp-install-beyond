@@ -60,7 +60,7 @@ Add a new group called _OSEv3_ which will be used as the top level group referen
 
 * Click **ADD GROUP**
 ** Provide a name of **OSEv3**
-** Choose a _SOURCE_ of **Manual*
+** Choose a _SOURCE_ of **Manual**
 ** Copy the following variables to the inventory script.  “REPLACE <student_id> with your student ID! student_id takes for form similar to student-1 as used previously. There are **4** instances of <student_id> in the variables below - be sure to change each of them.
 
 +
@@ -208,5 +208,25 @@ The final job template that needs to be configured in this lab will execute acti
 ** Click the _SEARCH_ icon for the _SELECT CLOUD CREDENTIAL_ input box and select **AWS Credential** and then click **SELECT**.
 ** Click **SAVE**
 
-You should have 3 job templates: _1-Deploy OpenShift on AWS_, _Deployment-2-Install_, and _Deployment-3-Post-Install_
+You should have 3 job templates: _Deployment-1-Provision_, _Deployment-2-Install_, and _Deployment-3-Post-Install_
+
+
+## Create Workflow Job Template for the Deployment
+
+* Click _ADD_, select "Workflow Job Template"
+** Provide a name of **1-Deploy-OpenShift-on-AWS**
+** Click **SAVE**
+** Click **Workflow Editor**
+** Click **Start** and a box will appear to the right.
+** On the right under **ADD A TEMPLATE** select **Deployment-1-Provision** and **SELECT**
+*** Click on the box after start labeled **Deployment-1-Provision** and click the green “+” in the top right.
+*** Again, on the right under **ADD A TEMPLATE** select **Deployment-2-Install** and **SELECT**
+**** Lastly, click on the new box again, green “+” in the top right.
+**** Select **Deployment-3-Post-Install** and **SELECT**
+**** Select **SAVE** at the bottom right.
+* Launch Workflow Job
+** Click _TEMPLATES_ on the upper navigation pane.
+** Click rocket ship icon next to **1-Deploy-OpenShift-on-AWS**
+
+Move on the the next chapter while the workflow is processing. You can check back periodically for progress.
 
