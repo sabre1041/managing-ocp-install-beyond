@@ -103,12 +103,14 @@ tower_job_template_scaleup_configure_become_enabled: "yes"
 # Tower job template for terminate-ocp
 tower_job_template_terminate_ocp: "Terminate-OCP"
 tower_job_template_terminate_ocp_description: "Terminate all OpenShift masters and nodes"
-tower_job_template_terminate_ocp_playbook: "openshift-infra/aws_terminate_ocp_instances.yml"
+tower_job_template_terminate_ocp_playbook: "openshift-infra/aws_terminate_instances.yml"
+tower_job_template_terminate_ocp_extra_vars: "terminate_tower=false"
 
 # Tower job template for terminate-all
 tower_job_template_terminate_all: "Terminate-All"
 tower_job_template_terminate_all_description: "Terminate all instances including Tower"
-tower_job_template_terminate_all_playbook: "openshift-infra/aws_terminate_all_instances.yml"
+tower_job_template_terminate_all_playbook: "openshift-infra/aws_terminate_instances.yml"
+tower_job_template_terminate_all_extra_vars: "terminate_tower=true"
 
 # Tower Workflow Assets for Deploy job
 tower_workflow_template_deploy: "1-Deploy_OpenShift_on_AWS"
