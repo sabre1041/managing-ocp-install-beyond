@@ -52,6 +52,7 @@ tower_project_provision_and_configure_update_on_launch: "yes"
 tower_project_provision_and_configure_delete_on_update: "no"
 
 # Tower project for install
+tower_install_playbooks: false
 tower_project_install_package: "openshift-ansible-playbooks"
 tower_project_install: "openshift-ansible"
 tower_project_install_description: "Red Hat OpenShift Container Platform Ansible Playbooks"

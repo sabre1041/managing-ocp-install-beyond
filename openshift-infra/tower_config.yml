@@ -241,6 +241,7 @@
         name: "{{ tower_project_install_package }}"
         state: present
       become: true
+      when: tower_install_playbooks| bool == true
 
     - name: Create symbolic link to /usr/share
       file:
