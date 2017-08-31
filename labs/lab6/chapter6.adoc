@@ -42,7 +42,7 @@ Perform these steps from the Ansible Tower host
 ** Provide a name of: ScaleUp-1-Provision
 ** Click the "SEARCH" icon for the "INVENTORY" input box and select "OpenShift Inventory" and then click "SELECT".
 ** Click the "SEARCH" icon for the "PROJECT" input box and select "Managing OCP from Install and Beyond" and then click "SELECT".
-** Click the "Choose a playbook" in the "PLAYBOOK" input box and select the "openshift-infra/aws_add_node.yml" playbook.
+** Click the "Choose a playbook" in the "PLAYBOOK" input box and select the "aws_add_node.yml" playbook.
 ** Click the "SEARCH" icon for the "MACHINE CREDENTIAL" input box and select "RHTE SSH Machine" and then click "SELECT".
 ** Click the "SEARCH" icon for the "SELECT CLOUD CREDENTIAL" input box and select "AWS" and then click "SELECT".
 ** Add the following to the "EXTRA VARIABLES" pane.

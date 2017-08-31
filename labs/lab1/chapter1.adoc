@@ -150,7 +150,7 @@ Now you should have two projects: "openshift-ansible" and "Managing OCP from Ins
 ** Provide a name of: Deployment-1-Provision
 ** Click the "SEARCH" icon for the "INVENTORY" input box and select "OpenShift Inventory" and then click "SELECT".
 ** Click the "SEARCH" icon for the "PROJECT" input box and select "Managing OCP from Install and Beyond" and then click "SELECT".
-** Click the "Choose a playbook" in the "PLAYBOOK" input box and select the "openshift-infra/aws_create_hosts.yml" playbook.
+** Click the "Choose a playbook" in the "PLAYBOOK" input box and select the "aws_create_hosts.yml" playbook.
 ** Click the "SEARCH" icon for the "MACHINE CREDENTIAL" input box and select "RHTE SSH Machine" and then click "SELECT".
 ** Click the "SEARCH" icon for the "SELECT CLOUD CREDENTIAL" input box and select "AWS" and then click "SELECT".
 ** Add the following to the "EXTRA VARIABLES" pane.
@@ -184,7 +184,7 @@ openshift_cluster_public_url: "https{{':'}}//master-{{ student_id }}.{{ domain_n
 ** Provide a name of: Deployment-3-Post-Install
 ** Click the "SEARCH" icon for the "INVENTORY" input box and select "OpenShift Inventory" and then click "SELECT".
 ** Click the "SEARCH" icon for the "PROJECT" input box and select "Managing OCP from Install and Beyond" and then click "SELECT".
-** Click the "Choose a playbook" in the "PLAYBOOK" input box and select the "openshift-infra/openshift_postinstall.yml" playbook.
+** Click the "Choose a playbook" in the "PLAYBOOK" input box and select the "openshift_postinstall.yml" playbook.
 ** Click the "SEARCH" icon for the "MACHINE CREDENTIAL" input box and select "RHTE SSH" and then click "SELECT".
 ** Click the "SEARCH" icon for the "SELECT CLOUD CREDENTIAL" input box and select "AWS Credential" and then click "SELECT".
 ** Click “SAVE”
