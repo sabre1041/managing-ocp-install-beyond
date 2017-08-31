@@ -8,11 +8,29 @@ Since the installation of OpenShift can take anywhere from 20 - 30 mins, let us 
 
 Ansible is an agentless automation engine that automates cloud provisioning, configuration management, application deployment, intra-service orchestration, along with many other IT needs. Ansible is used to provision, install and deploy the OpenShift Container Platform to a cluster of instances.
 
-Ansible Tower provides the central management of Ansible workloads to enable complex workflows to manage environments big and small. The entire installation and management of the OpenShift Container Platform can be managed from a centralized Ansible Tower environment.
+Ansible Tower provides the central management of Ansible workloads to enable complex workflows to manage environments big and small. The entire installation and management of the OpenShift Container Platform can be managed from a centralized Ansible Tower environment. In this lab, Ansible Tower is configured as a stand-alone VM on AWS.
 
-==== Accessing Ansible Tower
+=== Accessing Ansible Tower CLI
 
-As you saw previously, Ansible Tower has been provisioned as a standalone machine within the lab environment.
+[source, bash]
+----
+# ssh -i rhte.pem ec2-user@tower-<student_id>.rhte.sysdeseng.com
+----
+
+Once logged into Ansible Tower, explore the CLI.
+
+[source, bash]
+----
+ ** sudo tower-manage --help
+ ** sudo tower-cli version
+ ** sudo tower-cli host list
+ ** sudo tower-cli inventory list
+ ** sudo tower-cli job list
+ ** sudo tower-cli credential list
+ ** sudo tower-cli job_template list
+----
+
+==== Accessing Ansible Tower Web Console
 
 From the student machine, open a web browser and navigate to link:https://tower-<student_id>.rhte.sysdeseng.com[https://https://tower-<student_id>.rhte.sysdeseng.com].
 
@@ -21,7 +39,7 @@ Login with the following credentials:
 Username **admin** +
 Password **rhte2017**
 
-If successful, will then be placed at the Ansible Tower overview page:
+If successful, you will then be placed at the Ansible Tower overview page:
 
 image::../images/image7.png[]
 
