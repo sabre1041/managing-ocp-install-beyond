@@ -68,7 +68,7 @@ tower_project_install_delete_on_update: "no"
 # Tower job template for deployment-provision
 tower_job_template_deploy_provision: "Deploy-1-Provision"
 tower_job_template_deploy_provision_description: "Deployment Step 1 - Creates AWS instances to be used as an OCP cluster in later job templates"
-tower_job_template_deploy_provision_playbook: "openshift-infra/aws_create_hosts.yml"
+tower_job_template_deploy_provision_playbook: "aws_create_hosts.yml"
 tower_job_template_deploy_provision_extra_vars_path: "aws_job_template_extra_vars.yml.j2"
 
 # Tower job template for deployment-install
@@ -80,13 +80,13 @@ tower_job_template_deploy_install_become_enabled: "yes"
 # Job template for deployment-configure
 tower_job_template_deploy_configure: "Deploy-3-Post-Install"
 tower_job_template_deploy_configure_description: "Deployment Step 3 - Post-install configuration"
-tower_job_template_deploy_configure_playbook: "openshift-infra/openshift_postinstall.yml"
+tower_job_template_deploy_configure_playbook: "openshift_postinstall.yml"
 tower_job_template_deploy_configure_become_enabled: "yes"
 
 # Tower job template for scaleup-provision
 tower_job_template_scaleup_provision: "Scaleup-1-Provision"
 tower_job_template_scaleup_provision_description: "Scaleup Step 1 - Creates AWS instance to be added to the existing OCP cluster"
-tower_job_template_scaleup_provision_playbook: "openshift-infra/aws_add_node.yml"
+tower_job_template_scaleup_provision_playbook: "aws_add_node.yml"
 tower_job_template_scaleup_provision_extra_vars_path: "{{ tower_job_template_deploy_provision_extra_vars_path }}"
 
 # Tower job template for scaleup-install
@@ -98,19 +98,19 @@ tower_job_template_scaleup_install_become_enabled: "yes"
 # Job template for scaleup-configure
 tower_job_template_scaleup_configure: "Scaleup-3-Post-Install"
 tower_job_template_scaleup_configure_description: "Scaleup Step 3 Post-Install configuration"
-tower_job_template_scaleup_configure_playbook: "openshift-infra/openshift_postinstall.yml"
+tower_job_template_scaleup_configure_playbook: "openshift_postinstall.yml"
 tower_job_template_scaleup_configure_become_enabled: "yes"
 
 # Tower job template for terminate-ocp
 tower_job_template_terminate_ocp: "Terminate-OCP"
 tower_job_template_terminate_ocp_description: "Terminate all OpenShift masters and nodes"
-tower_job_template_terminate_ocp_playbook: "openshift-infra/aws_terminate_instances.yml"
+tower_job_template_terminate_ocp_playbook: "aws_terminate_instances.yml"
 tower_job_template_terminate_ocp_extra_vars: "terminate_tower=false"
 
 # Tower job template for terminate-all
 tower_job_template_terminate_all: "Terminate-All"
 tower_job_template_terminate_all_description: "Terminate all instances including Tower"
-tower_job_template_terminate_all_playbook: "openshift-infra/aws_terminate_instances.yml"
+tower_job_template_terminate_all_playbook: "aws_terminate_instances.yml"
 tower_job_template_terminate_all_extra_vars: "terminate_tower=true"
 
 # Tower Workflow Assets for Deploy job
