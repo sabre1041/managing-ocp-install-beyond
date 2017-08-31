@@ -52,7 +52,7 @@ Perform these steps from the Ansible Tower host
 ----
 ec2_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY') }}"
 ec2_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
-student_id: <YOUR STUDENT ID>
+student_id: <student_id>
 openshift_cluster_public_url: "https{{':'}}//master-{{ student_id }}.{{ domain_name }}{{':'}}8443"
 ----
 
@@ -91,7 +91,7 @@ openshift_cluster_public_url: "https{{':'}}//master-{{ student_id }}.{{ domain_n
 
 Once again, using the web browser from the student machine, navigate to the Ansible Tower instance:
 
-link:https://tower-<Student-ID>.rhte.sysdeseng.com[https://<student_id>.rhte.sysdeseng.com] 
+link:https://tower-<student_id>.rhte.sysdeseng.com[https://<student_id>.rhte.sysdeseng.com] 
 
 If the web session has not been retained from a prior lab, login with the following credentials:
 

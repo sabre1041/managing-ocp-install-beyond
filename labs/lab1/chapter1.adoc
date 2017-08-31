@@ -62,7 +62,7 @@ Add a new group called _OSEv3_ which will be used as the top level group referen
 * Click **ADD GROUP**
 ** Provide a name of **OSEv3**
 ** Choose a _SOURCE_ of **Manual*
-** Copy the following variables to the inventory script.  “REPLACE <student_id> with your student ID! student_id takes for form similar to student-1 as used previously. There are **3** instances of <student_id> in the variables below - be sure to change each of them.
+** Copy the following variables to the inventory script.  “REPLACE <student_id> with your student ID! student_id takes for form similar to student-1 as used previously. There are **4** instances of <student_id> in the variables below - be sure to change each of them.
 
 +
 [source, bash]
@@ -78,7 +78,7 @@ openshift_master_identity_providers:
   kind: HTPasswdPasswordIdentityProvider
   filename: /etc/origin/master/htpasswd
 openshift_master_htpasswd_users:
-  student: $apr1$5/tyREyX$faNZX.wbId4LGDkNYxJQZ0
+  <student_id>: $apr1$5/tyREyX$faNZX.wbId4LGDkNYxJQZ0
 openshift_master_image_policy_config:
   maxImagesBulkImportedPerRepository: 100
 openshift_hosted_metrics_deploy: yes
