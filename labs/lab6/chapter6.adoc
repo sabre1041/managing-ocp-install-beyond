@@ -31,6 +31,64 @@ ip-10-10-0-60.ap-southeast-1.compute.internal   Ready     2h        v1.6.1+5115d
 
 == Expand the Cluster
 
+## Add Scaleup Job Templates
+
+Perform these steps from the Ansible Tower host
+
+## Create Job Template for ScaleUp Provision
+
+* Click "TEMPLATES" on the top navigation pane.
+** Click "+ADD", select "Job Template"
+** Provide a name of: ScaleUp-1-Provision
+** Click the "SEARCH" icon for the "INVENTORY" input box and select "OpenShift Inventory" and then click "SELECT".
+** Click the "SEARCH" icon for the "PROJECT" input box and select "Managing OCP from Install and Beyond" and then click "SELECT".
+** Click the "Choose a playbook" in the "PLAYBOOK" input box and select the "openshift-infra/aws_add_node.yml" playbook.
+** Click the "SEARCH" icon for the "MACHINE CREDENTIAL" input box and select "RHTE SSH Machine" and then click "SELECT".
+** Click the "SEARCH" icon for the "SELECT CLOUD CREDENTIAL" input box and select "AWS" and then click "SELECT".
+** Add the following to the "EXTRA VARIABLES" pane.
+
++
+[source, bash]
+----
+ec2_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY') }}"
+ec2_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
+student_id: <YOUR STUDENT ID>
+openshift_cluster_public_url: "https{{':'}}//master-{{ student_id }}.{{ domain_name }}{{':'}}8443"
+----
+
+** Click "SAVE".
+
+## Create Job Template for Scale Up Install
+
+* Click "TEMPLATES" on the top navigation pane.
+** Click "+ADD", select "Job Template"
+** Provide a name of: ScaleUp-1-Install
+** Click the "SEARCH" icon for the "INVENTORY" input box and select "openshift-ansible" and then click "SELECT".
+** Click the "SEARCH" icon for the "PROJECT" input box and select "Managing OCP from Install and Beyond" and then click "SELECT".
+** Click the "Choose a playbook" in the "PLAYBOOK" input box and select the "ansible/openshift-ansible/playbooks/byo/openshift-node/scaleup.yml" playbook.
+** Click the "SEARCH" icon for the "MACHINE CREDENTIAL" input box and select "RHTE SSH Machine" and then click "SELECT".
+** Click the "SEARCH" icon for the "SELECT CLOUD CREDENTIAL" input box and select "AWS" and then click "SELECT".
+** Enable "Privileged Escalation"
+** Click "SAVE".
+
+## Create Workflow Job Template for the Deployment
+
+* Click "+ADD", select "Workflow Job Template"
+** Provide a name of "2-Provision-and-Scale-Openshift"
+** Click “SAVE”
+** Click “Workflow Editor”
+** Click “Start” and a box will appear to the right.
+** On the right under “Add Template” select “Deployment Provision” and “Select”
+** Now click on the box after start labeled “Deploy Provision” and click the green “+” in the top right.
+** Again, on the right under “Add a Template” select “Deployment Install” and “Select”
+** Lastly, click on the new box again, green “+” in the top right.
+** Select “Deployment Post-install” and “Select
+** Select “SAVE” at the bottom right.
+** Launch Workflow Job
+** Click “Templates”
+** Click rocket ship icon next to “1-Deploy OpenShift on AWS”
+** Watch progress.
+
 Once again, using the web browser from the student machine, navigate to the Ansible Tower instance:
 
 link:https://tower-<Student-ID>.rhte.sysdeseng.com[https://<student_id>.rhte.sysdeseng.com] 
@@ -40,7 +98,7 @@ If the web session has not been retained from a prior lab, login with the follow
 Username **admin** +
 Password **rhte2017**
 
-After logging in, navigate to the **Templates** page and locate the **1-Provision and Scale OpenShift** workflow job template. Click the `rocket` icon to start the job.
+After logging in, navigate to the **Templates** page and locate the **1-Provision-and-Scale-OpenShift** workflow job template. Click the `rocket` icon to start the job.
 
 image::../images/image18.png[]
 
