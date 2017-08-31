@@ -3,7 +3,7 @@ toc::[]
 image::images/image27.png[]
 
 == Abstract
-_Configuring distributed systems can be difficult. Fortunately, automation tools such as Ansible are available to help manage even the most complex environments. In this lab, you'll take the reigns of your own cluster and experience firsthand how Ansible can be used to install, configure, and maintain OpenShift to support mission-critical systems. Once you install Red Hat OpenShift, you'll learn how to diagnose, troubleshoot, and resolve common platform issues. Managing the platform doesn't stop once the installation is complete. You'll use Ansible to simplify ongoing maintenance in an automated fashion. Finally, the use of centralized management systems will be introduced into the environment in order to demonstrate its importance and to provide a streamlined experience for both platform maintainers and users._
+_Today’s complex application environments require a design that addresses several common themes: they must be automated, scalable and manageable. This starts from the ground up: from the infrastructure layer all the way up to the lifecycle of applications. Fortunately, working in unison, the collection of Red Hat’s cloud and automation technologies can be used to orchestrate the infrastructure and application deployment process along with providing insight into the operational environment. In this hands-on session, attendees will experience firsthand how Ansible and Ansible Tower can be a central fixture within the enterprise by coordinating an installation of the Red Hat OpenShift Container Platform on top of the Red Hat OpenStack Platform. Since containers can not only run mission critical applications, but also the components to manage the infrastructure, a containerized version of Red Hat CloudForms will then be deployed to provide insight into the runtime environment. The result is solution that demonstrates how the combination or the proper tools can solve the most complex challenges._
 
 === Lab Overview and Introduction
 
@@ -11,7 +11,7 @@ Managing an ecosystem of infrastructure and applications can be challenging. For
 
 === Environment Overview
 
-The lab environment that we will utilize today consists of the workstation that you brought with you multiple virtual machines running in Amazon Web Services.  The details of each virtual machine are listed below:
+The lab environment that we will utilize today consists of the workstation that you brought with you along with multiple virtual machines running in Amazon Web Services (AWS).  The details of each virtual machine are listed below:
 
 * Student Workstation - This is the workstation / laptop that you brought with you to the lab.
 * AWS is hosting instances that will be used for the Red Hat OpenShift Container Platform 3.6.
@@ -20,27 +20,27 @@ The lab environment that we will utilize today consists of the workstation that 
         ** 2 Application Nodes (1 Application node intitially, then scaled up to 2)
            *** Red Hat CloudForms (containerized)
     * Ansible Tower 3.1.4
-        ** hostname: tower-<student_id>.rhte.sysdeseng.com
+        ** hostname: `tower-<student_id>.rhte.sysdeseng.com`
 
 In addition to the virtual machines that are running in AWS, an instructor machine is also contained within the environment and provides additional resources such as the AWS private key.
 
 The following diagram depicts a high level overview of the environment:
 
-image::../images/image24.png[]
-
-The following diagram depicts the network layout within the environment:
-
-image::../images/image21.png[]
+image::images/environment-overview.png[]
 
 === Target Environment
 
 As you progress through the series of labs, you will build increased capabilities for effectively managing containerized workloads. The diagram below represents the environment that we will be building today.
 
-image::../images/image25.png[]
+image::images/target-environment.png[]
 
 === Connectivity Details
 
-There are several components that will be utilized throughout the course of this lab. During the lab, you will be asked to `SSH` into the VMs running on AWS. We will provide you access to the private key. The following table outlines how to connect to each resource:
+There are several components that will be utilized throughout the course of this lab. During the lab, you will be asked navigate to components running in the environment from a web browser as well as connect directly to the VMs running in AWS via _SSH_.
+
+A spreadsheet will be available to denote the specific environment tailored for each attendeed. In addition, a private key will also be provided in order to facilitate direct connectivity to the instances.
+
+The following table outlines how to connect to each resource:
 
 [options="header"]
 |======================
@@ -63,6 +63,11 @@ Username: rhte +
 Password: INSTRUCTOR WILL PROVIDE
 |======================
 
-Retrieve the key from the instructor host so that you can `SSH` into the OpenShift instances. Grab the key from the password protected directory, copy it locally into a file called: rhte.pem.  Change the permissions on it to 600.
+Retrieve the key from the instructor host so that you can _SSH_ into the instances by accessing the password protected directory from the table above. Download the _rhte.pem_ file to your local machine and change the permissions of the file to 600.
+
+[source, bash]
+----
+chmod 600 rhte.pem
+----
 
 Each component plays a critical role into the overall management of the environment. Now let’s get started!
