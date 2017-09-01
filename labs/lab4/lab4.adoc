@@ -297,3 +297,9 @@ Feel free to explore the CloudForms web console as time permits to view addition
 
 This concludes lab 4.
 
+'''
+
+==== <<../lab3/lab3.adoc#lab3,Previous Lab: Lab 3 - Verifying Installation of Red Hat OpenShift Container Platform Using Ansible Tower>>
+==== <<../lab5/lab5.adoc#lab5,Next Lab: Lab 5 - Managing the Lifecycle of an Application>>
+==== <<../../README.adoc#lab1,Home>>
+

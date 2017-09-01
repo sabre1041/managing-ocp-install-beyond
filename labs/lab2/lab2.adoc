@@ -84,3 +84,9 @@ image::../images/image17.png[]
 
 This lab is concluded when the Ansible Tower job is completed successfully.
 
+'''
+
+==== <<../lab1/lab1.adoc#lab1,Previous Lab: Lab 1 - Introduction / Setup>>
+==== <<../lab3/lab3.adoc#lab3,Next Lab: Lab 3 - Verifying Installation of Red Hat OpenShift Container Platform Using Ansible Tower>>
+==== <<../../README.adoc#lab1,Home>>
+
