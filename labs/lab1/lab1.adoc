@@ -20,7 +20,7 @@ TIP: In this lab, the value for “<student_id>” needs to be consistent throug
 * Click **INVENTORIES** on the top navigation pane.
 * Click **+ADD**.
 ** Provide a name of: **OpenShift**
-** In the _VARIABLES_ pane underneath the `---`, add the following content:
+** In the _VARIABLES_ pane underneath the `---`, add the following content. Ensure there is a **space** between the `:` and the `<student_id>`.
 
 [source, text]
 ----
@@ -61,7 +61,7 @@ Add a new group called _OSEv3_ which will be used as the top level group referen
 * Click **ADD GROUP**
 ** Provide a name of **OSEv3**
 ** Choose a _SOURCE_ of **Manual**
-** Copy the following variables to the inventory script.  “REPLACE <student_id> with your student ID! student_id takes for form similar to student-1 as used previously. There are **4** instances of <student_id> in the variables below - be sure to change each of them.
+** Copy the following variables to the VARIABLES pane.  “REPLACE <student_id> with your student ID! student_id takes for form similar to student-1 as used previously. **There are 4 instances of <student_id>** in the variables below - be sure to change each of them.
 
 +
 [source, bash]
@@ -228,7 +228,7 @@ You should have 3 job templates: _Deployment-1-Provision_, _Deployment-2-Install
 ** Click _TEMPLATES_ on the upper navigation pane.
 ** Click rocket ship icon next to **1-Deploy-OpenShift-on-AWS**
 
-Move on the the next lab while the workflow is processing. You can check back periodically for progress.
+The workflow job template takes about 30 minutes to complete. While that is going on, move on the the next lab and continue working. You can check back periodically for progress.
 
 '''
 
