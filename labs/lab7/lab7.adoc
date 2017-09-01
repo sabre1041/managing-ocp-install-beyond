@@ -27,4 +27,8 @@ The following resources are available for your reference:
     ** link:https://access.redhat.com/documentation/en/red-hat-cloudforms/[Red Hat CloudForms]
     ** link:https://access.redhat.com/documentation/en/red-hat-openstack-platform/[Red Hat OpenStack]
 
+'''
+
+==== <<../lab6/lab6.adoc#lab6,Previous Lab: Lab 6 - Expanding the OpenShift Container Platform Cluster>>
+==== <<../../README.adoc#lab1,Home>>
 

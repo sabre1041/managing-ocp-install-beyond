@@ -238,3 +238,9 @@ With an applications deployed to the OpenShift cluster, we can navigate through 
 * Persistent storage dynamically allocated by the cluster to support persistent storage
     ** Click on the **Storage** tab
 
+'''
+
+==== <<../lab4/lab4.adoc#lab4,Previous Lab: Lab 4 - Installing Red Hat CloudForms>>
+==== <<../lab6/lab6.adoc#lab6,Next Lab: Lab 6 - Expanding the OpenShift Container Platform Cluster>>
+==== <<../../README.adoc#lab1,Home>>
+

@@ -128,3 +128,9 @@ Login to CloudForms and once authenticated, hover over _Compute_, then _Containe
 
 This concludes lab 6.
 
+'''
+
+==== <<../lab5/lab5.adoc#lab5,Previous Lab: Lab 5 - Managing the Lifecycle of an Application>>
+==== <<../lab7/lab7.adoc#lab7,Next Lab: Lab 7 - Where do we go from here?>>
+==== <<../../README.adoc#lab1,Home>>
+
