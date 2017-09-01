@@ -228,5 +228,5 @@ You should have 3 job templates: _Deployment-1-Provision_, _Deployment-2-Install
 ** Click _TEMPLATES_ on the upper navigation pane.
 ** Click rocket ship icon next to **1-Deploy-OpenShift-on-AWS**
 
-Move on the the next chapter while the workflow is processing. You can check back periodically for progress.
+Move on the the next lab while the workflow is processing. You can check back periodically for progress.
 
