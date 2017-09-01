@@ -63,7 +63,7 @@ openshift_cluster_public_url: "https{{':'}}//master-{{ student_id }}.{{ domain_n
 * Click "TEMPLATES" on the top navigation pane.
 ** Click "+ADD", select "Job Template"
 ** Provide a name of: ScaleUp-1-Install
-** Click the "SEARCH" icon for the "INVENTORY" input box and select "openshift-ansible" and then click "SELECT".
+** Click the "SEARCH" icon for the "INVENTORY" input box and select "OpenShift" and then click "SELECT".
 ** Click the "SEARCH" icon for the "PROJECT" input box and select "Managing OCP from Install and Beyond" and then click "SELECT".
 ** Click the "Choose a playbook" in the "PLAYBOOK" input box and select the "ansible/openshift-ansible/playbooks/byo/openshift-node/scaleup.yml" playbook.
 ** Click the "SEARCH" icon for the "MACHINE CREDENTIAL" input box and select "RHTE SSH Machine" and then click "SELECT".

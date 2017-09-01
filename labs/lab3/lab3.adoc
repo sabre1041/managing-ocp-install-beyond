@@ -84,7 +84,7 @@ Now check out the OpenShift on AWS cloud provider integration.
 .master$
 [source, bash]
 ----
-master$ cat /etc/origin/cloudprovider/aws.conf
+master$ sudo cat /etc/origin/cloudprovider/aws.conf
 
 
 [Global]
