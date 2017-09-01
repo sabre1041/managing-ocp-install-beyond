@@ -10,6 +10,8 @@ Ansible is an agentless automation engine that automates cloud provisioning, con
 
 Ansible Tower provides the central management of Ansible workloads to enable complex workflows to manage environments big and small. The entire installation and management of the OpenShift Container Platform can be managed from a centralized Ansible Tower environment. In this lab, Ansible Tower is configured as a stand-alone VM on AWS.
 
+TIP: Remember to go back to lab0 to get the rhte.pem private key.
+
 === Accessing Ansible Tower CLI
 
 [source, bash]
