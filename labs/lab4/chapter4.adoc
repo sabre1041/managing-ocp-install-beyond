@@ -295,52 +295,5 @@ image::../images/image4.png[]
 
 Feel free to explore the CloudForms web console as time permits to view additional details exposed from the OpenShift cluster.
 
-
-=== Configuring the OpenStack Cloud Provider
-
-NOTE: This lab should be considered optional and/or stretch goal. If you are behind just skip this section and move onto the next lab.
-
-Red Hat CloudForms can also gather metrics and infrastructure data from our Red Hat OpenStack Platform environment, in the same manner that it is now collecting information from our OpenShift Container Platform.
-
-Configure the OpenStack cloud provider:
-
-    . Hover your mouse over the **Compute** tab.
-    . Once over the compute tab, additional panes will appear. (do not click anything yet)
-    . Hover over **Clouds** and then click on **Providers**.
-    . No cloud providers are configured by default. Add a new cloud provider by clicking on **Configuration** (with a gear icon)
-    . Lastly select **Add New Cloud Provider**
-    . For the _Add New Cloud Provider_ section use these values:
-        .. For _Name_: enter **RHOSP Summit Lab**
-        .. For _Type_: choose **OpenStack**
-        .. Leave the other items in this upper section default (including empty _Region_)
-        .. For _Tenant Mapping_ Enabled toggle this option to Yes
-    . In the lower section labeled _Endpoints_ in the first tab labeled _Default_
-        .. For _Hostname_ enter **rhosp.admin.example.com**
-        .. Leave _API Port_ at **5000**
-        .. For _Security Protocol_ change the drop-down to **Non-SSL**
-        .. For _Username_ enter **admin**
-        .. For the _Password_ fields use **summit2017**
-        .. Select **Validate**
-    . In the Events section leave **Ceilometer** selected
-    . Lastly, **Add** the cloud provider to CloudForms.
-+
-
-image::../images/image23.png[]
-
-You have now configured Red Hat CloudForms to retrieve metrics from Red Hat OpenStack Platform. It may take a few minutes to data to be displayed.
-
-To force a refresh of the newly added Provider:
-
-    . Select the **RHOSP Summit Lab** provider icon
-    . Notice all of the **Relationships** have 0 items
-    . Now select the **Configuration** drop-down again
-    . Choose **Refresh Items** and **Relationships**
-    Lastly, click the **Refresh** icon just to the left of Configuration
-    . Now the Relationships should be populated with data from OpenStack in a few short minutes
-    . Feel free to browse the new objects and get familiar with your newly connected OpenStack environment. In other words, click everything.
-+
-
-image::../images/image20.png[]
-
 This concludes lab 4.
 
