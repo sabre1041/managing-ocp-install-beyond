@@ -25,7 +25,7 @@ By creating a new project, the context of the CLI is automatically switched into
 .master$
 [source, bash]
 ----
-master$ oc config current-context for context
+master$ oc config current-context
 ----
 
 When creating a new project, a set of service accounts are automatically provisioned. These accounts are used when building, deploying and running containers. The _default_ service account is the de facto service account used by pods. Since CloudForms is deployed within a pod and requires access to key metrics in the OpenShift environment along with the host, it must be granted elevated access as a privileged resource. In OpenShift, permissions associated to pods are managed by link:https://docs.openshift.com/container-platform/latest/admin_guide/manage_scc.html[Security Context Constraints] and the service account that is used to run them.
@@ -214,7 +214,7 @@ NAME     HOST/PORT                   PATH   SERVICES   PORT   TERMINATION
 cloudforms  cloudforms-cloudforms.apps.example.com       cloudforms  https   passthrough
 ----
 
-Open a web browser and navigate securely to the to the hostname retrieved above:
+Open a web browser and navigate securely to the to the hostname retrieved above. This may take a minute or two to completely initialize the web console.
 link:https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com].
 
 NOTE: If you get an error such as Application Not Available see <<Appendix E - Troubleshooting CloudForms>>
