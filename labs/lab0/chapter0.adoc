@@ -59,7 +59,7 @@ Username: admin +
 Password: smartvm
 | Instructor Host|
 link:http://rhte-instructor.rhte.sysdeseng.com/key[http://rhte-instructor.rhte.sysdeseng.com/key] |
-Username: rhte +
+Username: student +
 Password: INSTRUCTOR WILL PROVIDE
 |======================
 
