@@ -1,0 +1,5 @@
+[tower_instances]
+ec2-18-220-111-225.us-east-2.compute.amazonaws.com public_ip=ec2-18-220-111-225.us-east-2.compute.amazonaws.com
+
+[all:vars]
+ansible_ssh_user=ec2-user

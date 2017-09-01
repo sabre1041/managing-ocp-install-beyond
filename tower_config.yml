@@ -1,6 +1,6 @@
 ---
 - name: Configure Tower
-  hosts: tower_instances
+  hosts: tower_instances,tag_lab_role_tower
   gather_facts: no
   vars:
     ansible_ssh_user: ec2-user
@@ -48,7 +48,6 @@
         student_id: "{{ hostvars[inventory_hostname].student_id }}"
         filter: "{{ 'tag' + ':' + 'student_id=' + student_id }}"
         tower_host: "localhost"
-        tower_public_ip: "{{ hostvars[inventory_hostname].public_ip }}"
 
     - debug:
         var: "{{ item }}"
@@ -176,7 +175,7 @@
           vpc_destination_variable: public_dns_name
           hostname_variable: tag_Name
         state: present
-      when: tower_inventory_config|bool == true
+      when: tower_inventory_group_config|bool == true
 
     - name: Add OSEv3 Group
       tower_group:
@@ -189,7 +188,7 @@
         inventory: "{{ tower_inventory }}"
         state: present
         variables: "{{ lookup('template', 'OSEv3.yml.j2') }}"
-      when: tower_inventory_config|bool == true
+      when: tower_openshift_install_group_config|bool == true
 
     - name: Add OSEv3 Children
       tower_group:
@@ -206,7 +205,9 @@
         - "{{ tower_openshift_nodes_group }}"
         - "{{ tower_master_tag }}"
         - "{{ tower_node_tag }}"
-      when: tower_inventory_config|bool == true
+      when: 
+        - tower_openshift_masters_group_config|bool == true
+        - tower_openshift_nodes_group_config|bool == true
 
     - name: Associate OSEv3 Groups
       command: >
@@ -218,7 +219,9 @@
       with_together:
         - [ "{{ tower_openshift_nodes_group }}", "{{ tower_node_tag }}", "{{ tower_openshift_masters_group }}", "{{ tower_master_tag }}" ]
         - [ "{{ tower_openshift_install_group }}", "{{ tower_openshift_nodes_group }}", "{{ tower_openshift_nodes_group }}", "{{ tower_openshift_masters_group }}" ]
-      when: tower_inventory_config|bool == true
+      when: 
+        - tower_openshift_masters_group_config|bool == true
+        - tower_openshift_nodes_group_config|bool == true
 
     - name: Sync Inventory
       command: >
@@ -226,7 +229,9 @@
           --name "{{ tower_inventory_group }}"
           --wait
           "{{ tower_cli_verbosity }}"
-      when: tower_inventory_config|bool == true
+      when: 
+        - tower_inventory_config|bool == true
+        - tower_inventory_sync|bool == true
 #### Inventory Begin ####
 
 #### Projects Begin ####
@@ -291,6 +296,38 @@
 #### Projects End ####
 
 #### Job Templates Begin ####
+#### Job Template Self Configure Begin ####
+# TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and it would include this section 'job_template_self_configure.yml'
+    - name: Configure Job Template for Self-Configure
+      tower_job_template:
+        tower_host: "{{ tower_host }}"
+        tower_username: "{{ tower_username }}"
+        tower_password: "{{ tower_password }}"
+        job_type: run
+        name: "{{ tower_job_template_self_configure }}"
+        description: "{{ tower_job_template_self_configure_description }}"
+        state: present
+        inventory: "{{ tower_inventory }}"
+        cloud_credential: "{{ tower_cloud_credential }}"
+        project: "{{ tower_project_provision_and_configure }}"
+        playbook: "{{ tower_job_template_self_configure_playbook }}"
+        machine_credential: "{{ tower_machine_credential }}"
+      when: tower_job_template_self_configure_config|bool == true
+
+    - name: Copy Job Template for Self-Configure Extra Variables file
+      template:
+        src: "{{ tower_job_template_self_configure_extra_vars_path }}"
+        dest: "/tmp/{{ tower_job_template_self_configure_extra_vars_path }}"
+      when: tower_job_template_self_configure_config|bool == true
+
+    - name: Update Job Template for Self-Configure with Extra Vars
+      command: >
+        tower-cli job_template modify
+          --name="{{ tower_job_template_self_configure }}"
+          --extra-vars="@/tmp/{{ tower_job_template_self_configure_extra_vars_path }}"
+          "{{ tower_cli_verbosity }}"
+      when: tower_job_template_self_configure_config|bool == true
+#### Job Template Self Configure End ####
 #### Job Template Deploy Begin ####
 # TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and it would include this section 'job_template_deploy_provision.yml'
     - name: Configure Job Template for Deploy-Provision
