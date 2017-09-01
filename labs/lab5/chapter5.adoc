@@ -17,7 +17,7 @@ Password: **rhte2017**
 
 As seen in a prior lab, the OpenShift Web Console provides an intiutive interface for managing applications deployed to OpenShift. Introduced as a technical preview in OpenShift 3.6, a new user interface is available that streamlines how to explore available applications and deploy them to the platform. 
 
-image::../images/image30.png[]
+image::images/openshift-landing.png[]
 
 The overview page contains a collection of applications that can be deployed via traditional OpenShift link:https://docs.openshift.com/container-platform/latest/architecture/core_concepts/templates.html[templates] as well as new offerings delivered through the link:https://docs.openshift.com/container-platform/latest/architecture/service_catalog/index.html[Service Catalog]. 
 
@@ -33,7 +33,7 @@ Project Name: **cakephp-mysql-persistent** +
 Project Display Name: **CakePHP MySQL Persistent** +
 Project Description: **Sample Project Demonstrating A CakePHP MySQL Application Using Persistent Storage**
 
-image::../images/image31.png[]
+image::images/new-app-cakephp.png[]
 
 The template that is being utilized provides a set of default parameters for the rest of the fields in the right hand side of the dialog including the location of the source code, application name and additional items to customize the build and deployment.
 
@@ -49,29 +49,23 @@ After triggering instantiating the template, a new Source to Image build of the 
 
 The build can be viewed by selecing the _cakephp-mysql-persistent_ deployment and within the _Builds_ section, a log of the running build can be viewed.
 
-image::../images/image32.png[]
+image::images/cakephp-build.png[]
 
-Once the application build completes, the _Deployments_ section will fill in with contents related to the deployment including the running Pod. 
-
-image::../images/image33.png[]
-
-Collapse the _cakephp-mysql-persistent_ deployment and verify pods are running for both _cakephp-mysql-persistent_ and _mysql_. 
-
-image::../images/image34.png[]
+Once the application build completes, the _Deployments_ section will fill in with contents related to the deployment including the running Pod.
 
 === View Application
 
-From the **Overview** page in the project, both pods should be running.
+From the **Overview** page in the project, verify pods are running for both _cakephp-mysql-persistent_ and _mysql_ applications.
 
 NOTE: You may see an error getting metrics. This is safe to ignore for now as it will be covered in a subsequent section.
 
-image::../images/image35.png[]
+image::images/cakephp-mysql-running-collapsed.png[]
 
 The template automatically creates a route to provide external access to the application. The link is available at the top right corner of the page. Click the link to navigate to the application:
 
 link:http://cakephp-mysql-persistent-cakephp-mysql-persistent.apps-<student_id>.rhte.sysdeseng.com/[http://cakephp-mysql-persistent-cakephp-mysql-persistent.apps-<student_id>.rhte.sysdeseng.com/]
 
-image::../images/image9.png[]
+image::images/cakephp-app.png[]
 
 Application users and administrators have the ability to leverage several facilities for monitoring the state of an application deployed to the OpenShift Container Platform. While not deployed to the lab environment, OpenShift provides an link:https://docs.openshift.com/container-platform/latest/install_config/aggregate_logging.html[aggregated logging framework] based on the ELK (Elasticsearch, Fluentd and Kibana) stack. However, you can still utilize the telemetry captured by the cluster metrics mechanisms. Cluster metrics were deployed as part of the OpenShift installation and are being used to drive Red Hat CloudForms.
 
@@ -83,17 +77,17 @@ With the _cakephp-mysql-persistent_ application deployed, you can use the OpenSh
     . Navigate to the **Metrics tab**.
 +
 
-image::../images/image8.png[]
+image::images/cakephp-metrics-insecure.png[]
 
-Click on the link displayed which will connect to the Hawkular endpoint. Accept the self signed certificate and if successful, you will see the Hawkular logo along with additional details about the status of the service.
+Click on the link displayed which will connect to the Hawkular endpoint. Accept the self signed certificate and if successful, the Hawkular logo along with additional details about the status of the service will be displayed.
 
 Return to the OpenShift overview page for the _cakephp-mysql-persistent_ project by clicking the **Overview** link on the left side where you should be able to see metrics being displayed associated to each deployment.
 
-image::../images/image3.png[]
+image::images/cakephp-mysql-metrics-overview.png[]
 
 An expanded set of information can be displayed by expanding the deployment.
 
-image::../images/image36.png[]
+image::images/cakephp-metrics.png[]
 
 Additional details relating to the performance of the application can be viewed by revisiting the _Metrics_ tab within each pod as previously described.
 
@@ -109,12 +103,12 @@ At the heart of the Service Catalog is a Service Broker, or a resource, that con
 
 The link:https://docs.openshift.com/container-platform/latest/architecture/service_catalog/ansible_service_broker.html[Ansible Service Broker] is an implementation of the OSB API that manages applications defined by link:https://docs.openshift.com/container-platform/3.6/architecture/service_catalog/ansible_service_broker.html#service-catalog-apb[Ansible Playbook Bundles (APB's)] that provides a method for defining and distributing container images. The bundle consists of Ansible playbooks that automates complex deployments. The Ansible Service Broker provides two services in the form of APB's:
 
-* MediaWiki - An Open Source wiki package
-* PostgreSQL - Open Source object-relational database
+* link:https://www.mediawiki.org/wiki/MediaWiki[MediaWiki] - An Open Source wiki package
+* link:https://www.postgresql.org/[PostgreSQL] - Open Source object-relational database
 
 The APB's are shown alongside the traditional OpenShift Templates on the OpenShift Home Screen.
 
-// TODO: Insert Overview Page highlighting the APB's
+image::images/openshift-landing-apb.png[]
 
 We will first use the MediaWiki APB to deploy an instance of MediaWiki. Navigate to the Overview page and select the **MediaWiki (APB)**.
 
@@ -125,6 +119,8 @@ Enter the following information in the first few fields below:
 Project Name: **mediawiki** +
 Project Display Name: **MediaWiki** +
 Project Description: **MediaWiki Deployed Using the Ansible Service Broker**
+
+image::images/mediawiki-apb-new-project.png[]
 
 The rest of the dialog defines a set of parameters that can be used to customize the deployed application. These parameters are defined in the mediawiki-apb _ServiceClass_ and can be seen by showing the contents of the _ServiceClass_ from the OpenShift Master. 
 
@@ -167,23 +163,27 @@ The majority of the parameters can be left as their default values. Set the _Med
 
 The service will then be provisioned in the newly created project. Click **View Project** to view the status. The APB will start and execute actions to create the necessary resources using ansible. Additional insights into the actions the APB is performing can be viewed by selecting **Applications** from the left hand side of the page, and then **Pods**.
 
-Locate the pod that starts with _apb-*_ and then click the **Logs** tab. 
+Locate the pod that starts with _apb-*_ and then click the **Logs** tab.
+
+image::images/mediawiki-apb-logs.png[]
 
 Once the pod has a status of _Completed_, navigate to the **Overview** page.
 
-Once the mediawiki deployment is _Running_, navigate to the _hyperlink_ on the top right corner of the page to view the application. The link should be in the format _http://mediawiki123-mediawiki2.apps-<student_id>.rhte.sysdeseng.com_
+Once the mediawiki deployment is _Running_, navigate to the _hyperlink_ on the top right corner of the page to view the application (_http://mediawiki123-mediawiki2.apps-<student_id>.rhte.sysdeseng.com_).
 
-// TODO: Insert screenshot of dead page
+image::images/mediawiki-error.png[]
 
 The application fails to load properly since there is no backing datastore available. Let's deploy the PostgreSQL APB to provision a database for the application which will allow the application to function properly.
 
 Return to the _Home_ screen by clicking the **House** at the top left hand corner of the page.
 
-Select the **PostgreSQL (APB)** to launch the new application dialog.
+Select **PostgreSQL (APB)** to launch the new application dialog.
 
 Ensure **MediaWiki** is selected in the dropdown underneath  _Add to Project_.
 
 Leave all of the parameters at their default values except for selecting **9.5** under _PostgreSQL Version_.
+
+image::images/postgresql-apb-new-project.png[]
 
 Click **Next** to move to the next portion of the dialog.
 
@@ -191,33 +191,39 @@ The 2nd dialog provides the opportunity for applications, such as MediaWiki, to 
 
 Select the **Do not bind at the time** radio button and then click **Create**.
 
+image::images/postgresql-apb-new-project-bind.png[]
+
 Click **View Project** to return to the project overview page. 
 
 The PostgreSQL APB will run and provision the PostgreSQL database in a similar fashion to the MediaWiki earlier.
 
 Once the PostgreSQL application is running, to inject credentials for the MediaWiki application to make use of the PostgreSQL database, a new _Binding_ must be created. 
 
-From the _Overview_ page, locate the mediawiki deployment and create a new _Binding_ by clicking the kabob on the right side of the deployment and selecting **Create Binding**. 
+From the _Overview_ page, locate the mediawiki deployment and create a new _Binding_ by clicking the kabob on the right side of the deployment and selecting **Create Binding**.
+
+image::images/mediawiki-create-binding.png[]
 
 Since the PostgreSQL service is the only available service, it is selected by default. Click the **Bind** button to bind the PostgreSQL service to the MediaWiki application. 
 
-// TODO: Show confirmation page
+image::images/mediawiki-postgresql-binding.png[]
 
 Click the **Close** button on the confirmation page.
 
-To make the MediaWiki application make use of the newly created configuration, a new deployment must be triggered. 
+To allow the MediaWiki application to make use of the newly created configuration, a new deployment must be triggered. 
 
 However, since MediaWiki makes use of persistent storage using EBS volumes, only a single application instance can mount the volume at a time. To work around this issue, first scale down the MediaWiki application by clicking the down arrow until the instance count reaches 0 pods.
 
-// TODO: Insert screenshot of where to click
+image::images/mediawiki-scaledown.png[]
 
 With the application scaled down, click on the kabob on the right hand side of the MediaWiki deployment and click **Deploy**.
+
+image::images/mediawiki-redeploy.png[]
 
 Once the deployment completes, click the **Up** arrow to scale up the MediaWiki application.
 
 When the pod is up and running, confirm MediaWiki can be accessed by seleting the hyperlink at the top right corner of the page as completed previously. 
 
-// TODO: Insert Screenshot of functioning application
+image::images/mediawiki-running.png[]
 
 You have now demonstrated two mechanisms for deploying applications to the OpenShift Container Platform!
 
