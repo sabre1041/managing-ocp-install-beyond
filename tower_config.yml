@@ -17,6 +17,7 @@
         subscription-manager repos
           --enable="rhel-7-server-ose-{{ openshift_deploy_version }}-rpms"
       become: true
+      when: tower_prereqs_config|bool == true
 
     - name: Install package requirements for Tower CLI
       yum:
@@ -32,6 +33,7 @@
         - python2-boto3
         - python-click
         - python-httplib2
+      when: tower_prereqs_config|bool == true
 
     - name: Install Tower CLI
       pip:
@@ -40,11 +42,13 @@
       with_items:
         - ansible-tower-cli
         - boto
+      when: tower_prereqs_config|bool == true
 
     - set_fact:
         student_id: "{{ hostvars[inventory_hostname].student_id }}"
         filter: "{{ 'tag' + ':' + 'student_id=' + student_id }}"
-        tower_host: "{{ hostvars[inventory_hostname].public_ip }}"
+        tower_host: "localhost"
+        tower_public_ip: "{{ hostvars[inventory_hostname].public_ip }}"
 
     - debug:
         var: "{{ item }}"
@@ -54,19 +58,23 @@
         - student_id
         - filter
         - tower_host
+        - tower_public_ip
 #### Prereqs End ####
 
 #### Authenticaiton Begin ####
 # TODO: Split into role - This should be in a file included by main.yml, named something like 'auth.yml'
     - name: Set Tower CLI Host
       command: tower-cli config host "{{ tower_host }}"
+      when: tower_cli_credentials_config|bool == true
 
     - name: Set Tower CLI Username
       command: tower-cli config username "{{ tower_username }}"
+      when: tower_cli_credentials_config|bool == true
 
     - name: Set Tower CLI Password
       command: tower-cli config password "{{ tower_password }}"
       no_log: True
+      when: tower_cli_credentials_config|bool == true
 #### Authenticaiton End ####
 
 #### Organization Begin ####
@@ -86,6 +94,7 @@
       synchronize:
         src: "{{ tower_machine_credential_ssh_key_data }}"
         dest: "/tmp/{{ tower_machine_credential_ssh_key_data }}"
+      when: tower_machine_credential_config|bool == true
 
     - name: Add Tower Machine Credential
       tower_credential:
@@ -99,11 +108,13 @@
         tower_host: "{{ tower_host }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
+      when: tower_machine_credential_config|bool == true
 
     - name: Remove {{ tower_machine_credential }} staging file
       file:
         path: "/tmp/{{ tower_machine_credential_ssh_key_data }}"
         state: absent
+      when: tower_machine_credential_config|bool == true
 
 # TODO: Split into role - This should be in a file included by main.yml, named something like 'credentials.yml' and maybe that file includes a separate way 'cloud_credential.yml' which is this section only
     - name: Add Tower Cloud Credential
@@ -118,6 +129,7 @@
         tower_host: "{{ tower_host }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
+      when: tower_cloud_credential|bool == true
 #### Credentials End ####
 
 #### Inventory Begin ####
@@ -131,6 +143,7 @@
         tower_host: "{{ tower_host }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
+      when: tower_inventory_config|bool == true
 
     - name: Configure Tower Inventory
       tower_inventory:
@@ -143,6 +156,7 @@
         variables:
           - student_id: "{{ student_id }}"
           - lab_user: "{{ lab_user }}"
+      when: tower_inventory_config|bool == true
 
     - name: Configure Tower Inventory Group
       tower_group:
@@ -162,6 +176,7 @@
           vpc_destination_variable: public_dns_name
           hostname_variable: tag_Name
         state: present
+      when: tower_inventory_config|bool == true
 
     - name: Add OSEv3 Group
       tower_group:
@@ -174,6 +189,7 @@
         inventory: "{{ tower_inventory }}"
         state: present
         variables: "{{ lookup('template', 'OSEv3.yml.j2') }}"
+      when: tower_inventory_config|bool == true
 
     - name: Add OSEv3 Children
       tower_group:
@@ -190,6 +206,7 @@
         - "{{ tower_openshift_nodes_group }}"
         - "{{ tower_master_tag }}"
         - "{{ tower_node_tag }}"
+      when: tower_inventory_config|bool == true
 
     - name: Associate OSEv3 Groups
       command: >
@@ -201,6 +218,7 @@
       with_together:
         - [ "{{ tower_openshift_nodes_group }}", "{{ tower_node_tag }}", "{{ tower_openshift_masters_group }}", "{{ tower_master_tag }}" ]
         - [ "{{ tower_openshift_install_group }}", "{{ tower_openshift_nodes_group }}", "{{ tower_openshift_nodes_group }}", "{{ tower_openshift_masters_group }}" ]
+      when: tower_inventory_config|bool == true
 
     - name: Sync Inventory
       command: >
@@ -208,6 +226,7 @@
           --name "{{ tower_inventory_group }}"
           --wait
           "{{ tower_cli_verbosity }}"
+      when: tower_inventory_config|bool == true
 #### Inventory Begin ####
 
 #### Projects Begin ####
@@ -227,6 +246,7 @@
         scm_clean: "{{ tower_project_provision_and_configure_clean }}"
         scm_update_on_launch: "{{ tower_project_provision_and_configure_update_on_launch }}"
         scm_delete_on_update: "{{ tower_project_provision_and_configure_delete_on_update }}"
+      when: tower_project_provision_and_configure_config|bool == true
 
     - name: Update Project for Provision and Configure
       command: >
@@ -234,6 +254,7 @@
           --name "{{ tower_project_provision_and_configure }}"
           --wait
           "{{ tower_cli_verbosity }}"
+      when: tower_project_provision_and_configure_config|bool == true
 
 # TODO: Split into role - This should be in a file included by main.yml, named something like 'projects.yml' and this section would be 'project_install.yml'
     - name: Install playbooks for {{ tower_project_install }}
@@ -241,7 +262,9 @@
         name: "{{ tower_project_install_package }}"
         state: present
       become: true
-      when: tower_install_playbooks| bool == true
+      when: 
+        - tower_prereqs_config| bool == true
+        - tower_project_install_config|bool == true
 
     - name: Create symbolic link to /usr/share
       file:
@@ -251,6 +274,7 @@
         group: awx
         state: link
       become: true
+      when: tower_project_install_config|bool == true
 
     - name: Add Tower Project for Install
       tower_project:
@@ -263,6 +287,7 @@
         tower_host: "{{ tower_host }}"
         tower_username: "{{ tower_username }}"
         tower_password: "{{ tower_password }}"
+      when: tower_project_install_config|bool == true
 #### Projects End ####
 
 #### Job Templates Begin ####
@@ -282,11 +307,13 @@
         project: "{{ tower_project_provision_and_configure }}"
         playbook: "{{ tower_job_template_deploy_provision_playbook }}"
         machine_credential: "{{ tower_machine_credential }}"
+      when: tower_job_template_deploy_provision_config|bool == true
 
     - name: Copy Job Template for Deploy-Provision Extra Variables file
       template:
         src: "{{ tower_job_template_deploy_provision_extra_vars_path }}"
         dest: "/tmp/{{ tower_job_template_deploy_provision_extra_vars_path }}"
+      when: tower_job_template_deploy_provision_config|bool == true
 
     - name: Update Job Template for Deploy-Provision with Extra Vars
       command: >
@@ -294,6 +321,7 @@
           --name="{{ tower_job_template_deploy_provision }}"
           --extra-vars="@/tmp/{{ tower_job_template_deploy_provision_extra_vars_path }}"
           "{{ tower_cli_verbosity }}"
+      when: tower_job_template_deploy_provision_config|bool == true
 
 # TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and this section would be 'job_template_deploy_install.yml'
     - name: Configure Job Template for Deploy-Install
@@ -311,6 +339,7 @@
         become_enabled: "{{ tower_job_template_deploy_install_become_enabled }}"
         machine_credential: "{{ tower_machine_credential }}"
         cloud_credential: "{{ tower_cloud_credential }}"
+      when: tower_job_template_deploy_install_config|bool == true
 
 # TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and this section would be 'job_template_deploy_configure.yml'
     - name: Configure Job Template for Deploy-Configure
@@ -327,6 +356,7 @@
         project: "{{ tower_project_provision_and_configure }}"
         playbook: "{{ tower_job_template_deploy_configure_playbook }}"
         machine_credential: "{{ tower_machine_credential }}"
+      when: tower_job_template_deploy_configure_config|bool == true
 #### Job Template Deploy End ####
 
 #### Job Template Scaleup Begin ####
@@ -345,11 +375,13 @@
         project: "{{ tower_project_provision_and_configure }}"
         playbook: "{{ tower_job_template_scaleup_provision_playbook }}"
         machine_credential: "{{ tower_machine_credential }}"
+      when: tower_job_template_scaleup_provision_config|bool == true
 
     - name: Copy Job Template for Scaleup-Provision Extra Variables file
       template:
         src: "{{ tower_job_template_scaleup_provision_extra_vars_path }}"
         dest: "/tmp/{{ tower_job_template_scaleup_provision_extra_vars_path }}"
+      when: tower_job_template_scaleup_provision_config|bool == true
 
     - name: Update Job Template for Scaleup-Provision with Extra Vars
       command: >
@@ -357,6 +389,7 @@
           --name="{{ tower_job_template_scaleup_provision }}"
           --extra-vars="@/tmp/{{ tower_job_template_scaleup_provision_extra_vars_path }}"
           "{{ tower_cli_verbosity }}"
+      when: tower_job_template_scaleup_provision_config|bool == true
 
 # TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and this section would be 'job_template_scaleup_install.yml'
     - name: Configure Job Template for Scaleup-Install
@@ -374,6 +407,7 @@
         become_enabled: "{{ tower_job_template_scaleup_install_become_enabled }}"
         machine_credential: "{{ tower_machine_credential }}"
         cloud_credential: "{{ tower_cloud_credential }}"
+      when: tower_job_template_scaleup_install_config|bool == true
 
 # TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and this section would be 'job_template_scaleup_configure.yml'
     - name: Configure Job Template for Scaleup-Configure
@@ -390,6 +424,7 @@
         project: "{{ tower_project_provision_and_configure }}"
         playbook: "{{ tower_job_template_scaleup_configure_playbook }}"
         machine_credential: "{{ tower_machine_credential }}"
+      when: tower_job_template_scaleup_configure_config|bool == true
 #### Job Template Scaleup End ####
 #### Job Template Terminate Begin ####
 # TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and it would include this section 'job_template_terminate_ocp.yml'
@@ -407,6 +442,7 @@
         project: "{{ tower_project_provision_and_configure }}"
         playbook: "{{ tower_job_template_terminate_ocp_playbook }}"
         machine_credential: "{{ tower_machine_credential }}"
+      when: tower_job_template_terminate_ocp_config|bool == true
 
     - name: Update Job Template for Terminate-OCP with Extra Vars
       command: >
@@ -414,6 +450,7 @@
           --name="{{ tower_job_template_terminate_ocp }}"
           --extra-vars="{{ tower_job_template_terminate_ocp_extra_vars }}"
           "{{ tower_cli_verbosity }}"
+      when: tower_job_template_terminate_ocp_config|bool == true
 
 # TODO: Split into role - This should be in a file included by main.yml, named something like 'job_templates.yml' and this section would be 'job_template_terminate_all.yml'
     - name: Configure Job Template for Terminate-All
@@ -430,6 +467,7 @@
         project: "{{ tower_project_provision_and_configure }}"
         playbook: "{{ tower_job_template_terminate_all_playbook }}"
         machine_credential: "{{ tower_machine_credential }}"
+      when: tower_job_template_terminate_all_config|bool == true
 
     - name: Update Job Template for Terminate-All with Extra Vars
       command: >
@@ -437,6 +475,7 @@
           --name="{{ tower_job_template_terminate_all }}"
           --extra-vars="{{ tower_job_template_terminate_all_extra_vars }}"
           "{{ tower_cli_verbosity }}"
+      when: tower_job_template_terminate_all_config|bool == true
 #### Job Template Terminate End ####
 #### Job Templates End ####
 
@@ -447,6 +486,7 @@
       template:
         src: "{{ tower_workflow_template_deploy_extra_vars }}"
         dest: "/tmp/{{ tower_workflow_template_deploy_extra_vars }}"
+      when: tower_workflow_template_deploy_config|bool == true
 
     - name: Create Workflow Template for Deploy
       command: >
@@ -456,6 +496,7 @@
           --organization="{{ tower_org }}"
           --extra-vars="@/tmp/{{ tower_workflow_template_deploy_extra_vars }}"
           "{{ tower_cli_verbosity }}"
+      when: tower_workflow_template_deploy_config|bool == true
 
     - debug:
         var: "{{ item }}"
@@ -468,10 +509,11 @@
       template:
         src: "{{ tower_workflow_template_deploy_schema_path }}"
         dest: "/tmp/{{ tower_workflow_template_deploy_schema_path }}"
+      when: tower_workflow_template_deploy_config|bool == true
 
     - name: Create Workflow Schema for Deploy
-      command: tower-cli workflow schema {{ tower_workflow_template_deploy }} @/tmp/{{ tower_workflow_template_deploy_schema_path }}
-          "{{ tower_cli_verbosity }}"
+      command: tower-cli workflow schema {{ tower_workflow_template_deploy }} @/tmp/{{ tower_workflow_template_deploy_schema_path }} "{{ tower_cli_verbosity }}"
+      when: tower_workflow_template_deploy_config|bool == true
 #### Workflow Template Deploy End ####
 #### Workflow Template Scaleup Begin ####
 # TODO: Split into role - This should be in a file included by main.yml, named something like 'workflows.yml' and this section should be 'workflow_scaleup.yml'
@@ -479,6 +521,7 @@
       template:
         src: "{{ tower_workflow_template_scaleup_extra_vars }}"
         dest: "/tmp/{{ tower_workflow_template_scaleup_extra_vars }}"
+      when: tower_workflow_template_scaleup_config|bool == true
 
     - name: Create Workflow Template for Scaleup
       command: >
@@ -488,6 +531,7 @@
           --organization="{{ tower_org }}"
           --extra-vars="@/tmp/{{ tower_workflow_template_scaleup_extra_vars }}"
           "{{ tower_cli_verbosity }}"
+      when: tower_workflow_template_scaleup_config|bool == true
 
     - debug:
         var: "{{ item }}"
@@ -500,10 +544,11 @@
       template:
         src: "{{ tower_workflow_template_scaleup_schema_path }}"
         dest: "/tmp/{{ tower_workflow_template_scaleup_schema_path }}"
+      when: tower_workflow_template_scaleup_config|bool == true
 
     - name: Create Workflow Schema for Scaleup
-      command: tower-cli workflow schema {{ tower_workflow_template_scaleup }} @/tmp/{{ tower_workflow_template_scaleup_schema_path }}
-          "{{ tower_cli_verbosity }}"
+      command: tower-cli workflow schema {{ tower_workflow_template_scaleup }} @/tmp/{{ tower_workflow_template_scaleup_schema_path }} "{{ tower_cli_verbosity }}"
+      when: tower_workflow_template_scaleup_config|bool == true
 #### Workflow Template Scaleup End ####
 #### Workflow Template Terminate Begin ####
 # TODO: Split into role - This should be in a file included by main.yml, named something like 'workflows.yml' and this section should be 'workflow_terminate.yml'
@@ -514,6 +559,7 @@
           --description="{{ tower_workflow_template_terminate_description }}"
           --organization="{{ tower_org }}"
           "{{ tower_cli_verbosity }}"
+      when: tower_workflow_template_terminate_config|bool == true
 
     - debug:
         var: "{{ item }}"
@@ -526,10 +572,11 @@
       template:
         src: "{{ tower_workflow_template_terminate_schema_path }}"
         dest: "/tmp/{{ tower_workflow_template_terminate_schema_path }}"
+      when: tower_workflow_template_terminate_config|bool == true
 
     - name: Create Workflow Schema for Terminate
-      command: tower-cli workflow schema {{ tower_workflow_template_terminate }} @/tmp/{{ tower_workflow_template_terminate_schema_path }}
-          "{{ tower_cli_verbosity }}"
+      command: tower-cli workflow schema {{ tower_workflow_template_terminate }} @/tmp/{{ tower_workflow_template_terminate_schema_path }} "{{ tower_cli_verbosity }}"
+      when: tower_workflow_template_terminate_config|bool == true
 #### Workflow Template Terminate End ####
 #### Workflows Templates End ####
 
@@ -539,7 +586,9 @@
       command: tower-cli workflow_job launch -W {{ tower_workflow_template_deploy }} --monitor
       async: "{{ tower_workflow_job_deploy_launch_async }}"
       poll: "{{ tower_workflow_job_deploy_launch_poll }}"
-      when: tower_workflow_job_deploy_launch
+      when: 
+        - tower_workflow_job_deploy_launch|bool == true
+        - tower_workflow_template_deploy_config|bool == true
 #### Workflow Job Launch Deploy End ####
 
 #### Workflow Job Launch Scaleup Begin ####
@@ -547,7 +596,9 @@
       command: tower-cli workflow_job launch -W {{ tower_workflow_template_scaleup }} --monitor
       async: "{{ tower_workflow_job_scaleup_launch_async }}"
       poll: "{{ tower_workflow_job_scaleup_launch_poll }}"
-      when: tower_workflow_job_scaleup_launch
+      when: 
+        - tower_workflow_job_scaleup_launch|bool == true
+        - tower_workflow_template_scaleup_config|bool == true
 #### Workflow Job Launch Scaleup End ####
 
 #### Workflow Job Launch Terminate Begin ####
@@ -555,7 +606,9 @@
       command: tower-cli workflow_job launch -W {{ tower_workflow_template_terminate }} --monitor
       async: "{{ tower_workflow_job_terminate_launch_async }}"
       poll: "{{ tower_workflow_job_terminate_launch_poll }}"
-      when: tower_workflow_job_terminate_launch
+      when: 
+        - tower_workflow_job_terminate_launch|bool == true
+        - tower_workflow_template_terminate_config|bool == true
 #### Workflow Job Launch Terminate End ####
 #### Workflows Job Launch End ####
 
@@ -566,14 +619,14 @@
         tower-cli config
           --unset host
           "{{ tower_cli_verbosity }}"
-      when: not tower_keep_cli_credentials
+      when: not tower_cli_credentials_keep|bool == true
 
     - name: Unset Tower CLI Username
       command: >
         tower-cli config
           --unset username
           "{{ tower_cli_verbosity }}"
-      when: not tower_keep_cli_credentials
+      when: not tower_cli_credentials_keep|bool == true
 
     - name: Unset Tower CLI Password
       command: >
@@ -581,5 +634,5 @@
           --unset password
           "{{ tower_cli_verbosity }}"
       no_log: True
-      when: not tower_keep_cli_credentials
+      when: not tower_cli_credentials_keep|bool == true
 #### Deauth End ####
