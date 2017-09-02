@@ -228,7 +228,7 @@ Password: **smartvm**
 
 Once successfully authenticated, you should be taken to the overview page
 
-image::../images/image12.png[]
+image::images/cfme-infrastructure-providers.png[]
 
 ==== Configuring the Container Provider
 
@@ -243,7 +243,7 @@ Configure the container provider:
     . Lastly select **Add Existing Container Provider**
 +
 
-image::../images/image13.png[]
+image::images/cfme-add-provider.png[]
 
 Start adding a new Container Provider by specifying **OCP** as the name and **OpenShift Container Platform** as the type.
 
@@ -269,7 +269,7 @@ Finally, since the SSL certificates for the OpenShift API are not currently conf
 
 Click the **Validate** button to verify the configuration.
 
-image::../images/image19.png[]
+image::images/cfme-add-provider-dialog.png[]
 
 Next, click on the **Hawkular** tab to configure CloudForms to communicate with the cluster metrics.
 
@@ -291,7 +291,7 @@ To force an immediate refresh of the newly added Provider:
     . Now the Relationships should be populated with data from OpenShift
 +
 
-image::../images/image4.png[]
+image::images/cfme-ocp-provider.png[]
 
 Feel free to explore the CloudForms web console as time permits to view additional details exposed from the OpenShift cluster.
 

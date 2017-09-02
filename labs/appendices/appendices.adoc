@@ -1,23 +1,275 @@
-== Appendix A - Manually Cleanup Cinder Volume
+== Appendix A - Manual Configuration of Ansible Tower
 
-How to manually clean up a volume that will not delete with openstack volume delete
+Steps necessary to manually configure a fresh Ansible Tower instances instead.
 
-From the OpenStack server:
+NOTE: This section assumes a link:http://docs.ansible.com/ansible-tower/latest/html/userguide/credentials.html#machine[Machine Credential] to connect to the instances via SSH and a link:http://docs.ansible.com/ansible-tower/latest/html/userguide/credentials.html#amazon-web-services[Cloud Credential] to communicate with AWS has been previously configured.
 
-.rhosp$
-[bash, source]
+##  Create Tower Inventory
+
+An link:http://docs.ansible.com/ansible-tower/latest/html/userguide/inventories.html[inventory] in Ansible Tower is similar to an inventory in standalone Ansible as it contains the hosts that playbooks can be run against.  
+
+
+* Click **INVENTORIES** on the top navigation pane.
+* Click **+ADD**.
+** Provide a name of: **OpenShift**
+** In the _VARIABLES_ pane underneath the `---`, add the following content. Ensure there is a **space** between the `:` and the `<student_id>`.
+
+[source, text]
 ----
-rhosp$ openstack volume list
-rhosp$ sudo -i 
-rhosp# source ~/.keystonerc_admin
-rhosp#openstack volume set --state available 09d601f8-4159-4979-ae77-441920564230
-rhosp$ mysql -u root cinder
-
-# MariaDB [cinder]>  delete from volumes where id='09d601f8-4159-4979-ae77-441920564230';
-# MariaDB [cinder]>  update volumes set attach_status="detached" where id="09d601f8-4159-4979-ae77-441920564230";
-
-rhosp$ openstack volume delete 09d601f8-4159-4979-ae77-441920564230
+student_id: <student_id>
 ----
+
+
+** Click **SAVE**
+
+Within the newly created _OpenShift_ group, add a new group called _AWS_
+
+* Click **ADD GROUP**
+** Provide a name of **AWS**
+** Choose a _SOURCE_ of **Amazon EC2**
+** Under _CLOUD CREDENTIAL_ click the search icon and select the preconfigured **AWS** credential radio button. Click **SELECT** to choose the value.
+** In the _REGIONS_ dropdown, select **Asia Pacific (Singapore)**
+** Provide the following in the _INSTANCE FILTER_
++
+[source, text]
+----
+tag:student_id=<student_id>
+----
++
+** Select the **Update on Launch** checkbox
+** Add the following variables to the _SOURCE VARIABLES_ pane:
++
+[source, text]
+----
+regions: ap-southeast-1
+hostname_variable: tag_Name
+vpc_destination_variable: public_dns_name
+----
++
+** Click **SAVE**
+
+Add a new group called _OSEv3_ which will be used as the top level group referenced by the OpenShift installer.
+
+* Click **ADD GROUP**
+** Provide a name of **OSEv3**
+** Choose a _SOURCE_ of **Manual**
+** Copy the following variables to the VARIABLES pane.  “REPLACE <student_id> with your student ID! student_id takes for form similar to student-1 as used previously. **There are 4 instances of <student_id>** in the variables below - be sure to change each of them.
+
++
+[source, bash]
+----
+---
+deployment_type: openshift-enterprise
+osm_use_cockpit: no
+openshift_master_default_subdomain: apps-<student_id>.rhte.sysdeseng.com
+openshift_master_identity_providers:
+- name: htpasswd_auth
+  login: True
+  challenge: True
+  kind: HTPasswdPasswordIdentityProvider
+  filename: /etc/origin/master/htpasswd
+openshift_master_htpasswd_users:
+  <student_id>: $apr1$5/tyREyX$faNZX.wbId4LGDkNYxJQZ0
+openshift_master_image_policy_config:
+  maxImagesBulkImportedPerRepository: 100
+openshift_hosted_metrics_deploy: yes
+openshift_hosted_metrics_storage_kind: dynamic
+os_sdn_network_plugin_name: redhat/openshift-ovs-multitenant
+osn_storage_plugin_deps: []
+openshift_schedulable: True
+openshift_hosted_router_selector: 'type=infra'
+openshift_hosted_registry_selector: 'type=infra'
+openshift_metrics_selector: "type=infra"
+openshift_cloudprovider_kind: aws
+openshift_master_cluster_hostname: "master-internal-<student_id>.rhte.sysdeseng.com"
+openshift_master_cluster_public_hostname: "master-<student_id>.rhte.sysdeseng.com"
+openshift_metrics_cassandra_storage_type: dynamic
+openshift_disable_check: memory_availability
+openshift_enable_service_catalog: true
+
+openshift_cloudprovider_aws_access_key: "{{ lookup('env','AWS_ACCESS_KEY') }}"
+openshift_cloudprovider_aws_secret_key: "{{ lookup('env','AWS_SECRET_KEY') }}"
+openshift_node_labels: "{{ ec2_tag_node_labels }}"
+
+# Default Node Selector Cannot be Used Due to Issue With Service Catalog Deployment. Is set during Postinstall playbook
+#osm_default_node_selector: 'type=app'
+----
+
+** Click **SAVE**
+
+In this section, we are going to configure link:http://docs.ansible.com/ansible-tower/latest/html/userguide/inventories.html#groups-and-hosts[groups].  This is important because this is the way that Ansible Tower constructs an inventory to pass to the openshift-ansible byo playbook.
+
+** Click on the **OSEv3** group
+*** Click on **ADD GROUP**
+*** Create a group called **nodes**
+*** Click **SAVE**
+
+** Click on **nodes** under _Groups_
+*** Click on **ADD GROUP**
+*** Create a child group called **masters**
+*** Click **SAVE**
+
+**** At the same level as the _nodes_ group, click **ADD GROUP**.
+**** Add another child group called **tag_lab_role_node** by clicking _ADD GROUP_.
+**** Click **SAVE**
+***** Click on the _masters_ group
+***** Create a child group called **tag_lab_role_master**
+***** Click **SAVE**.
+
+At this point, this is what your inventory group paths should look like:
+
+[source, bash]
+----
+INVENTORIES -> OpenShift -> OSEv3 -> nodes -> tag_lab_role_node
+INVENTORIES -> OpenShift -> OSEv3 -> nodes -> masters -> tag_lab_role_master
+----
+
+## Create Projects for Provision and Post-install Playbooks
+
+A link:http://docs.ansible.com/ansible-tower/latest/html/userguide/projects.html[project] in Ansible tower is a logical collection of Ansible playbooks. A new project will be created to reference the custom content provided by this lab.
+
+* Click **PROJECTS** in the top navigation pane.
+** Click **ADD**.
+** Provide a _NAME_ of **Managing OCP from Install and Beyond**
+** Choose _SCM TYPE_ of **Git**.
+** Provide _SCM URL_ of **https://github.com/sabre1041/managing-ocp-install-beyond.git** with a _SCM BRANCH_ of **rhte**.
+** Select **Clean** and **Update on Launch** in the _SCM UPDATE OPTIONS_
+** Click **SAVE**
+
+Create another project that references content provided by the _openshift-ansible-playbooks_ rpm package.
+
+*** Click *ADD**
+*** Provide a _NAME_ of **openshift-ansible**
+*** Choose _SCM TYPE_ of **Manual**.
+*** Provide a _PLAYBOOK DIRECTORY_ of **share**
+*** Click **SAVE**
+
+Now you should have two projects: _openshift-ansible_ and _Managing OCP from Install and Beyond_.
+
+## Create Job Template for Deployment Provision
+
+A link:http://docs.ansible.com/ansible-tower/latest/html/userguide/job_templates.html[job template] is the definition and a set of parameters for running an Ansible job. They are used to execute playbooks provided within a project with a set of resources that are needed to execute the playbook, such as credentials and parameters.
+
+First a new job template will need to be created in order to provision new instances for OpenShift in AWS.
+
+* Click **TEMPLATES** on the top navigation pane.
+** Click **+ADD**, select **Job Template**
+** Provide a _NAME_ of **Deployment-1-Provision**
+** Click the _SEARCH_ icon for the _INVENTORY_ input box and select **OpenShift Inventory** and then click **SELECT**.
+** Click the _SEARCH_ icon for the _PROJECT_ input box and select **Managing OCP from Install and Beyond** and then click **SELECT**.
+** Click the _Choose a playbook_ in the _PLAYBOOK_ input box and select the **aws_create_hosts.yml** playbook.
+** Click the _SEARCH_ icon for the _MACHINE CREDENTIAL_ input box and select **RHTE SSH** and then click **SELECT**.
+** Click the _SEARCH_ icon for the _SELECT CLOUD CREDENTIAL_ input box and select **AWS** and then click **SELECT**.
+** Add the following to the _EXTRA VARIABLES_ pane. Be sure to replace the `<student_id>` with the student ID assigned to you.
+
++
+[source, bash]
+----
+ec2_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY') }}"
+ec2_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
+student_id: <student_id>
+openshift_cluster_public_url: "https{{':'}}//master-{{ student_id }}.{{ domain_name }}{{':'}}8443"
+----
+
+** Click **SAVE**.
+
+## Create Job Template for Deployment Install
+
+This job template will be used to execute the installation of the OpenShift Container Platform:
+
+* From within the _TEMPLATES_ page, click **+ADD** and then select **Job Template**
+** Provide a _NAME_ of **Deployment-2-Install**
+** Click the _SEARCH_ icon for the _INVENTORY_ input box and select **OpenShift Inventory** and then click **SELECT**.
+** Click the _SEARCH_ icon for the _PROJECT_ input box and select "openshift-ansible" and then click **SELECT**.
+** Click the _Choose a playbook_ in the _PLAYBOOK_ input box and select the **ansible/openshift-ansible/playbooks/byo/config.yml** playbook.
+** Click the _SEARCH_ icon for the _MACHINE CREDENTIAL_ input box and select **RHTE SSH** and then click **SELECT**.
+** Click the _SEARCH_ icon for the _SELECT CLOUD CREDENTIAL_ input box and select **AWS Credential** and then click **SELECT**.
+** Under Options, check **Enable Privilege Escalation**
+** Click **SAVE**
+
+## Create Job Template for Deployment Post-Install
+
+The final job template that needs to be configured in this lab will execute actions in order to tailor the installation of OpenShift once the platform has been installed.
+
+* From within the _TEMPLATES_ page, click **+ADD**, select **Job Template**
+** Provide a _NAME_ of **Deployment-3-Post-Install**
+** Click the _SEARCH_ icon for the _INVENTORY_ input box and select **OpenShift Inventory** and then click **SELECT**.
+** Click the _SEARCH_ icon for the _PROJECT_ input box and select "Managing OCP from Install and Beyond" and then click **SELECT**.
+** Click the _Choose a playbook_ in the _PLAYBOOK_ input box and select the "openshift_postinstall.yml** playbook.
+** Click the _SEARCH_ icon for the _MACHINE CREDENTIAL_ input box and select "RHTE SSH" and then click **SELECT**.
+** Click the _SEARCH_ icon for the _SELECT CLOUD CREDENTIAL_ input box and select **AWS Credential** and then click **SELECT**.
+** Click **SAVE**
+
+You should have 3 job templates: _Deployment-1-Provision_, _Deployment-2-Install_, and _Deployment-3-Post-Install_
+
+
+## Create Workflow Job Template for the Deployment
+
+* Click _ADD_, select "Workflow Job Template"
+** Provide a name of **1-Deploy-OpenShift-on-AWS**
+** Click **SAVE**
+** Click **Workflow Editor**
+** Click **Start** and a box will appear to the right.
+** On the right under **ADD A TEMPLATE** select **Deployment-1-Provision** and **SELECT**
+*** Click on the box after start labeled **Deployment-1-Provision** and click the green “+” in the top right.
+*** Again, on the right under **ADD A TEMPLATE** select **Deployment-2-Install** and **SELECT**
+**** Lastly, click on the new box again, green “+” in the top right.
+**** Select **Deployment-3-Post-Install** and **SELECT**
+**** Select **SAVE** at the bottom right.
+
+## Add Scaleup Job Templates
+
+Perform these steps from the Ansible Tower host
+
+## Create Job Template for ScaleUp Provision
+
+* Click **TEMPLATES** on the top navigation pane.
+** Click "+ADD", select "Job Template"
+** Provide a name of: ScaleUp-1-Provision
+** Click the "SEARCH" icon for the "INVENTORY" input box and select "OpenShift Inventory" and then click "SELECT".
+** Click the "SEARCH" icon for the "PROJECT" input box and select "Managing OCP from Install and Beyond" and then click "SELECT".
+** Click the "Choose a playbook" in the "PLAYBOOK" input box and select the "aws_add_node.yml" playbook.
+** Click the "SEARCH" icon for the "MACHINE CREDENTIAL" input box and select "RHTE SSH Machine" and then click "SELECT".
+** Click the "SEARCH" icon for the "SELECT CLOUD CREDENTIAL" input box and select "AWS" and then click "SELECT".
+** Add the following to the "EXTRA VARIABLES" pane.
+
++
+[source, bash]
+----
+ec2_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY') }}"
+ec2_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
+student_id: <student_id>
+openshift_cluster_public_url: "https{{':'}}//master-{{ student_id }}.{{ domain_name }}{{':'}}8443"
+----
+
+** Click "SAVE".
+
+## Create Job Template for Scale Up Install
+
+* Click "TEMPLATES" on the top navigation pane.
+** Click "+ADD", select "Job Template"
+** Provide a name of: ScaleUp-1-Install
+** Click the "SEARCH" icon for the "INVENTORY" input box and select "OpenShift" and then click "SELECT".
+** Click the "SEARCH" icon for the "PROJECT" input box and select "Managing OCP from Install and Beyond" and then click "SELECT".
+** Click the "Choose a playbook" in the "PLAYBOOK" input box and select the "ansible/openshift-ansible/playbooks/byo/openshift-node/scaleup.yml" playbook.
+** Click the "SEARCH" icon for the "MACHINE CREDENTIAL" input box and select "RHTE SSH Machine" and then click "SELECT".
+** Click the "SEARCH" icon for the "SELECT CLOUD CREDENTIAL" input box and select "AWS" and then click "SELECT".
+** Enable "Privileged Escalation"
+** Click "SAVE".
+
+## Create Workflow Job Template for the Deployment
+
+* Click "+ADD", select "Workflow Job Template"
+** Provide a name of "2-Provision-and-Scale-Openshift"
+** Click “SAVE”
+** Click “Workflow Editor”
+** Click “Start” and a box will appear to the right.
+** On the right under “Add Template” select “Deployment Provision” and “Select”
+** Now click on the box after start labeled “Deploy Provision” and click the green “+” in the top right.
+** Again, on the right under “Add a Template” select “Deployment Install” and “Select”
+** Lastly, click on the new box again, green “+” in the top right.
+** Select “Deployment Post-install” and “Select
+** Select “SAVE” at the bottom right.
 
 == Appendix B - Script For Deploying CloudForms
 
