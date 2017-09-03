@@ -17,7 +17,7 @@ First, using the OpenShift Command Line, create a new project called **cloudform
 .master$
 [source, bash]
 ----
-master$ oc new-project cloudforms
+oc new-project cloudforms
 ----
 
 By creating a new project, the context of the CLI is automatically switched into the _cloudforms_ project:
@@ -25,7 +25,7 @@ By creating a new project, the context of the CLI is automatically switched into
 .master$
 [source, bash]
 ----
-master$ oc config current-context
+oc config current-context
 ----
 
 When creating a new project, a set of service accounts are automatically provisioned. These accounts are used when building, deploying and running containers. The _default_ service account is the de facto service account used by pods. Since CloudForms is deployed within a pod and requires access to key metrics in the OpenShift environment along with the host, it must be granted elevated access as a privileged resource. In OpenShift, permissions associated to pods are managed by link:https://docs.openshift.com/container-platform/latest/admin_guide/manage_scc.html[Security Context Constraints] and the service account that is used to run them.
@@ -35,7 +35,7 @@ Execute the following command to add the default service account in the cloudfor
 .master$
 [source, bash]
 ----
-master$ oc adm policy add-scc-to-user privileged \
+oc adm policy add-scc-to-user privileged \
         system:serviceaccount:cloudforms:default
 ----
 
@@ -44,7 +44,7 @@ Confirm the user is associated to the privileged SCC:
 .master$
 [source, bash]
 ----
-master$ oc get scc privileged -o yaml
+oc get scc privileged -o yaml
 ----
 
 Confirm _system:serviceaccount:cloudforms:default_ is in the result returned.
@@ -56,7 +56,7 @@ Fortunately, as a cluster administrator, you can manage the configuration of the
 .master$
 [source, bash]
 ----
-master$ oc adm pod-network join-projects cloudforms --to=openshift-infra
+oc adm pod-network join-projects cloudforms --to=openshift-infra
 ----
 
 Verify the NETID is the same for these projects
@@ -64,7 +64,7 @@ Verify the NETID is the same for these projects
 .master$
 [source, bash]
 ----
-master$ oc get netnamespace | egrep 'cloudforms|openshift-infra'
+oc get netnamespace | egrep 'cloudforms|openshift-infra'
 ----
 
 ==== Instantiate CloudForms Templates
@@ -76,7 +76,7 @@ Verify the template is available in the OpenShift environment
 .master$
 [source, bash]
 ----
-master$ oc get -n openshift template cloudforms
+oc get -n openshift template cloudforms
 
 NAME     DESCRIPTION                  PARAMETERS   OBJECTS
 cloudforms  CloudForms appliance with persistent storage  23 (1 blank)  12
@@ -87,7 +87,7 @@ The describe operation provides additional details about the teamplate. Execute 
 .master$
 [source, bash]
 ----
-master$ oc describe -n openshift template cloudforms
+oc describe -n openshift template cloudforms
 ----
 
 Notice the different types of information that is displayed including the objects that will be created along with parameters that can be specified.
@@ -99,7 +99,7 @@ Instantiate the template to deploy Red Hat CloudForms. A parameter called _APPLI
 .master$
 [source, bash]
 ----
-master$ oc new-app -p APPLICATION_MEM_REQ=3072Mi --template=cloudforms
+oc new-app -p APPLICATION_MEM_REQ=3072Mi --template=cloudforms
 ----
 
 Red Hat CloudForms will now be deployed into the _cloudforms_ project.
@@ -112,7 +112,7 @@ First validate that all pods are successfully running by watching the status of 
 .master$ 
 [source, bash]
 ----
-master$ oc -n cloudforms get pods -w
+oc -n cloudforms get pods -w
 
 NAME                  READY     STATUS              RESTARTS   AGE
 cloudforms-1-deploy   0/1       ContainerCreating   0          0s
@@ -158,7 +158,7 @@ Execute the following command to view the overall status of the pods in the clou
 .master$
 [source, bash]
 ----
-master$ oc status -n cloudforms
+oc status -n cloudforms
 ----
 
 For full details of the deployed application run
@@ -166,7 +166,7 @@ For full details of the deployed application run
 .master$
 [source, bash]
 ----
-master$ oc describe -n cloudforms pod/cloudforms-<pod_name>
+oc describe -n cloudforms pod/cloudforms-<pod_name>
 ----
 
 Next, in order to validate the cloudforms pod is running with the proper _privileged_ SCC, export the contents and inspect the _openshift.io/scc_ annotation to confirm the _privileged_ value is present:
@@ -174,7 +174,7 @@ Next, in order to validate the cloudforms pod is running with the proper _privil
 .master$
 [source, bash]
 ----
-master$ oc -n cloudforms get -o yaml pod cloudforms-<pod_name>
+oc -n cloudforms get -o yaml pod cloudforms-<pod_name>
 
 ...
 metadata:
@@ -188,7 +188,7 @@ For more details check events:
 .master$
 [source, bash]
 ----
-master$ oc -n cloudforms get events
+oc -n cloudforms get events
 ----
 
 You can also check volumes:
@@ -196,7 +196,7 @@ You can also check volumes:
 .master$
 [source, bash]
 ----
-master$oc -n cloudforms get pv
+oc -n cloudforms get pv
 ----
 
 NOTE: If for any reason failures are observed, you may need to remove the project and start this section over again.  **Only perform this task if there was an irrecoverable failure. Let and instructor know before doing this.** <<Appendix C - Recovering From Failed CloudForms  Deployment>>
@@ -208,7 +208,7 @@ As part of the template instantiation, a route was created that allows for acces
 .master$
 [source, bash]
 ----
-master$ oc -n cloudforms get routes
+oc -n cloudforms get routes
 
 NAME     HOST/PORT                   PATH   SERVICES   PORT   TERMINATION
 cloudforms  cloudforms-cloudforms.apps.example.com       cloudforms  https   passthrough
@@ -219,12 +219,7 @@ link:https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com[https://
 
 NOTE: If you get an error such as Application Not Available see <<Appendix E - Troubleshooting CloudForms>>
 
-Since Red Hat CloudForms in the lab environment uses a self signed certificate, add an exception in the browser to add an exception.
-
-Use the following credentials to access the console:
-
-Username: **admin** +
-Password: **smartvm**
+Since Red Hat CloudForms in the lab environment uses a self signed certificate, add an exception in the browser to add an exception. Login with the provided credentials.
 
 Once successfully authenticated, you should be taken to the overview page
 
@@ -260,7 +255,7 @@ Execute the following command to retrieve the token.
 .master$
 [source, bash]
 ----
-master$ oc serviceaccounts get-token -n management-infra management-admin
+oc serviceaccounts get-token -n management-infra management-admin
 ----
 
 Copy the value returned into the token fields.

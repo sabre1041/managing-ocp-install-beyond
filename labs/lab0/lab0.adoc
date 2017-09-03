@@ -48,15 +48,15 @@ The following table outlines how to connect to each resource:
 | Ansible Tower|
 link:https://tower-<student_id>.rhte.sysdeseng.com[https://tower-<student_id>.rhte.sysdeseng.com] |
 Username: admin +
-Password: rhte2017
+Password: INSTRUCTOR WILL PROVIDE
 | OpenShift Container Platform |
 link:https://:master-<student_id>.rhte.sysdeseng.com:8443[https://master-<student_id>.rhte.sysdeseng.com:8443] |
 Username: student +
-Password: rhte2017
+Password: INSTRUCTOR WILL PROVIDE
 | Red Hat CloudForms |
 link:https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com] |
 Username: admin +
-Password: smartvm
+Password: INSTRUCTOR WILL PROVIDE
 | Instructor Host|
 link:http://rhte-instructor.rhte.sysdeseng.com/key[http://rhte-instructor.rhte.sysdeseng.com/key] |
 Username: student +

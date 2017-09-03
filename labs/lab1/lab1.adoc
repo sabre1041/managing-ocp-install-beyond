@@ -6,14 +6,10 @@ Welcome! We are going to jump right into the lab implementation and then review 
 
 Prior to installing the OpenShift Container Platform, Ansible Tower must be configured first. This section will introduce several key benefits for using Ansible Tower over standalone ansible and provide a solid baseline for the rest of the lab session. 
 
-From a local web browser open https://tower-<student_id>.rhte.sysdeseng.com[https://tower-<student_id>.rhte.sysdeseng.com]. This will be the tower instance that was assigned to you.
+From a local web browser open https://tower-<student_id>.rhte.sysdeseng.com[https://tower-<student_id>.rhte.sysdeseng.com] and login using the credentials provided. This will be the tower instance that was assigned to you.
 
-TIP: In this lab, the value for “<student_id>” needs to be consistent throughout the rest of the lab. Failure to do so, can cause issues including losing the ability to successfully complete the lab.
+TIP: The value for “<student_id>” needs to be consistent throughout the rest of the lab. Failure to do so, can cause issues including losing the ability to successfully complete the lab.
 
-* Login with the following credentials:
- ** Username: **admin**
- ** Password: **rhte2017**
- 
 The instance of tower has been minimally configured prior to the lab. The installation of OpenShift does take some time to complete, so we will provide a high level overview of each component we will be configuring until the installation has been initiated, and then circle back afterward for a deeper discussion. 
 
 A link:http://docs.ansible.com/ansible-tower/latest/html/userguide/projects.html[Project] that references the Git based repository associated with has been configured on the _PROJECTS_ page called _Managing OCP from Install and Beyond_. 

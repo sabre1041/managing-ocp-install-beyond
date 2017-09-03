@@ -16,10 +16,7 @@ If successful, you should see the following page representing the OpenShift land
 
 image::images/openshift-login.png[]
 
-Use the following credentials to access the web console:
-
-Username: **<student_id>** +
-Password: **rhte2017**
+Login using the provided credentials to access the web console:
 
 The OpenShift web console provides an interactive way to interact with the OpenShift platform. After successfully authenticating, you are presented with an overview page containing all of the projects that you have access along with resources that can be deployed to the platform. Since you are a normal user, you do not have access to any projects by default.
 
@@ -34,7 +31,7 @@ The instances are deployed within the AWS environment, login to the OpenShift Ma
 .workstation$
 [source, bash]
 ----
-workstation$ ssh -i rhte.pem ec2-user@master-<student_id>.rhte.sysdeseng.com
+ssh -i rhte.pem ec2-user@master-<student_id>.rhte.sysdeseng.com
 ----
 
 Access to the cluster is available using the _system:admin_ user which has the cluster-admin role. This can be confirmed by executing the following command which should confirm the currently logged in user is _system:admin_
@@ -42,7 +39,7 @@ Access to the cluster is available using the _system:admin_ user which has the c
 .master$
 [source, bash]
 ----
-master$ oc whoami
+oc whoami
 ----
 
 As one would expect, users with the _cluster-admin_ role have elevated permissions in comparison to normal users, such as _<student_id>_ which was utilized previously when browsing the web console.
@@ -52,7 +49,7 @@ Cluster administrators can view all of the nodes that have constitute the cluste
 .master$
 [source, bash]
 ----
-master$ oc get nodes
+oc get nodes
 ----
 
 View all of the link:https://docs.openshift.com/container-platform/lastest/dev_guide/projects.html[Projects] that have been created by users or as part of the base infrastructure to support the platform:
@@ -60,7 +57,7 @@ View all of the link:https://docs.openshift.com/container-platform/lastest/dev_g
 .master$
 [source, bash]
 ----
-master$ oc get projects
+oc get projects
 ----
 
 List all of the link:https://docs.openshift.com/container-platform/latest/architecture/additional_concepts/storage.html#persistent-volumes[Persistent Volumes] that have been defined:
@@ -68,7 +65,7 @@ List all of the link:https://docs.openshift.com/container-platform/latest/archit
 .master$
 [source, bash]
 ----
-master$ oc get pv
+oc get pv
 ----
 
 Now check out the linkhttps://docs.openshift.com/container-platform/latest/install_config/configuring_aws.html[OpenShift on AWS] cloud provider integration.
@@ -90,7 +87,7 @@ Let’s check out the link:https://docs.openshift.com/container-platform/latest/
 .master$
 [source, bash]
 ----
-master$ oc get storageclass
+oc get storageclass
 ----
 
 By defining the AWS cloud provider, the OpenShift installer automatically configures a storage class to support persistent storage. 
@@ -98,7 +95,7 @@ By defining the AWS cloud provider, the OpenShift installer automatically config
 .master$
 [source, bash]
 ----
-master$ oc describe storageclass gp2
+oc describe storageclass gp2
 ----
 
 Notice that the provisioner is the gp2/ebs provisioner and the `is-default-class` is set to **'true'**. The usage of the _is-default-class_ annotation defines a link:https://docs.openshift.com/container-platform/3.6/install_config/storage_examples/storage_classes_dynamic_provisioning.html#example2[Default Storage Class] that will automatically provision instances when a link:https://docs.openshift.com/container-platform/latest/architecture/additional_concepts/storage.html#persistent-volume-claims[Persistent Volume Claim] is created.

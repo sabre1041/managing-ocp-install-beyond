@@ -10,10 +10,7 @@ One of the steps to validate the successful installation of an OpenShift Contain
 
 We will now put our cluster administrator hat aside and complete the majority of this lab as a developer by using the OpenShift web console to build and deploy the sample application.
 
-Navigate to link:https://master-<student_id>.rhte.sysdeseng.com:8443[https://master-<student_id>.rhte.sysdeseng.com:8443] and login using the following credentials.
-
-Username: **<student_id>** +
-Password: **rhte2017**
+Navigate to link:https://master-<student_id>.rhte.sysdeseng.com:8443[https://master-<student_id>.rhte.sysdeseng.com:8443] and login using the provided credentials.
 
 As seen in a prior lab, the OpenShift Web Console provides an intiutive interface for managing applications deployed to OpenShift. Introduced as a technical preview in OpenShift 3.6, a new user interface is available that streamlines how to explore available applications and deploy them to the platform. 
 
@@ -127,7 +124,7 @@ The rest of the dialog defines a set of parameters that can be used to customize
 .master$
 [source, text]
 ----
-master$ oc get serviceclass mediawiki-apb -o yaml
+oc get serviceclass mediawiki-apb -o yaml
 
 ...
     properties:

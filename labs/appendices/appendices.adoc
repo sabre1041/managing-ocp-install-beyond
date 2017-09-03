@@ -338,8 +338,9 @@ cloudforms-1-dgvv6   0/1       Terminating   2         20m
 The quickest way to remedy this is to delete the project and start over
 
 .master$
+[source, bash]
 ----
-master$ oc delete project cloudforms
+oc delete project cloudforms
 ----
 
 Now return the the lab and try again <<Lab 4 - Installing Red Hat CloudForms>>
@@ -368,7 +369,7 @@ Try to curl the CloudForms application, this may fail.
 .master$
 [source, bash]
 ----
-master$ curl -Ik https://cloudforms-cloudforms.apps.example.com
+curl -Ik https://cloudforms-cloudforms.apps.example.com
 ----
 
 If this matches the web browser’s output of **Application Not Available** or status code of **503**. then something failed in the deployment.
@@ -378,7 +379,7 @@ List the pods in the _default_ project
 .master$
 [source, bash]
 ----
-master$ oc get pods -n default
+oc get pods -n default
 ----
 
 List services in the default project
@@ -386,7 +387,7 @@ List services in the default project
 .master$
 [source, bash]
 ----
-master$ oc get services
+oc get services
 ----
 
 Try curl against the cloudforms service IP
@@ -394,7 +395,7 @@ Try curl against the cloudforms service IP
 .master$
 [source, bash]
 ----
-master$ curl -Ik http://72.30.126.6
+curl -Ik http://72.30.126.6
 ----
 
 If the router is in error state, delete it
@@ -402,7 +403,7 @@ If the router is in error state, delete it
 .master$
 [source, bash]
 ----
-master$ oc delete pod router -n default
+oc delete pod router -n default
 ----
 
 Watch the router get deployed
@@ -410,7 +411,7 @@ Watch the router get deployed
 .master$
 [source, bash]
 ----
-master$ oc get pods -n default -w
+oc get pods -n default -w
 ----
 
 The cloudforms application should work now if the router came up cleanly
@@ -418,6 +419,6 @@ The cloudforms application should work now if the router came up cleanly
 .master$
 [source, bash]
 ----
-master$ curl -Ik https://cloudforms-cloudforms.apps.example.com
+curl -Ik https://cloudforms-cloudforms.apps.example.com
 ----
 
