@@ -1,48 +1,37 @@
-=== Reviewing Install of OpenShift
+== Reviewing Install of OpenShift
 
 In this lab, we will review the install of the OpenShift Container Platform using Ansible Tower that we started at the beginning of this session.
 
-The OpenShift Container Platform is installed through a collection of ansible resources. This automation toolset allows platform administrations the ability to quickly provision an environment with minimal effort. Ansible Tower has been configured with a link:http://docs.ansible.com/ansible-tower/latest/html/userguide/job_templates.html[Job Template] that makes use of these assets to install OpenShift on instances available in the OpenStack environment.
-
-To view the list of Job Templates configured in Ansible Tower, select **Templates** on the menu bar at the top of the screen.
-
-All of the job templates configured in Ansible Tower are listed below. Earlier you launched the job templates called **Deployment-*** which provisioned the AWS environment as well as deployed OCP on those instances and finally some post install activities. 
-
-image::../images/image6.png[]
-
-When you execute any job template, you will be transferred to the jobs page where you will be able to track the progress and status of the installation. For more information on the Ansible playbooks see link:https://github.com/openshift/openshift-ansible[https://github.com/openshift/openshift-ansible]
-
-image::../images/image15.png[]
-
 === Validate the OpenShift Installation
 
-With the OpenShift Container Platform installation complete, let’s perform a few tests to validate the status of the environment. There are two primary methods for accessing OpenShift: the web console and the Command Line tool (CLI).
-From the student machine, open a web browser and navigate to the following address:
+With the OpenShift Container Platform installation complete, let’s perform a few tests to validate the status of the environment. There are two primary methods for accessing OpenShift: the link:https://docs.openshift.com/container-platform/latest/architecture/infrastructure_components/web_console.html[web console] and the link:https://docs.openshift.com/container-platform/latest/cli_reference/index.html[Command Line tool (CLI)].
+
+==== OpenShift Web Console
+
+From your workstation, open a web browser and navigate to the following address:
 
 link:https://master-<student_id>.rhte.sysdeseng.com:8443[https://master-<student_id>.rhte.sysdeseng.com:8443]
 
 If successful, you should see the following page representing the OpenShift landing page:
 
-image::../images/image1.png[]
+image::images/openshift-login.png[]
 
-Use the following credentials to access the web console:
+Login using the provided credentials to access the web console:
 
-Username: **student** +
-Password: **rhte2017**
+The OpenShift web console provides an interactive way to interact with the OpenShift platform. After successfully authenticating, you are presented with an overview page containing all of the projects that you have access along with resources that can be deployed to the platform. Since you are a normal user, you do not have access to any projects by default.
 
-The OpenShift web console provides an interactive way to interact with the OpenShift platform. After successfully authenticating, you are presented with an overview page containing all of the projects that you have access to. Since you are a normal user, you do not have access to any projects.
 In subsequent labs, we will explore the OpenShift web console in further detail.
 
-However, we will still use this opportunity to showcase the different items exposed within the web console.
+==== OpenShift Command Line Interface (CLI)
 
 Now that we have had an opportunity to login to the OpenShift web console from a developer's standpoint, let’s shift over to an administrative and operations point of view and access the cluster directly using the terminal.
 
 The instances are deployed within the AWS environment, login to the OpenShift Master instance as _ec2-user_:
 
-.kiosk$
+.workstation$
 [source, bash]
 ----
-kiosk$ ssh -i ~/.ssh/rhte.pem ec2-user@master-<student_id>.rhte.sysdeseng.com
+ssh -i rhte.pem ec2-user@master-<student_id>.rhte.sysdeseng.com
 ----
 
 Access to the cluster is available using the _system:admin_ user which has the cluster-admin role. This can be confirmed by executing the following command which should confirm the currently logged in user is _system:admin_
@@ -50,36 +39,36 @@ Access to the cluster is available using the _system:admin_ user which has the c
 .master$
 [source, bash]
 ----
-master$ oc whoami
+oc whoami
 ----
 
-As one would expect, users with the _cluster-admin_ role have elevated permissions in comparison to normal users, such as _student_ which was utilized when browsing the web console.
+As one would expect, users with the _cluster-admin_ role have elevated permissions in comparison to normal users, such as _<student_id>_ which was utilized previously when browsing the web console.
 
 Cluster administrators can view all of the nodes that have constitute the cluster:
 
 .master$
 [source, bash]
 ----
-master$ oc get nodes
+oc get nodes
 ----
 
-View all of the Projects that have been created by users or to support the platform:
-
-.master$
-[source, bash]
-----
-master$ oc get projects
-----
-
-Along with listing all of the Persistent Volumes that have been defined:
+View all of the link:https://docs.openshift.com/container-platform/lastest/dev_guide/projects.html[Projects] that have been created by users or as part of the base infrastructure to support the platform:
 
 .master$
 [source, bash]
 ----
-master$ oc get pv
+oc get projects
 ----
 
-Now check out the OpenShift on AWS cloud provider integration.
+List all of the link:https://docs.openshift.com/container-platform/latest/architecture/additional_concepts/storage.html#persistent-volumes[Persistent Volumes] that have been defined:
+
+.master$
+[source, bash]
+----
+oc get pv
+----
+
+Now check out the linkhttps://docs.openshift.com/container-platform/latest/install_config/configuring_aws.html[OpenShift on AWS] cloud provider integration.
 
 .master$
 [source, bash]
@@ -93,23 +82,25 @@ Zone = ap-southeast-1a
 
 The cloud provider integration file tells OpenShift how to interact with AWS. You can see that it’s doing so via the AWS API which leverages the AWS credentials that were created prior to your going through the lab. This integration between OpenShift and AWS enable capabilities like dynamic storage provisioning for applications. Cloud Provider configurations are specific to each provider, for example, you also have cloud provider configurations for OpenStack, Azure, VMware, etc…
 
-Let’s check out the storage class as well, continuing on the integration story.
+Let’s check out the link:https://docs.openshift.com/container-platform/latest/install_config/storage_examples/storage_classes_dynamic_provisioning.html[storage class] as well, continuing on the integration story.
 
 .master$
 [source, bash]
 ----
-master$ oc get storageclass
+oc get storageclass
 ----
+
+By defining the AWS cloud provider, the OpenShift installer automatically configures a storage class to support persistent storage. 
 
 .master$
 [source, bash]
 ----
-master$ oc describe storageclass gp2
+oc describe storageclass gp2
 ----
 
-Notice that the provisioner is the gp2/ebs provisioner and the is-default-class is set to **'true'**.
+Notice that the provisioner is the gp2/ebs provisioner and the `is-default-class` is set to **'true'**. The usage of the _is-default-class_ annotation defines a link:https://docs.openshift.com/container-platform/3.6/install_config/storage_examples/storage_classes_dynamic_provisioning.html#example2[Default Storage Class] that will automatically provision instances when a link:https://docs.openshift.com/container-platform/latest/architecture/additional_concepts/storage.html#persistent-volume-claims[Persistent Volume Claim] is created.
 
-You can use the OpenShift Command line tool as a user with cluster administrator role to access the entire set of configurations for the platform.
+You can use the OpenShift Command line tool as a user with cluster administrator role to access the entire set of configurations for the platform as time permits.
 
 NOTE: With great power comes great responsibility. Executing commands as a user with cluster administrator rights has the potential to negatively impact the overall health of the environment.
 

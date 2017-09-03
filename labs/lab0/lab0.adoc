@@ -1,6 +1,6 @@
 toc::[]
 
-image::images/image27.png[]
+image::images/summit-lab.png[]
 
 == Abstract
 _Today’s complex application environments require a design that addresses several common themes: they must be automated, scalable and manageable. This starts from the ground up: from the infrastructure layer all the way up to the lifecycle of applications. Fortunately, working in unison, the collection of Red Hat’s cloud and automation technologies can be used to orchestrate the infrastructure and application deployment process along with providing insight into the operational environment. In this hands-on session, attendees will experience firsthand how Ansible and Ansible Tower can be a central fixture within the enterprise by coordinating an installation of the Red Hat OpenShift Container Platform on top of Amazon Web Services. Since containers can not only run mission critical applications, but also the components to manage the infrastructure, a containerized version of Red Hat CloudForms will then be deployed to provide insight into the runtime environment. The result is solution that demonstrates how the combination or the proper tools can solve the most complex challenges._
@@ -48,15 +48,15 @@ The following table outlines how to connect to each resource:
 | Ansible Tower|
 link:https://tower-<student_id>.rhte.sysdeseng.com[https://tower-<student_id>.rhte.sysdeseng.com] |
 Username: admin +
-Password: rhte2017
+Password: INSTRUCTOR WILL PROVIDE
 | OpenShift Container Platform |
 link:https://:master-<student_id>.rhte.sysdeseng.com:8443[https://master-<student_id>.rhte.sysdeseng.com:8443] |
 Username: student +
-Password: rhte2017
+Password: INSTRUCTOR WILL PROVIDE
 | Red Hat CloudForms |
 link:https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com] |
 Username: admin +
-Password: smartvm
+Password: INSTRUCTOR WILL PROVIDE
 | Instructor Host|
 link:http://rhte-instructor.rhte.sysdeseng.com/key[http://rhte-instructor.rhte.sysdeseng.com/key] |
 Username: student +

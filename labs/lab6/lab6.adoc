@@ -12,17 +12,16 @@ Recall the number of nodes in the cluster by either visiting CloudForms or Ansib
 
 From the Ansible Tower:
 
-* Click on "Inventories" in the top navigation pane
-* Click on "OpenShift Inventory"
+* Click on **INVENTORIES** in the top navigation pane
+* Click on **OpenShift** inventory
+* Select the **OSEv3** group and review child groups and the instances within the _Hosts_ section
 
-Review the nodes on the right hand navigation pane
-
-From the OpenShift master:
+The lists of instances in the OpenShift cluster can also be viewed from the OpenShift master using the OpenShift CLI:
 
 .master$
 [source, bash]
 ----
-master$ oc get nodes
+oc get nodes
 
 NAME                                            STATUS    AGE       VERSION
 ip-10-10-0-25.ap-southeast-1.compute.internal   Ready     2h        v1.6.1+5115d708d7
@@ -31,80 +30,23 @@ ip-10-10-0-60.ap-southeast-1.compute.internal   Ready     2h        v1.6.1+5115d
 
 == Expand the Cluster
 
-## Add Scaleup Job Templates
+The _0-Self-Configure_ job template executed earlier configured a set of templates to automate the process to expand the OpenShift cluster.
 
-Perform these steps from the Ansible Tower host
-
-## Create Job Template for ScaleUp Provision
-
-* Click "TEMPLATES" on the top navigation pane.
-** Click "+ADD", select "Job Template"
-** Provide a name of: ScaleUp-1-Provision
-** Click the "SEARCH" icon for the "INVENTORY" input box and select "OpenShift Inventory" and then click "SELECT".
-** Click the "SEARCH" icon for the "PROJECT" input box and select "Managing OCP from Install and Beyond" and then click "SELECT".
-** Click the "Choose a playbook" in the "PLAYBOOK" input box and select the "aws_add_node.yml" playbook.
-** Click the "SEARCH" icon for the "MACHINE CREDENTIAL" input box and select "RHTE SSH Machine" and then click "SELECT".
-** Click the "SEARCH" icon for the "SELECT CLOUD CREDENTIAL" input box and select "AWS" and then click "SELECT".
-** Add the following to the "EXTRA VARIABLES" pane.
-
-+
-[source, bash]
-----
-ec2_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY') }}"
-ec2_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
-student_id: <student_id>
-openshift_cluster_public_url: "https{{':'}}//master-{{ student_id }}.{{ domain_name }}{{':'}}8443"
-----
-
-** Click "SAVE".
-
-## Create Job Template for Scale Up Install
-
-* Click "TEMPLATES" on the top navigation pane.
-** Click "+ADD", select "Job Template"
-** Provide a name of: ScaleUp-1-Install
-** Click the "SEARCH" icon for the "INVENTORY" input box and select "OpenShift" and then click "SELECT".
-** Click the "SEARCH" icon for the "PROJECT" input box and select "Managing OCP from Install and Beyond" and then click "SELECT".
-** Click the "Choose a playbook" in the "PLAYBOOK" input box and select the "ansible/openshift-ansible/playbooks/byo/openshift-node/scaleup.yml" playbook.
-** Click the "SEARCH" icon for the "MACHINE CREDENTIAL" input box and select "RHTE SSH Machine" and then click "SELECT".
-** Click the "SEARCH" icon for the "SELECT CLOUD CREDENTIAL" input box and select "AWS" and then click "SELECT".
-** Enable "Privileged Escalation"
-** Click "SAVE".
-
-## Create Workflow Job Template for the Deployment
-
-* Click "+ADD", select "Workflow Job Template"
-** Provide a name of "2-Provision-and-Scale-Openshift"
-** Click “SAVE”
-** Click “Workflow Editor”
-** Click “Start” and a box will appear to the right.
-** On the right under “Add Template” select “Deployment Provision” and “Select”
-** Now click on the box after start labeled “Deploy Provision” and click the green “+” in the top right.
-** Again, on the right under “Add a Template” select “Deployment Install” and “Select”
-** Lastly, click on the new box again, green “+” in the top right.
-** Select “Deployment Post-install” and “Select
-** Select “SAVE” at the bottom right.
-** Launch Workflow Job
-** Click “Templates”
-** Click rocket ship icon next to “1-Deploy OpenShift on AWS”
-** Watch progress.
-
-Once again, using the web browser from the student machine, navigate to the Ansible Tower instance:
+Using a web browser from the student workstation machine, navigate to the Ansible Tower instance:
 
 link:https://tower-<student_id>.rhte.sysdeseng.com[https://<student_id>.rhte.sysdeseng.com] 
 
-If the web session has not been retained from a prior lab, login with the following credentials:
+If the web session has not been retained from a prior lab, login once again.
 
-Username **admin** +
-Password **rhte2017**
+After logging in, navigate to the **TEMPLATES** page and locate the **2-Scaleup_OpenShift_on_AWS** workflow job template. Click the **RocketShip** icon to start the job.
 
-After logging in, navigate to the **Templates** page and locate the **1-Provision-and-Scale-OpenShift** workflow job template. Click the `rocket` icon to start the job.
+image::images/ansible-tower-scaleup-template.png[]
 
-image::../images/image18.png[]
+The workflow first creates a new AWS instance and once the instance has been created, the scaleup Ansible playbook will be executed to expand the cluster. Finally, a third job template performs final actions to finalize the cluster scaleup.
 
-The workflow first creates a new AWS instance and once the instance has been created, the scaleup Ansible playbook will be executed to expand the cluster. The workflow job will take a few minutes to complete. Monitor the status until the workflow job completes successfully by selecting **Details** as with the initial workflow job.
+The job will take a few minutes to complete. Monitor the status until the workflow job completes successfully by selecting **Details** on each job as with the initial workflow job used to install the cluster initially.
 
-image::../images/image26.png[]
+image::images/ansible-tower-scaleup-workflow-diagram.png[]
 
 == Validate the Expanded Cluster
 
@@ -117,14 +59,22 @@ As the root user on the OpenShift master (_master-<student_id>.rhte.sysdeseng.co
 .master$
 [source, bash]
 ----
-master$ oc get nodes
+oc get nodes
 ----
 
-If successful, you should see four (3) total nodes (1 master and 2 worker nodes) with **Ready** under the _Status_ column, as opposed to (2) total nodes before (1 master and 1 worker nodes).
+If successful, you should see four (3) total nodes (1 master and 2 worker nodes) with **Ready** under the _Status_ column, as opposed to (2) total nodes before (1 master and 1 worker nodes). The role the instance plays can be seen through labels asociated with each node. The master node in this environment is also acting as a scheduldable instance that hosts platform infrastructure related components, such as the router and registry. Thus it has been set with the label `type=infra`. 
+
+Execute the following to display the nodes and their associated labels:
+
+.master$
+[source, bash]
+----
+oc get nodes --show-labels
+----
 
 Red Hat CloudForms can also be used to confirm the total number of nodes has been expanded to four.
 
-Login to CloudForms and once authenticated, hover over _Compute_, then _Containers_, and finally select **Container Nodes**. Confirm four nodes are displayed.
+Login to CloudForms and once authenticated, hover over _Compute_, then _Containers_. Finally select **Container Nodes**. Confirm four nodes are displayed.
 
 This concludes lab 6.
 
