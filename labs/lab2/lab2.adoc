@@ -8,7 +8,7 @@ Ansible is an agentless automation engine that automates cloud provisioning, con
 
 Ansible Tower provides the central management of Ansible workloads to enable complex workflows to manage environments big and small. The entire installation and management of the OpenShift Container Platform can be managed from a centralized Ansible Tower environment. In this lab, Ansible Tower is configured as a stand-alone VM on AWS.
 
-TIP: Use the SSH key referenced in lab0 to SSH to the Tower instanced.
+TIP: Use the SSH key referenced in lab0 to SSH to the Tower instance.
 
 ==== Accessing Ansible Tower CLI
 
@@ -41,7 +41,7 @@ sudo tower-cli project list
 
 ==== Accessing Ansible Tower Web Console
 
-From your workstation machine, open a web browser and navigate to link:https://tower-<student_id>.rhte.sysdeseng.com[https://https://tower-<student_id>.rhte.sysdeseng.com].
+From your workstation machine, open a web browser and navigate to link:https://tower-<student_id>.rhte.sysdeseng.com[https://tower-<student_id>.rhte.sysdeseng.com].
 
 Login with the provided credentials.
 
@@ -63,8 +63,8 @@ Additional job templates relating to scaling the OpenShift environment and termi
 
 The Job Templates utilize Projects, or collections of Ansible playbooks, that in this lab are sourced from both a Git repository and the local file system on the Ansible Tower instance. To view the projects that are being utilized, select the **PROJECTS** link on the menu bar. Two projects are being leveraged:
 
-* openshift-ansible - Installs and configures the OpenShift Container Platform based on components from the `openshift-ansible-playbooks` rpm installed on the Tower machine 
 * Managing OCP from Install and Beyond - Customized Ansible tooling to perform pre and post installation steps sourced from a Git repository
+* openshift-ansible - Installs and configures the OpenShift Container Platform based on components from the `openshift-ansible-playbooks` rpm installed on the Tower machine 
 
 image::images/ansible-tower-projects.png[]
 
@@ -102,6 +102,8 @@ image::images/ansible-tower-job-overview.png[]
 Further down, a visual depiction of the workflow can be seen. Click the **Details** link on each rectangle to see the details of each playbook. The overall workflow job is complete when all 3 playbooks are completed successfully.
 
 image::images/ansible-tower-workflow-diagram.png[]
+
+IMPORTANT: In the highly unlikely event that the installation of OpenShift Container Platform fails, it may be necessary to remove the OpenShift **master** and **node** instances and try _1-Deploy_OpenShift_on_AWS_ again. A job template named _Terminate-OCP_ can be executed to remove these instances which will allow you to attempt the workflow template again. However, be extremely careful not to launch _Terminate_All_ or _3-Terminate_All_ as this will also delete your Tower instance. If you need to do this, please raise your hand and inform one of the lab instructors. _If you do this too late into the lab you may not have enough time to finish_. See this table for a reference of typical times for the Tower jobs: <<Appendix D - Average Tower Job Times>>
 
 This lab is concluded when the Ansible Tower job is completed successfully.
 

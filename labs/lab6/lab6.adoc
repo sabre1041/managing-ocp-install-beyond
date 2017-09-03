@@ -34,7 +34,7 @@ The _0-Self-Configure_ job template executed earlier configured a set of templat
 
 Using a web browser from the student workstation machine, navigate to the Ansible Tower instance:
 
-link:https://tower-<student_id>.rhte.sysdeseng.com[https://<student_id>.rhte.sysdeseng.com] 
+link:https://tower-<student_id>.rhte.sysdeseng.com[https://tower-<student_id>.rhte.sysdeseng.com] 
 
 If the web session has not been retained from a prior lab, login once again.
 
@@ -62,7 +62,7 @@ As the root user on the OpenShift master (_master-<student_id>.rhte.sysdeseng.co
 oc get nodes
 ----
 
-If successful, you should see four (3) total nodes (1 master and 2 worker nodes) with **Ready** under the _Status_ column, as opposed to (2) total nodes before (1 master and 1 worker nodes). The role the instance plays can be seen through labels asociated with each node. The master node in this environment is also acting as a scheduldable instance that hosts platform infrastructure related components, such as the router and registry. Thus it has been set with the label `type=infra`. 
+If successful, you should see three (3) total nodes (1 master and 2 worker nodes) with **Ready** under the _Status_ column, as opposed to (2) total nodes before (1 master and 1 worker nodes). The role the instance plays can be seen through labels asociated with each node. The master node in this environment is also acting as a scheduldable instance that hosts platform infrastructure related components, such as the router and registry. Thus it has been set with the label `type=infra`. 
 
 Execute the following to display the nodes and their associated labels:
 

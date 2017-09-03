@@ -18,7 +18,7 @@ image::images/openshift-login.png[]
 
 Login using the provided credentials to access the web console:
 
-The OpenShift web console provides an interactive way to interact with the OpenShift platform. After successfully authenticating, you are presented with an overview page containing all of the projects that you have access along with resources that can be deployed to the platform. Since you are a normal user, you do not have access to any projects by default.
+The OpenShift web console provides an interactive way to interact with the OpenShift platform. After successfully authenticating, you are presented with an overview page containing all of the projects that you have access to, along with resources that can be deployed to the platform. Since you are a normal user, you do not have access to any projects by default.
 
 In subsequent labs, we will explore the OpenShift web console in further detail.
 
@@ -44,7 +44,7 @@ oc whoami
 
 As one would expect, users with the _cluster-admin_ role have elevated permissions in comparison to normal users, such as _<student_id>_ which was utilized previously when browsing the web console.
 
-Cluster administrators can view all of the nodes that have constitute the cluster:
+Cluster administrators can view all of the nodes that constitute the cluster:
 
 .master$
 [source, bash]
@@ -68,7 +68,7 @@ List all of the link:https://docs.openshift.com/container-platform/latest/archit
 oc get pv
 ----
 
-Now check out the linkhttps://docs.openshift.com/container-platform/latest/install_config/configuring_aws.html[OpenShift on AWS] cloud provider integration.
+Now check out the link:https://docs.openshift.com/container-platform/latest/install_config/configuring_aws.html[OpenShift on AWS] cloud provider integration.
 
 .master$
 [source, bash]
@@ -104,7 +104,8 @@ You can use the OpenShift Command line tool as a user with cluster administrator
 
 NOTE: With great power comes great responsibility. Executing commands as a user with cluster administrator rights has the potential to negatively impact the overall health of the environment.
 
-IMPORTANT:  If you need to teardown the OpenShift Environment and start over, execute the **OpenShift Teardown** job template. However, please raise your hand and inform one of the lab instructors. _If you do this too late into the lab you may not have enough time to finish_. See this table for a reference of typical times for the Tower jobs: <<Appendix D - Average Tower Job Times>>
+IMPORTANT: If you need to teardown the OpenShift Environment and start over, execute the _Terminate-OCP_ job template. However, be extremely careful not to launch _Terminate_All_ or _3-Terminate_All_ as this will also delete your Tower instance. Please raise your hand and inform one of the lab instructors if this happens. _If you do this too late into the lab you may not have enough time to finish_. See this table for a reference of typical times for the Tower jobs: <<Appendix D - Average Tower Job Times>>
+
 
 This concludes lab 3
 
