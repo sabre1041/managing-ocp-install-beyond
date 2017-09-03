@@ -1,6 +1,6 @@
 === Managing the lifecycle of an Application
 
-The primary function of the Red Hat OpenShift Container Platform is to run end user applications executing in containers. Thus far, the applications that have been deployment were primairly for supporting the overall infrastructure of the platform.
+The primary function of the Red Hat OpenShift Container Platform is to run end user applications executing in containers. Thus far, the applications that have been deployed were primairly for supporting the overall infrastructure of the platform.
 
 In this lab, you will explore two separate methods for deploying applications to OpenShift and use the tools previously deployed to investigate how to manage the applications.
 
@@ -107,7 +107,7 @@ The APB's are shown alongside the traditional OpenShift Templates on the OpenShi
 
 image::images/openshift-landing-apb.png[]
 
-We will first use the MediaWiki APB to deploy an instance of MediaWiki. Navigate to the Overview page and select the **MediaWiki (APB)**.
+We will first use the MediaWiki APB to deploy an instance of MediaWiki. Navigate to the **Home** page by clicking the house icon in the upper left and select the **MediaWiki (APB)**.
 
 On the right hand side of the dialog, ensure _Create Project_ is selected in the dropdown underneath _Add to Project_.
 

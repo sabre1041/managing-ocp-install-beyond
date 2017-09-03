@@ -275,25 +275,23 @@ openshift_cluster_public_url: "https{{':'}}//master-{{ student_id }}.{{ domain_n
 
 These are pulled directly from <<Lab 4 - Installing Red Hat CloudForms>>
 
-NOTE: This is also available at link:http://repo.admin.example.com/pub/scripts/lab4-cloudforms-validation.sh[http://repo.admin.example.com/pub/scripts/lab4-cloudforms-validation.sh]
-
 .master$
 [source, bash]
 ----
 #!/bin/bash
 
 oc new-project cloudforms
-oc config current-context for context
+oc config current-context
 oc adm policy add-scc-to-user privileged \
        system:serviceaccount:cloudforms:default
-oc get scc privileged -o yaml | grep cloudforms
+oc get scc privileged -o yaml
 oc adm pod-network join-projects cloudforms --to=openshift-infra
 oc get netnamespace | egrep 'cloudforms|openshift-infra'
-curl -O http://repo.osp.example.com/ocp/templates/cfme-template.yaml
-oc create -n cloudforms -f cfme-template.yaml
 oc get -n cloudforms template cloudforms
-oc new-app -n cloudforms --template=cloudforms
+oc describe -n openshift template cloudforms
+oc new-app -p APPLICATION_MEM_REQ=3072Mi --template=cloudforms
 oc -n cloudforms get pods -w
+oc status -n cloudforms
 ----
 
 Proceed to <<Accessing the CloudForms User Interface>>
