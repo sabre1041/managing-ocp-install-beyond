@@ -7,6 +7,9 @@ lab_user: student
 
 ## Count of Tower instances to instantiate
 student_count: 1
+# These are normally set to start at 1 and end at {{ student_count }} but can be customized as needed
+student_count_start: 1
+student_count_end: "{{ student_count }}"
 
 ## OpenShift Version to use, this will enable the correct repositories
 openshift_deploy_version: 3.6

@@ -25,7 +25,7 @@
       assign_public_ip: yes
       region: "{{ aws_region }}"
       state: present
-    with_sequence: count={{ student_count }}
+    with_sequence: start={{ student_count_start }} end={{ student_count_end }}
     register: instances_created
 
   - debug:
@@ -38,6 +38,7 @@
       host: "{{ item.instances.0.public_ip }}"
       timeout: 1000
     with_items: "{{ instances_created.results }}"
+    ignore_errors: yes
 
   - add_host:
       name: "{{ item.instances.0.public_dns_name }}"
