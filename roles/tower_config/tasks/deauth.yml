@@ -1,0 +1,21 @@
+- name: Unset Tower CLI Host
+  command: >
+    tower-cli config
+      --unset host
+      "{{ tower_cli_verbosity }}"
+  when: not tower_cli_credentials_keep|bool == true
+
+- name: Unset Tower CLI Username
+  command: >
+    tower-cli config
+      --unset username
+      "{{ tower_cli_verbosity }}"
+  when: not tower_cli_credentials_keep|bool == true
+
+- name: Unset Tower CLI Password
+  command: >
+    tower-cli config
+      --unset password
+      "{{ tower_cli_verbosity }}"
+  no_log: True
+  when: not tower_cli_credentials_keep|bool == true

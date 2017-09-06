@@ -1,0 +1,7 @@
+- name: Launch Workflow Job for Deploy - this will block while the job runs and will wait up to {{ tower_workflow_job_deploy_launch_async // 60 }} minutes to complete, see Tower UI Jobs for detailed progress
+  command: tower-cli workflow_job launch -W {{ tower_workflow_template_deploy }} --monitor
+  async: "{{ tower_workflow_job_deploy_launch_async }}"
+  poll: "{{ tower_workflow_job_deploy_launch_poll }}"
+  when: 
+    - tower_workflow_job_deploy_launch|bool == true
+    - tower_workflow_template_deploy_config|bool == true

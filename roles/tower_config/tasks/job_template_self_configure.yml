@@ -1,0 +1,29 @@
+- name: Configure Job Template for Self-Configure
+  tower_job_template:
+    tower_host: "{{ tower_host }}"
+    tower_username: "{{ tower_username }}"
+    tower_password: "{{ tower_password }}"
+    job_type: run
+    name: "{{ tower_job_template_self_configure }}"
+    description: "{{ tower_job_template_self_configure_description }}"
+    state: present
+    inventory: "{{ tower_inventory }}"
+    cloud_credential: "{{ tower_cloud_credential }}"
+    project: "{{ tower_project_provision_and_configure }}"
+    playbook: "{{ tower_job_template_self_configure_playbook }}"
+    machine_credential: "{{ tower_machine_credential }}"
+  when: tower_job_template_self_configure_config|bool == true
+
+- name: Copy Job Template for Self-Configure Extra Variables file
+  template:
+    src: "{{ tower_job_template_self_configure_extra_vars_path }}"
+    dest: "/tmp/{{ tower_job_template_self_configure_extra_vars_path }}"
+  when: tower_job_template_self_configure_config|bool == true
+
+- name: Update Job Template for Self-Configure with Extra Vars
+  command: >
+    tower-cli job_template modify
+      --name="{{ tower_job_template_self_configure }}"
+      --extra-vars="@/tmp/{{ tower_job_template_self_configure_extra_vars_path }}"
+      "{{ tower_cli_verbosity }}"
+  when: tower_job_template_self_configure_config|bool == true

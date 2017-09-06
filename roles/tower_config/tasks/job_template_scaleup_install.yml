@@ -1,0 +1,16 @@
+- name: Configure Job Template for Scaleup-Install
+  tower_job_template:
+    tower_host: "{{ tower_host }}"
+    tower_username: "{{ tower_username }}"
+    tower_password: "{{ tower_password }}"
+    job_type: run
+    name: "{{ tower_job_template_scaleup_install }}"
+    description: "{{ tower_job_template_scaleup_install_description }}"
+    state: present
+    inventory: "{{ tower_inventory }}"
+    project: "{{ tower_project_install }}"
+    playbook: "{{ tower_job_template_scaleup_install_playbook }}"
+    become_enabled: "{{ tower_job_template_scaleup_install_become_enabled }}"
+    machine_credential: "{{ tower_machine_credential }}"
+    cloud_credential: "{{ tower_cloud_credential }}"
+  when: tower_job_template_scaleup_install_config|bool == true
