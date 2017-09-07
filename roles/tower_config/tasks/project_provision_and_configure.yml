@@ -1,0 +1,24 @@
+- name: Configure Project for Provision and Configure
+  tower_project:
+    tower_host: "{{ tower_host }}"
+    tower_username: "{{ tower_username }}"
+    tower_password: "{{ tower_password }}"
+    name: "{{ tower_project_provision_and_configure }}"
+    description: "{{ tower_project_provision_and_configure_description }}"
+    organization: "{{ tower_org }}"
+    state: present
+    scm_type: "{{ tower_project_provision_and_configure_type }}"
+    scm_url: "{{ tower_project_provision_and_configure_url }}"
+    scm_branch: "{{ tower_project_provision_and_configure_branch }}"
+    scm_clean: "{{ tower_project_provision_and_configure_clean }}"
+    scm_update_on_launch: "{{ tower_project_provision_and_configure_update_on_launch }}"
+    scm_delete_on_update: "{{ tower_project_provision_and_configure_delete_on_update }}"
+  when: tower_project_provision_and_configure_config|bool == true
+
+- name: Update Project for Provision and Configure
+  command: >
+    tower-cli project update
+      --name "{{ tower_project_provision_and_configure }}"
+      --wait
+      "{{ tower_cli_verbosity }}"
+  when: tower_project_provision_and_configure_config|bool == true

@@ -1,0 +1,32 @@
+- name: Copy Workflow Template Extra Vars for Scaleup
+  template:
+    src: "{{ tower_workflow_template_scaleup_extra_vars }}"
+    dest: "/tmp/{{ tower_workflow_template_scaleup_extra_vars }}"
+  when: tower_workflow_template_scaleup_config|bool == true
+
+- name: Create Workflow Template for Scaleup
+  command: >
+    tower-cli workflow create
+      --name="{{ tower_workflow_template_scaleup }}"
+      --description="{{ tower_workflow_template_scaleup_description }}"
+      --organization="{{ tower_org }}"
+      --extra-vars="@/tmp/{{ tower_workflow_template_scaleup_extra_vars }}"
+      "{{ tower_cli_verbosity }}"
+  when: tower_workflow_template_scaleup_config|bool == true
+
+- debug:
+    var: "{{ item }}"
+    verbosity: 2
+  with_items:
+    - tower_workflow_template_scaleup
+    - tower_workflow_template_scaleup_schema
+
+- name: Copy Workflow Template Schema for Scaleup
+  template:
+    src: "{{ tower_workflow_template_scaleup_schema_path }}"
+    dest: "/tmp/{{ tower_workflow_template_scaleup_schema_path }}"
+  when: tower_workflow_template_scaleup_config|bool == true
+
+- name: Create Workflow Schema for Scaleup
+  command: tower-cli workflow schema {{ tower_workflow_template_scaleup }} @/tmp/{{ tower_workflow_template_scaleup_schema_path }} "{{ tower_cli_verbosity }}"
+  when: tower_workflow_template_scaleup_config|bool == true

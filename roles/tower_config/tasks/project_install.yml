@@ -1,0 +1,31 @@
+- name: Install playbooks for {{ tower_project_install }}
+  yum:
+    name: "{{ tower_project_install_package }}"
+    state: present
+  become: true
+  when: 
+    - tower_prereqs_config| bool == true
+    - tower_project_install_config|bool == true
+
+- name: Create symbolic link to /usr/share
+  file:
+    src: /usr/share
+    dest: "{{ tower_projects_root }}/share"
+    owner: awx
+    group: awx
+    state: link
+  become: true
+  when: tower_project_install_config|bool == true
+
+- name: Add Tower Project for Install
+  tower_project:
+    name: "{{ tower_project_install }}"
+    description: "{{ tower_project_install_description }}"
+    organization: "{{ tower_org }}"
+    scm_type: "{{ tower_project_install_type }}"
+    local_path: "{{ tower_project_install_local_path }}"
+    state: present
+    tower_host: "{{ tower_host }}"
+    tower_username: "{{ tower_username }}"
+    tower_password: "{{ tower_password }}"
+  when: tower_project_install_config|bool == true

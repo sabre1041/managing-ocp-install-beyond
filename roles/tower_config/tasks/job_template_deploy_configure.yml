@@ -1,0 +1,15 @@
+- name: Configure Job Template for Deploy-Configure
+  tower_job_template:
+    tower_host: "{{ tower_host }}"
+    tower_username: "{{ tower_username }}"
+    tower_password: "{{ tower_password }}"
+    job_type: run
+    name: "{{ tower_job_template_deploy_configure }}"
+    description: "{{ tower_job_template_deploy_configure_description }}"
+    state: present
+    inventory: "{{ tower_inventory }}"
+    cloud_credential: "{{ tower_cloud_credential }}"
+    project: "{{ tower_project_provision_and_configure }}"
+    playbook: "{{ tower_job_template_deploy_configure_playbook }}"
+    machine_credential: "{{ tower_machine_credential }}"
+  when: tower_job_template_deploy_configure_config|bool == true

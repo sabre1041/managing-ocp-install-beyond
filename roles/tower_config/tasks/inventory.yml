@@ -1,0 +1,101 @@
+---
+
+- name: Add Tower inventory
+  tower_inventory:
+    name: "{{ tower_inventory }}"
+    description: "{{ tower_inventory_description }}"
+    organization: "{{ tower_org }}"
+    state: present
+    tower_host: "{{ tower_host }}"
+    tower_username: "{{ tower_username }}"
+    tower_password: "{{ tower_password }}"
+  when: tower_inventory_config|bool == true
+
+- name: Configure Tower Inventory
+  tower_inventory:
+    tower_host: "{{ tower_host }}"
+    tower_username: "{{ tower_username }}"
+    tower_password: "{{ tower_password }}"
+    name: "{{ tower_inventory }}"
+    description: "{{ tower_inventory_description }}"
+    organization: "{{ tower_org }}"
+    variables:
+      - student_id: "{{ student_id }}"
+      - lab_user: "{{ lab_user }}"
+  when: tower_inventory_config|bool == true
+
+- name: Configure Tower Inventory Group
+  tower_group:
+    tower_host: "{{ tower_host }}"
+    tower_username: "{{ tower_username }}"
+    tower_password: "{{ tower_password }}"
+    name: "{{ tower_inventory_group }}"
+    description: "{{ tower_inventory_group_description }}"
+    source: "{{ tower_inventory_group_source }}"
+    credential: "{{ tower_cloud_credential }}"
+    inventory: "{{ tower_inventory }}"
+    instance_filters: "{{ filter }}"
+    update_on_launch: "{{ tower_inventory_group_update_on_launch }}"
+    overwrite: "{{ tower_inventory_group_overwrite }}"
+    source_vars:
+      regions: "{{ aws_region }}"
+      vpc_destination_variable: public_dns_name
+      hostname_variable: tag_Name
+    state: present
+  when: tower_inventory_group_config|bool == true
+
+- name: Add OSEv3 Group
+  tower_group:
+    tower_host: "{{ tower_host }}"
+    tower_username: "{{ tower_username }}"
+    tower_password: "{{ tower_password }}"
+    name: "{{ tower_openshift_install_group }}"
+    description: "{{ tower_openshift_install_group_description }}"
+    source: "manual"
+    inventory: "{{ tower_inventory }}"
+    state: present
+    variables: "{{ lookup('template', 'OSEv3.yml.j2') }}"
+  when: tower_openshift_install_group_config|bool == true
+
+- name: Add OSEv3 Children
+  tower_group:
+    tower_host: "{{ tower_host }}"
+    tower_username: "{{ tower_username }}"
+    tower_password: "{{ tower_password }}"
+    name: "{{ item }}"
+    description: "{{ item + '_description' }}"
+    source: "manual"
+    inventory: "{{ tower_inventory }}"
+    state: present
+  with_items:
+    - "{{ tower_openshift_masters_group }}"
+    - "{{ tower_openshift_nodes_group }}"
+    - "{{ tower_master_tag }}"
+    - "{{ tower_node_tag }}"
+  when: 
+    - tower_openshift_masters_group_config|bool == true
+    - tower_openshift_nodes_group_config|bool == true
+
+- name: Associate OSEv3 Groups
+  command: >
+    tower-cli group associate
+      --group "{{ item.0 }}"
+      --parent "{{ item.1 }}"
+      --inventory "{{ tower_inventory }}"
+      "{{ tower_cli_verbosity }}"
+  with_together:
+    - [ "{{ tower_openshift_nodes_group }}", "{{ tower_node_tag }}", "{{ tower_openshift_masters_group }}", "{{ tower_master_tag }}" ]
+    - [ "{{ tower_openshift_install_group }}", "{{ tower_openshift_nodes_group }}", "{{ tower_openshift_nodes_group }}", "{{ tower_openshift_masters_group }}" ]
+  when: 
+    - tower_openshift_masters_group_config|bool == true
+    - tower_openshift_nodes_group_config|bool == true
+
+- name: Sync Inventory
+  command: >
+    tower-cli group sync
+      --name "{{ tower_inventory_group }}"
+      --wait
+      "{{ tower_cli_verbosity }}"
+  when: 
+    - tower_inventory_config|bool == true
+    - tower_inventory_sync|bool == true

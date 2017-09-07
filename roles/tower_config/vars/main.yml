@@ -1,0 +1,189 @@
+---
+# Tower general config
+tower_username: admin
+tower_password: rhte2017
+tower_org: "Default"
+tower_projects_root: "/var/lib/awx/projects"
+tower_cli_credentials_config: false
+tower_cli_credentials_keep: true
+tower_cli_verbosity: "--verbose"
+
+# Tower prerequisites
+tower_prereqs_config: false
+
+# Tower cloud credential
+tower_cloud_credential: "AWS"
+tower_cloud_credential_config: false
+tower_cloud_credential_description: "AWS Access and Secret"
+tower_cloud_credential_kind: "aws"
+tower_cloud_credential_username: "{{ec2_access_key}}"
+tower_cloud_credential_password: "{{ec2_secret_key}}"
+
+# Tower machine credential
+tower_machine_credential: "RHTE SSH"
+tower_machine_credential_config: false
+tower_machine_credential_description: "Private SSH Key"
+tower_machine_credential_kind: "ssh"
+tower_machine_credential_ssh_key_data: "rhte.pem"
+tower_machine_credential_username: "ec2-user"
+
+# Tower inventory
+tower_inventory: "OpenShift"
+tower_inventory_config: true
+tower_inventory_description: "Inventory for all AWS Instances"
+tower_inventory_group: "AWS"
+tower_inventory_group_config: true
+tower_inventory_group_description: "AWS dynamic inventory"
+tower_inventory_group_source: "ec2"
+tower_inventory_group_update_on_launch: "yes"
+tower_inventory_group_overwrite: "no"
+tower_inventory_sync: true
+tower_openshift_install_group: "OSEv3"
+tower_openshift_install_group_config: false
+tower_openshift_install_group_description: "All OCP nodes"
+tower_openshift_masters_group: "masters"
+tower_openshift_masters_group_config: false
+tower_openshift_masters_description: "OCP masters"
+tower_openshift_nodes_group: "nodes"
+tower_openshift_nodes_group_config: false
+tower_openshift_nodes_description: "OCP nodes"
+tower_master_tag: "tag_lab_role_master"
+tower_master_tag_description: "nodes with the tag 'tag_lab_role_master'"
+tower_node_tag: "tag_lab_role_node"
+tower_node_tag_description: "nodes with the tag 'tag_lab_role_node'"
+
+# Tower projet for provision and configure playbooks
+tower_project_provision_and_configure: "Managing OCP from Install and Beyond"
+tower_project_provision_and_configure_config: true
+tower_project_provision_and_configure_description: "Git repo with Ansible playbooks for provision (pre-install) and configure (post-install)"
+tower_project_provision_and_configure_type: "git"
+tower_project_provision_and_configure_url: "https://github.com/sabre1041/managing-ocp-install-beyond.git"
+tower_project_provision_and_configure_branch: "rhte"
+tower_project_provision_and_configure_local_branch: ""
+tower_project_provision_and_configure_clean: "yes"
+tower_project_provision_and_configure_update_on_launch: "no"
+tower_project_provision_and_configure_delete_on_update: "no"
+
+# Tower project for install
+tower_project_install: "openshift-ansible"
+tower_project_install_config: false
+tower_project_install_package: "openshift-ansible-playbooks"
+tower_project_install_description: "Red Hat OpenShift Container Platform Ansible Playbooks"
+tower_project_install_type: "manual"
+tower_project_install_url: ""
+tower_project_install_branch: ""
+tower_project_install_local_path: "share"
+tower_project_install_source_path: "/usr/share/ansible/openshift-ansible/"
+tower_project_install_clean: "yes"
+tower_project_install_update_on_launch: "no"
+tower_project_install_delete_on_update: "no"
+
+# Tower job template for self-configure
+tower_job_template_self_configure: "0-Self-Configure"
+tower_job_template_self_configure_config: true
+tower_job_template_self_configure_description: "Tower self-configure"
+tower_job_template_self_configure_playbook: "tower_config.yml"
+tower_job_template_self_configure_limit: "localhost"
+tower_job_template_self_configure_extra_vars_path: "tower_job_template_self_configure_extra_vars.yml.j2"
+
+# Tower job template for deployment-provision
+tower_job_template_deploy_provision: "Deploy-1-Provision"
+tower_job_template_deploy_provision_config: false
+tower_job_template_deploy_provision_description: "Deployment Step 1 - Creates AWS instances to be used as an OCP cluster in later job templates"
+tower_job_template_deploy_provision_playbook: "aws_create_hosts.yml"
+tower_job_template_deploy_provision_extra_vars_path: "tower_job_template_deploy_provision_extra_vars.yml.j2"
+
+# Tower job template for deployment-install
+tower_job_template_deploy_install: "Deploy-2-Install"
+tower_job_template_deploy_install_config: false
+tower_job_template_deploy_install_description: "Deployment Step 2 - Installs OpenShift Container Platform"
+tower_job_template_deploy_install_playbook: "ansible/openshift-ansible/playbooks/byo/config.yml"
+tower_job_template_deploy_install_become_enabled: "yes"
+
+# Job template for deployment-configure
+tower_job_template_deploy_configure: "Deploy-3-Post-Install"
+tower_job_template_deploy_configure_config: false
+tower_job_template_deploy_configure_description: "Deployment Step 3 - Post-install configuration"
+tower_job_template_deploy_configure_playbook: "openshift_postinstall.yml"
+tower_job_template_deploy_configure_become_enabled: "yes"
+
+# Tower job template for scaleup-provision
+tower_job_template_scaleup_provision: "Scaleup-1-Provision"
+tower_job_template_scaleup_provision_config: false
+tower_job_template_scaleup_provision_description: "Scaleup Step 1 - Creates AWS instance to be added to the existing OCP cluster"
+tower_job_template_scaleup_provision_playbook: "aws_add_node.yml"
+tower_job_template_scaleup_provision_extra_vars_path: "{{ tower_job_template_deploy_provision_extra_vars_path }}"
+
+# Tower job template for scaleup-install
+tower_job_template_scaleup_install: "Scaleup-2-Install"
+tower_job_template_scaleup_install_config: false
+tower_job_template_scaleup_install_description: "Scaleup Step 2 - Add instance as a node to existing OCP cluster"
+tower_job_template_scaleup_install_playbook: "ansible/openshift-ansible/playbooks/byo/openshift-node/scaleup.yml"
+tower_job_template_scaleup_install_become_enabled: "yes"
+
+# Job template for scaleup-configure
+tower_job_template_scaleup_configure: "Scaleup-3-Post-Install"
+tower_job_template_scaleup_configure_config: false
+tower_job_template_scaleup_configure_description: "Scaleup Step 3 Post-Install configuration"
+tower_job_template_scaleup_configure_playbook: "openshift_postinstall.yml"
+tower_job_template_scaleup_configure_become_enabled: "yes"
+
+# Tower job template for terminate-ocp
+tower_job_template_terminate_ocp: "Terminate-OCP"
+tower_job_template_terminate_ocp_config: false
+tower_job_template_terminate_ocp_description: "Terminate all OpenShift masters and nodes"
+tower_job_template_terminate_ocp_playbook: "aws_terminate_instances.yml"
+tower_job_template_terminate_ocp_extra_vars: "terminate_tower=false"
+
+# Tower job template for terminate-all
+tower_job_template_terminate_all: "Terminate-All"
+tower_job_template_terminate_all_config: false
+tower_job_template_terminate_all_description: "Terminate all instances including Tower"
+tower_job_template_terminate_all_playbook: "aws_terminate_instances.yml"
+tower_job_template_terminate_all_extra_vars: "terminate_tower=true"
+
+# Tower Workflow Assets for Deploy job
+tower_workflow_template_deploy: "1-Deploy_OpenShift_on_AWS"
+tower_workflow_template_deploy_config: false
+tower_workflow_template_deploy_description: "Deploy OpenShift on AWS."
+# Place any variables that will be available to all job templates and inventory hosts
+tower_workflow_template_deploy_extra_vars: "tower_workflow_template_deploy_extra_vars.yml"
+# Wire up job_templates for Deploy in this file
+tower_workflow_template_deploy_schema_path: "tower_workflow_template_deploy_schema.yml"
+# Set to true to launch the workflow job at the end of the configuration. Set to true will only have an effect if also setting tower_config: true. This is useful for full end to end testing.
+tower_workflow_job_deploy_launch: false
+# Workflow job timeout in seconds
+tower_workflow_job_deploy_launch_async: 2400
+# Workflow job polling 
+tower_workflow_job_deploy_launch_poll: 60
+
+# Tower Workflow Assets for Scaleup job
+tower_workflow_template_scaleup: "2-Scaleup_OpenShift_on_AWS"
+tower_workflow_template_scaleup_config: false
+tower_workflow_template_scaleup_description: "Scaleup OpenShift on AWS"
+# Place any variables that will be available to all job templates and inventory hosts
+tower_workflow_template_scaleup_extra_vars: "{{ tower_workflow_template_deploy_extra_vars }}"
+# Wire up job_templates for Scaleup in this file
+tower_workflow_template_scaleup_schema_path: "tower_workflow_template_scaleup_schema.yml"
+# Set to true to launch the workflow job at the end of the configuration. Set to true will only have an effect if also setting tower_config: true. This is useful for full end to end testing.
+tower_workflow_job_scaleup_launch: false
+# Workflow job timeout in seconds 
+tower_workflow_job_scaleup_launch_async: 1800
+# Workflow job polling
+tower_workflow_job_scaleup_launch_poll: 60
+
+# Tower Workflow Assets for Terminate job
+tower_workflow_template_terminate: "3-Terminate_All"
+tower_workflow_template_terminate_config: false
+tower_workflow_template_terminate_description: "Terminate instances (including self) on AWS"
+
+# Wire up job_templates for Terminate in this file
+tower_workflow_template_terminate_schema_path: "tower_workflow_template_terminate_schema.yml"
+# Set to true to launch the workflow job at the end of the configuration. Set to true will only have an effect if also setting tower_config: true. This is useful for full end to end testing.
+tower_workflow_job_terminate_launch: false
+# Workflow job timeout in seconds 
+tower_workflow_job_terminate_launch_async: 300
+# Workflow job polling
+tower_workflow_job_terminate_launch_poll: 60
+
+

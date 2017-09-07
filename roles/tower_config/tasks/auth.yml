@@ -1,0 +1,12 @@
+- name: Set Tower CLI Host
+  command: tower-cli config host "{{ tower_host }}"
+  when: tower_cli_credentials_config|bool == true
+
+- name: Set Tower CLI Username
+  command: tower-cli config username "{{ tower_username }}"
+  when: tower_cli_credentials_config|bool == true
+
+- name: Set Tower CLI Password
+  command: tower-cli config password "{{ tower_password }}"
+  no_log: True
+  when: tower_cli_credentials_config|bool == true
