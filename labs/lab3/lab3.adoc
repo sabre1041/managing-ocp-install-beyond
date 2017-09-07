@@ -28,11 +28,17 @@ Now that we have had an opportunity to login to the OpenShift web console from a
 
 The instances are deployed within the AWS environment, login to the OpenShift Master instance as _ec2-user_:
 
+* Linux
+
 .workstation$
 [source, bash]
 ----
 ssh -i rhte.pem ec2-user@master-<student_id>.rhte.sysdeseng.com
 ----
+
+* Windows
+
+Use putty to SSH to the Master instance as _ec2-user_, similar to accesing the Tower instance mentioned in lab2. 
 
 Access to the cluster is available using the _system:admin_ user which has the cluster-admin role. This can be confirmed by executing the following command which should confirm the currently logged in user is _system:admin_
 
