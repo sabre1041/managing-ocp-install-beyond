@@ -1,4 +1,4 @@
-== Reviewing Install of OpenShift
+== Reviewing Install of OpenShift 
 
 In this lab, we will review the install of the OpenShift Container Platform using Ansible Tower that we started at the beginning of this session.
 
