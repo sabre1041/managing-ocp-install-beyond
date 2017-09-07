@@ -16,6 +16,8 @@ link:http://docs.ansible.com/ansible-tower/latest/html/towerapi/tower_cli.html[t
 
 First, connect to the Ansible Tower instance via SSH
 
+* Linux
+
 .workstation$
 [source, bash]
 ----
@@ -38,6 +40,14 @@ sudo tower-cli group list
 sudo tower-cli workflow list
 sudo tower-cli project list
 ----
+
+* Windows
+
+Install putty on your Windows machine. link:http://www.putty.org/[http://www.putty.org/]
+
+Once installed, use the following instructions to SSH to the Tower instance link:http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html[http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html].
+
+TIP: Use the SSH key for Windows referenced in lab0 to SSH to the Tower instance.
 
 ==== Accessing Ansible Tower Web Console
 

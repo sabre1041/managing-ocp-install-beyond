@@ -63,12 +63,18 @@ Username: student +
 Password: INSTRUCTOR WILL PROVIDE
 |======================
 
+* Linux
+
 Retrieve the key from the instructor host so that you can _SSH_ into the instances by accessing the password protected directory from the table above. Download the _rhte.pem_ file to your local machine and change the permissions of the file to 600.
 
 [source, bash]
 ----
 chmod 600 rhte.pem
 ----
+
+* Windows
+
+If using Windows, download the rhte.ppk file to your local machine.
 
 Each component plays a critical role into the overall management of the environment. Now let’s get started!
 
