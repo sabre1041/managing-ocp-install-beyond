@@ -1,0 +1,24 @@
+---
+- include: job_templates/self_configure.yml
+  when: tower_job_template_self_configure_config|bool == true
+- include: job_template_deploy_provision.yml
+  when: tower_job_template_deploy_provision_config|bool == true
+- include: job_template_deploy_install.yml
+  when: tower_job_template_deploy_install_config|bool == true
+- include: job_template_deploy_configure.yml
+  when: tower_job_template_deploy_configure_config|bool == true
+- include: job_template_scaleup_provision.yml
+  when: tower_job_template_scaleup_provision_config|bool == true
+- include: job_template_scaleup_install.yml
+  when: tower_job_template_scaleup_install_config|bool == true
+- include: job_template_scaleup_configure.yml
+  when: tower_job_template_scaleup_configure_config|bool == true
+- include: job_template_terminate_ocp.yml
+  when: tower_job_template_terminate_ocp_config|bool == true
+- include: job_template_terminate_all.yml
+  when: tower_job_template_terminate_all_config|bool == true
+- include: job_launch_self_configure.yml
+  when:
+    - tower_job_self_configure_launch|bool == true
+    - tower_job_template_self_configure_config|bool == true
+

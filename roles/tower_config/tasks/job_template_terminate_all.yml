@@ -1,3 +1,4 @@
+---
 - name: Configure Job Template for Terminate-All
   tower_job_template:
     tower_host: "{{ tower_host }}"
@@ -12,7 +13,6 @@
     project: "{{ tower_project_provision_and_configure }}"
     playbook: "{{ tower_job_template_terminate_all_playbook }}"
     machine_credential: "{{ tower_machine_credential }}"
-  when: tower_job_template_terminate_all_config|bool == true
 
 - name: Update Job Template for Terminate-All with Extra Vars
   command: >
@@ -20,4 +20,4 @@
       --name="{{ tower_job_template_terminate_all }}"
       --extra-vars="{{ tower_job_template_terminate_all_extra_vars }}"
       "{{ tower_cli_verbosity }}"
-  when: tower_job_template_terminate_all_config|bool == true
+

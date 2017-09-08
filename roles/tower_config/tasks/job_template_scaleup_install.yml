@@ -1,3 +1,4 @@
+---
 - name: Configure Job Template for Scaleup-Install
   tower_job_template:
     tower_host: "{{ tower_host }}"
@@ -13,4 +14,4 @@
     become_enabled: "{{ tower_job_template_scaleup_install_become_enabled }}"
     machine_credential: "{{ tower_machine_credential }}"
     cloud_credential: "{{ tower_cloud_credential }}"
-  when: tower_job_template_scaleup_install_config|bool == true
+
