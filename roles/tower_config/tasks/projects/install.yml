@@ -1,11 +1,10 @@
+---
 - name: Install playbooks for {{ tower_project_install }}
   yum:
     name: "{{ tower_project_install_package }}"
     state: present
   become: true
-  when: 
-    - tower_prereqs_config| bool == true
-    - tower_project_install_config|bool == true
+  when: tower_prereqs_config| bool == true
 
 - name: Create symbolic link to /usr/share
   file:
@@ -15,7 +14,6 @@
     group: awx
     state: link
   become: true
-  when: tower_project_install_config|bool == true
 
 - name: Add Tower Project for Install
   tower_project:
@@ -28,4 +26,4 @@
     tower_host: "{{ tower_host }}"
     tower_username: "{{ tower_username }}"
     tower_password: "{{ tower_password }}"
-  when: tower_project_install_config|bool == true
+...

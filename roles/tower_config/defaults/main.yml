@@ -17,20 +17,20 @@ tower_org: "Default"
 tower_org_config: false
 
 # Tower machine credential
-tower_machine_credential: "RHTE SSH"
-tower_machine_credential_config: false
-tower_machine_credential_description: "Private SSH Key"
-tower_machine_credential_kind: "ssh"
-tower_machine_credential_ssh_key_data: "rhte.pem"
-tower_machine_credential_username: "ec2-user"
+tower_credential_machine: "RHTE SSH"
+tower_credential_machine_config: false
+tower_credential_machine_description: "Private SSH Key"
+tower_credential_machine_kind: "ssh"
+tower_credential_machine_ssh_key_data: "rhte.pem"
+tower_credential_machine_username: "ec2-user"
 
 # Tower cloud credential
-tower_cloud_credential: "AWS"
-tower_cloud_credential_config: false
-tower_cloud_credential_description: "AWS Access and Secret"
-tower_cloud_credential_kind: "aws"
-tower_cloud_credential_username: "{{ec2_access_key}}"
-tower_cloud_credential_password: "{{ec2_secret_key}}"
+tower_credential_cloud: "AWS"
+tower_credential_cloud_config: false
+tower_credential_cloud_description: "AWS Access and Secret"
+tower_credential_cloud_kind: "aws"
+tower_credential_cloud_username: "{{ec2_access_key}}"
+tower_credential_cloud_password: "{{ec2_secret_key}}"
 
 # Tower inventory
 tower_inventory: "OpenShift"
@@ -197,4 +197,4 @@ tower_workflow_job_terminate_launch: false
 tower_workflow_job_terminate_launch_async: 300
 # Workflow job polling
 tower_workflow_job_terminate_launch_poll: 60
-
+...

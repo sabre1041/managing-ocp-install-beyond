@@ -1,3 +1,4 @@
+---
 - name: Configure Project for Provision and Configure
   tower_project:
     tower_host: "{{ tower_host }}"
@@ -13,7 +14,6 @@
     scm_clean: "{{ tower_project_provision_and_configure_clean }}"
     scm_update_on_launch: "{{ tower_project_provision_and_configure_update_on_launch }}"
     scm_delete_on_update: "{{ tower_project_provision_and_configure_delete_on_update }}"
-  when: tower_project_provision_and_configure_config|bool == true
 
 - name: Update Project for Provision and Configure
   command: >
@@ -21,4 +21,4 @@
       --name "{{ tower_project_provision_and_configure }}"
       --wait
       "{{ tower_cli_verbosity }}"
-  when: tower_project_provision_and_configure_config|bool == true
+...

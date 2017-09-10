@@ -3,17 +3,9 @@
 - include: auth.yml
 - include: org.yml
   when: tower_org_config|bool == true
-- include: machine_credential.yml
-- include: cloud_credential.yml
 - include: inventory.yml
-- include: project_provision_and_configure.yml
-- include: project_install.yml
+- include: projects.yml
 - include: job_templates.yml
-- include: workflow_deploy.yml
-- include: workflow_scaleup.yml
-- include: workflow_terminate.yml
-- include: workflow_job_launch_deploy.yml
-- include: workflow_job_launch_scaleup.yml
-- include: workflow_job_launch_terminate.yml
+- include: workflows.yml
 - include: deauth.yml
-
+...

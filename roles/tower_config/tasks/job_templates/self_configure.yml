@@ -9,10 +9,10 @@
     description: "{{ tower_job_template_self_configure_description }}"
     state: present
     inventory: "{{ tower_inventory }}"
-    cloud_credential: "{{ tower_cloud_credential }}"
+    cloud_credential: "{{ tower_credential_cloud }}"
     project: "{{ tower_project_provision_and_configure }}"
     playbook: "{{ tower_job_template_self_configure_playbook }}"
-    machine_credential: "{{ tower_machine_credential }}"
+    machine_credential: "{{ tower_credential_machine }}"
 
 - name: Copy Job Template for Self-Configure Extra Variables file
   template:
@@ -25,4 +25,4 @@
       --name="{{ tower_job_template_self_configure }}"
       --extra-vars="@/tmp/{{ tower_job_template_self_configure_extra_vars_path }}"
       "{{ tower_cli_verbosity }}"
-
+...

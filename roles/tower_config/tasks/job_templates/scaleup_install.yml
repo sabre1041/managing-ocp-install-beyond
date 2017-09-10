@@ -12,6 +12,6 @@
     project: "{{ tower_project_install }}"
     playbook: "{{ tower_job_template_scaleup_install_playbook }}"
     become_enabled: "{{ tower_job_template_scaleup_install_become_enabled }}"
-    machine_credential: "{{ tower_machine_credential }}"
-    cloud_credential: "{{ tower_cloud_credential }}"
-
+    machine_credential: "{{ tower_credential_machine }}"
+    cloud_credential: "{{ tower_credential_cloud }}"
+...

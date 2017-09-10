@@ -32,7 +32,7 @@
     name: "{{ tower_inventory_group }}"
     description: "{{ tower_inventory_group_description }}"
     source: "{{ tower_inventory_group_source }}"
-    credential: "{{ tower_cloud_credential }}"
+    credential: "{{ tower_credential_cloud }}"
     inventory: "{{ tower_inventory }}"
     instance_filters: "{{ filter }}"
     update_on_launch: "{{ tower_inventory_group_update_on_launch }}"

@@ -8,3 +8,4 @@
     - aws_vars.yml
   roles:
     - { role: tower_config, when: tower_config|bool == true }
+...

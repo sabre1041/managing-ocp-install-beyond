@@ -1,3 +1,4 @@
+---
 - name: Create Workflow Template for Terminate
   command: >
     tower-cli workflow create
@@ -5,7 +6,6 @@
       --description="{{ tower_workflow_template_terminate_description }}"
       --organization="{{ tower_org }}"
       "{{ tower_cli_verbosity }}"
-  when: tower_workflow_template_terminate_config|bool == true
 
 - debug:
     var: "{{ item }}"
@@ -18,8 +18,7 @@
   template:
     src: "{{ tower_workflow_template_terminate_schema_path }}"
     dest: "/tmp/{{ tower_workflow_template_terminate_schema_path }}"
-  when: tower_workflow_template_terminate_config|bool == true
 
 - name: Create Workflow Schema for Terminate
   command: tower-cli workflow schema {{ tower_workflow_template_terminate }} @/tmp/{{ tower_workflow_template_terminate_schema_path }} "{{ tower_cli_verbosity }}"
-  when: tower_workflow_template_terminate_config|bool == true
+...

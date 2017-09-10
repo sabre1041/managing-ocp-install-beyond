@@ -3,4 +3,4 @@
   command: tower-cli job launch --job-template {{ tower_job_template_self_configure }} --monitor
   async: "{{ tower_job_self_configure_launch_async }}"
   poll: "{{ tower_job_self_configure_launch_poll }}"
-
+...

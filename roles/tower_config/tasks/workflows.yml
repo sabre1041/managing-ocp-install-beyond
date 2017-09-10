@@ -1,0 +1,20 @@
+---
+- include: workflows/deploy.yml
+  when: tower_workflow_template_deploy_config|bool == true
+- include: workflows/scaleup.yml
+  when: tower_workflow_template_scaleup_config|bool == true
+- include: workflows/terminate.yml
+  when: tower_workflow_template_terminate_config|bool == true
+- include: workflows/job_launch_deploy.yml
+  when: 
+    - tower_workflow_job_deploy_launch|bool == true
+    - tower_workflow_template_deploy_config|bool == true
+- include: workflows/job_launch_scaleup.yml
+  when: 
+    - tower_workflow_job_scaleup_launch|bool == true
+    - tower_workflow_template_scaleup_config|bool == true
+- include: workflows/job_launch_terminate.yml
+  when: 
+    - tower_workflow_job_terminate_launch|bool == true
+    - tower_workflow_template_terminate_config|bool == true
+...
