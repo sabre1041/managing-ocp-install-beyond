@@ -1,0 +1,17 @@
+---
+- name: Add user to manage Tower
+  tower_user:
+    username: "{{ student_id }}"
+    password: "{{ tower_password }}"
+    email: "{{ student_id + '@example.org' }}"
+    state: present
+    superuser: true
+    tower_host: "{{ tower_host }}"
+    tower_username: "{{ tower_username }}"
+    tower_password: "{{ tower_password }}"
+
+- set_fact:
+    tower_username: "{{ student_id }}"
+
+- include: auth.yml
+...

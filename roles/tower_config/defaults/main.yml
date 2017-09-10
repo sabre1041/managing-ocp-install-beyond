@@ -3,9 +3,16 @@
 tower_username: admin
 tower_password: "{{ tower_password }}"
 tower_projects_root: "/var/lib/awx/projects"
+tower_user_add: true
+# tower config types are: none, self, full, or test. These are simply an easier way to enable a set of booleans, anything can be overridden as needed. 
+# - none: do not configure anything in tower. This is effectively the same as setting tower_config: false
+# - self (default): sets up a job template that completes the configuration when launched.
+# - full: configures everything in Tower except the self-coinfigure job template.
+# - test: configures everything in Tower. Launches all job and workflow templates except for self-configure and terminate
+tower_config_type: "self"
 
 # Tower CLI config
-tower_cli_credentials_config: false
+tower_cli_credentials_config: true
 tower_cli_credentials_keep: true
 tower_cli_verbosity: "--verbose"
 
@@ -166,7 +173,7 @@ tower_workflow_template_deploy_schema_path: "tower_workflow_template_deploy_sche
 # Set to true to launch the workflow job at the end of the configuration. Set to true will only have an effect if also setting tower_config: true. This is useful for full end to end testing.
 tower_workflow_job_deploy_launch: false
 # Workflow job timeout in seconds
-tower_workflow_job_deploy_launch_async: 3600
+tower_workflow_job_deploy_launch_async: 2700
 # Workflow job polling
 tower_workflow_job_deploy_launch_poll: 60
 
@@ -181,7 +188,7 @@ tower_workflow_template_scaleup_schema_path: "tower_workflow_template_scaleup_sc
 # Set to true to launch the workflow job at the end of the configuration. Set to true will only have an effect if also setting tower_config: true. This is useful for full end to end testing.
 tower_workflow_job_scaleup_launch: false
 # Workflow job timeout in seconds
-tower_workflow_job_scaleup_launch_async: 2700
+tower_workflow_job_scaleup_launch_async: 1200
 # Workflow job polling
 tower_workflow_job_scaleup_launch_poll: 60
 

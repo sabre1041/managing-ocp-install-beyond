@@ -1,0 +1,17 @@
+---
+- name: Set Tower Config Type as 'None'
+  include_vars: ../vars/none.yml
+  when: tower_config_type|lower == "none" or tower_config_type is not defined
+
+- name: Set Tower Config Type as 'Self'
+  include_vars: ../vars/self.yml
+  when: tower_config_type|lower == "self"
+
+- name: Set Tower Config Type as 'Full'
+  include_vars: ../vars/full.yml
+  when: tower_config_type|lower == "full"
+
+- name: Set Tower Config Type as 'Test'
+  include_vars: ../vars/test.yml
+  when: tower_config_type|lower == "test"
+...

@@ -1,11 +1,34 @@
 ---
+- set_fact:
+    student_id: "{{ hostvars[inventory_hostname].student_id }}"
+    filter: "{{ 'tag' + ':' + 'student_id=' + student_id }}"
+    tower_host: "localhost"
+
+- include: config_type.yml
+
 - include: prereqs.yml
+  when: tower_prereqs_config|bool == true
+
 - include: auth.yml
+  when: tower_cli_credentials_config|bool == true
+
+- include: user.yml
+  when: tower_user_add|bool == true
+
 - include: org.yml
   when: tower_org_config|bool == true
+
+- include: credentials.yml
+
 - include: inventory.yml
+  when: tower_inventory_config|bool == true
+
 - include: projects.yml
+
 - include: job_templates.yml
+
 - include: workflows.yml
+
 - include: deauth.yml
+  when: not tower_cli_credentials_keep|bool == true
 ...
