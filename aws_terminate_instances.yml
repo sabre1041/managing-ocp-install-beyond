@@ -4,7 +4,6 @@
   gather_facts: yes
   vars_files:
     - aws_vars.yml
-    - tower_vars.yml
 
   tasks:
     - name: Gather ec2 facts from {{ inventory_hostname }}
@@ -13,7 +12,8 @@
     - set_fact:
         short_name: "{{ inventory_hostname.split('_')[1] }}"
         tower_host: "localhost"
-        #tower_host: "tower-{{ ec2_tag_student_id }}.{{ domain_name }}"
+        tower_username: "{{ ec2_tag_student_id }}"
+        tower_password: "{{ tower_password }}"
 
     - debug:
         var: hostvars

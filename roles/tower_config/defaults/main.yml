@@ -145,14 +145,14 @@ tower_job_template_terminate_ocp: "Terminate-OCP"
 tower_job_template_terminate_ocp_config: false
 tower_job_template_terminate_ocp_description: "Terminate all OpenShift masters and nodes"
 tower_job_template_terminate_ocp_playbook: "aws_terminate_instances.yml"
-tower_job_template_terminate_ocp_extra_vars: "terminate_tower=false"
+tower_job_template_terminate_ocp_extra_vars: "terminate_tower=false tower_password={{ tower_password }} tower_inventory={{ tower_inventory }}"
 
 # Tower job template for terminate-all
 tower_job_template_terminate_all: "Terminate-All"
 tower_job_template_terminate_all_config: false
 tower_job_template_terminate_all_description: "Terminate all instances including Tower"
 tower_job_template_terminate_all_playbook: "aws_terminate_instances.yml"
-tower_job_template_terminate_all_extra_vars: "terminate_tower=true"
+tower_job_template_terminate_all_extra_vars: "terminate_tower=true tower_password={{ tower_password }} tower_inventory={{ tower_inventory }}"
 
 # Tower Workflow Assets for self_configure job
 # Set to true to launch the job at the end of the configuration. Set to true will only have an effect if also setting tower_config: true. This is useful for full end to end testing.
