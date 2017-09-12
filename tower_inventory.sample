@@ -1,0 +1,3 @@
+# List Tower instances to use as inventory when calling tower_config role outside of a lab_launch script.
+[tower_instances]
+tower-<studen_id>-X.rhte.sysdeseng.com student_id=<student_id>-X

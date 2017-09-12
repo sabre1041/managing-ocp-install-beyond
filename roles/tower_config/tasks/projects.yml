@@ -1,0 +1,6 @@
+---
+- include: projects/provision_and_configure.yml
+  when: tower_project_provision_and_configure_config|bool == true
+- include: projects/install.yml
+  when: tower_project_install_config|bool == true
+...

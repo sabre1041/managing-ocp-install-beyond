@@ -1,3 +1,4 @@
+---
 - name: Configure Job Template for Scaleup-Provision
   tower_job_template:
     tower_host: "{{ tower_host }}"
@@ -8,17 +9,15 @@
     description: "{{ tower_job_template_scaleup_provision_description }}"
     state: present
     inventory: "{{ tower_inventory }}"
-    cloud_credential: "{{ tower_cloud_credential }}"
+    cloud_credential: "{{ tower_credential_cloud }}"
     project: "{{ tower_project_provision_and_configure }}"
     playbook: "{{ tower_job_template_scaleup_provision_playbook }}"
-    machine_credential: "{{ tower_machine_credential }}"
-  when: tower_job_template_scaleup_provision_config|bool == true
+    machine_credential: "{{ tower_credential_machine }}"
 
 - name: Copy Job Template for Scaleup-Provision Extra Variables file
   template:
     src: "{{ tower_job_template_scaleup_provision_extra_vars_path }}"
     dest: "/tmp/{{ tower_job_template_scaleup_provision_extra_vars_path }}"
-  when: tower_job_template_scaleup_provision_config|bool == true
 
 - name: Update Job Template for Scaleup-Provision with Extra Vars
   command: >
@@ -26,4 +25,4 @@
       --name="{{ tower_job_template_scaleup_provision }}"
       --extra-vars="@/tmp/{{ tower_job_template_scaleup_provision_extra_vars_path }}"
       "{{ tower_cli_verbosity }}"
-  when: tower_job_template_scaleup_provision_config|bool == true
+...

@@ -1,25 +1,34 @@
 ---
+- set_fact:
+    student_id: "{{ hostvars[inventory_hostname].student_id }}"
+    filter: "{{ 'tag' + ':' + 'student_id=' + student_id }}"
+    tower_host: "localhost"
+
+- include: config_type.yml
+
 - include: prereqs.yml
+  when: tower_prereqs_config|bool == true
+
 - include: auth.yml
+  when: tower_cli_credentials_config|bool == true
+
+- include: user.yml
+  when: tower_user_add|bool == true
+
 - include: org.yml
-- include: machine_credential.yml
-- include: cloud_credential.yml
+  when: tower_org_config|bool == true
+
+- include: credentials.yml
+
 - include: inventory.yml
-- include: project_provision_and_configure.yml
-- include: project_install.yml
-- include: job_template_self_configure.yml
-- include: job_template_deploy_provision.yml
-- include: job_template_deploy_install.yml
-- include: job_template_deploy_configure.yml
-- include: job_template_scaleup_provision.yml
-- include: job_template_scaleup_install.yml
-- include: job_template_scaleup_configure.yml
-- include: job_template_terminate_ocp.yml
-- include: job_template_terminate_all.yml
-- include: workflow_deploy.yml
-- include: workflow_scaleup.yml
-- include: workflow_terminate.yml
-- include: workflow_job_launch_deploy.yml
-- include: workflow_job_launch_scaleup.yml
-- include: workflow_job_launch_terminate.yml
+  when: tower_inventory_config|bool == true
+
+- include: projects.yml
+
+- include: job_templates.yml
+
+- include: workflows.yml
+
 - include: deauth.yml
+  when: not tower_cli_credentials_keep|bool == true
+...

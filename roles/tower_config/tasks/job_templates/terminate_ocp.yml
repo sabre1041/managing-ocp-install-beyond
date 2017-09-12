@@ -1,3 +1,4 @@
+---
 - name: Configure Job Template for Terminate-OCP
   tower_job_template:
     tower_host: "{{ tower_host }}"
@@ -8,11 +9,10 @@
     description: "{{ tower_job_template_terminate_ocp_description }}"
     state: present
     inventory: "{{ tower_inventory }}"
-    cloud_credential: "{{ tower_cloud_credential }}"
+    cloud_credential: "{{ tower_credential_cloud }}"
     project: "{{ tower_project_provision_and_configure }}"
     playbook: "{{ tower_job_template_terminate_ocp_playbook }}"
-    machine_credential: "{{ tower_machine_credential }}"
-  when: tower_job_template_terminate_ocp_config|bool == true
+    machine_credential: "{{ tower_credential_machine }}"
 
 - name: Update Job Template for Terminate-OCP with Extra Vars
   command: >
@@ -20,4 +20,4 @@
       --name="{{ tower_job_template_terminate_ocp }}"
       --extra-vars="{{ tower_job_template_terminate_ocp_extra_vars }}"
       "{{ tower_cli_verbosity }}"
-  when: tower_job_template_terminate_ocp_config|bool == true
+...

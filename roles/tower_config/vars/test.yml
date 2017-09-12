@@ -1,15 +1,19 @@
 ---
-lab_user: "{{ lab_user }}"
-student_id: "{{ student_id }}"
+# This is used to fully configure Tower as well as automatically launch the deploy and scale jobs. To terminate override the 'tower_workflow_job_terminate_launch' variable
+tower_user_add: true
+tower_cli_credentials_config: true
+tower_prereqs_config: true
+tower_org_config: true
+tower_credential_machine_config: true
+tower_credential_cloud_config: true
 tower_inventory_config: true
 tower_inventory_group_config: true
 tower_openshift_install_group_config: true
 tower_openshift_masters_group_config: true
 tower_openshift_nodes_group_config: true
-tower_inventory_sync: false
-tower_project_provision_and_configure_config: false
+tower_project_provision_and_configure_config: true
 tower_project_install_config: true
-tower_job_template_self_configure_config: false
+tower_job_template_self_configure_config: true
 tower_job_template_deploy_provision_config: true
 tower_job_template_deploy_install_config: true
 tower_job_template_deploy_configure_config: true
@@ -21,3 +25,8 @@ tower_job_template_terminate_all_config: true
 tower_workflow_template_deploy_config: true
 tower_workflow_template_scaleup_config: true
 tower_workflow_template_terminate_config: true
+tower_job_self_configure_launch: false
+tower_workflow_job_deploy_launch: true
+tower_workflow_job_scaleup_launch: true
+tower_workflow_job_terminate_launch: false
+...

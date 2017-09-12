@@ -1,0 +1,27 @@
+---
+# Normally every variable with the exception of 'tower_job_template_self_configure_config' should be true, but for AWS the pre-reqs and credentials have been baked into the AMI so these can be set to false
+tower_user_add: true
+tower_cli_credentials_config: true
+tower_prereqs_config: false
+tower_org_config: false
+tower_credential_machine_config: false
+tower_credential_cloud_config: false
+tower_inventory_config: true
+tower_inventory_group_config: true
+tower_openshift_install_group_config: true
+tower_openshift_masters_group_config: true
+tower_openshift_nodes_group_config: true
+tower_project_provision_and_configure_config: true
+tower_project_install_config: true
+tower_job_template_self_configure_config: false
+tower_job_template_deploy_provision_config: true
+tower_job_template_deploy_install_config: true
+tower_job_template_deploy_configure_config: true
+tower_job_template_scaleup_provision_config: true
+tower_job_template_scaleup_install_config: true
+tower_job_template_scaleup_configure_config: true
+tower_job_template_terminate_ocp_config: true
+tower_job_template_terminate_all_config: true
+tower_workflow_template_deploy_config: true
+tower_workflow_template_scaleup_config: true
+tower_workflow_template_terminate_config: true

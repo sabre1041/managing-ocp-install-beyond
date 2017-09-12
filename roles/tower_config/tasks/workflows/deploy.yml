@@ -1,8 +1,8 @@
+---
 - name: Copy Workflow Template Extra Vars for Deploy
   template:
     src: "{{ tower_workflow_template_deploy_extra_vars }}"
     dest: "/tmp/{{ tower_workflow_template_deploy_extra_vars }}"
-  when: tower_workflow_template_deploy_config|bool == true
 
 - name: Create Workflow Template for Deploy
   command: >
@@ -12,7 +12,6 @@
       --organization="{{ tower_org }}"
       --extra-vars="@/tmp/{{ tower_workflow_template_deploy_extra_vars }}"
       "{{ tower_cli_verbosity }}"
-  when: tower_workflow_template_deploy_config|bool == true
 
 - debug:
     var: "{{ item }}"
@@ -25,8 +24,7 @@
   template:
     src: "{{ tower_workflow_template_deploy_schema_path }}"
     dest: "/tmp/{{ tower_workflow_template_deploy_schema_path }}"
-  when: tower_workflow_template_deploy_config|bool == true
 
 - name: Create Workflow Schema for Deploy
   command: tower-cli workflow schema {{ tower_workflow_template_deploy }} @/tmp/{{ tower_workflow_template_deploy_schema_path }} "{{ tower_cli_verbosity }}"
-  when: tower_workflow_template_deploy_config|bool == true
+...

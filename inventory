@@ -1,5 +1,0 @@
-[tower_instances]
-tower-<studen_id>-1.rhte.sysdeseng.com student_id=<student_id>-1
-
-[all:vars]
-ansble_ssh_user=root
