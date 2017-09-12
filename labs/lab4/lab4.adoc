@@ -99,7 +99,7 @@ Instantiate the template to deploy Red Hat CloudForms. A parameter called _APPLI
 .master$
 [source, bash]
 ----
-oc new-app -p APPLICATION_MEM_REQ=3072Mi --template=cloudforms
+oc new-app -n cloudforms -p APPLICATION_MEM_REQ=3072Mi --template=cloudforms
 ----
 
 Red Hat CloudForms will now be deployed into the _cloudforms_ project.
@@ -107,51 +107,27 @@ Red Hat CloudForms will now be deployed into the _cloudforms_ project.
 ==== Validating a Successful Deployment
 
 There are several steps that can be taken in order to verify the deployment of Red Hat CloudForms in OpenShift.
-First validate that all pods are successfully running by watching the status of the pods. When all pods are running and the _-deploy_ pods are terminated, stop the command with CTRL+C. The following output is a full deployment which took just over 4 minutes:
+First validate that all pods are successfully running by watching the status of the pods.
 
 .master$ 
 [source, bash]
 ----
-oc -n cloudforms get pods -w
-
-NAME                  READY     STATUS              RESTARTS   AGE
-cloudforms-1-deploy   0/1       ContainerCreating   0          0s
-memcached-1-deploy    0/1       ContainerCreating   0          0s
-NAME                  READY     STATUS    RESTARTS   AGE
-postgresql-1-deploy   0/1       Pending   0          0s
-postgresql-1-deploy   0/1       Pending   0         0s
-postgresql-1-deploy   0/1       ContainerCreating   0         0s
-memcached-1-nih8c   0/1       Pending   0         0s
-memcached-1-nih8c   0/1       Pending   0         0s
-memcached-1-nih8c   0/1       ContainerCreating   0         0s
-memcached-1-deploy   1/1       Running   0         7s
-cloudforms-1-sc191   0/1       Pending   0         0s
-cloudforms-1-sc191   0/1       Pending   0         0s
-cloudforms-1-sc191   0/1       ContainerCreating   0         0s
-cloudforms-1-deploy   1/1       Running   0         8s
-postgresql-1-deploy   1/1       Running   0         8s
-postgresql-1-244w2   0/1       Pending   0         0s
-postgresql-1-244w2   0/1       Pending   0         0s
-postgresql-1-244w2   0/1       ContainerCreating   0         1s
-memcached-1-nih8c   0/1       Running   0         5s
-memcached-1-nih8c   1/1       Running   0         10s
-memcached-1-deploy   0/1       Completed   0         19s
-memcached-1-deploy   0/1       Terminating   0         19s
-memcached-1-deploy   0/1       Terminating   0         19s
-cloudforms-1-sc191   0/1       Running   0         15s
-postgresql-1-244w2   0/1       Running   0         33s
-postgresql-1-244w2   1/1       Running   0         51s
-postgresql-1-deploy   0/1       Completed   0         59s
-postgresql-1-deploy   0/1       Terminating   0         59s
-postgresql-1-deploy   0/1       Terminating   0         59s
-cloudforms-1-sc191   1/1       Running   0         4m
-cloudforms-1-deploy   0/1       Completed   0         4m
-cloudforms-1-deploy   0/1       Terminating   0         4m
-cloudforms-1-deploy   0/1       Terminating   0         4m
-^C
+watch oc get pods -n cloudforms
 ----
 
-Red Hat CloudForms may take up to 5 minutes to start up for the first time as it builds the content of the initial database. As noted above, the deployment of CloudForms will be complete when the status has changed to “Running” for the containers.
+Red Hat CloudForms may take up to 5 minutes to start up for the first time as it builds the content of the initial database. When the Memcached, PostgreSQL and CloudForms pods (ones that are not suffixed by "-deploy") have a _Status_ of **Running** and a _Ready_ field of **1/1**, the deployment is complete and successful. A successful deployment is represented below:
+
+[source, bash]
+----
+NAME                 READY     STATUS    RESTARTS   AGE
+cloudforms-0         1/1	Running   0          8m
+memcached-1-x33q2    1/1	Running   0          7m
+postgresql-1-h3mww   1/1	Running   0          7m
+----
+
+Once the deployment is complete, stop the _watch_ command with CTRL+C.
+
+Further validation can be completed using the steps below.
 
 Execute the following command to view the overall status of the pods in the cloudforms project
 
