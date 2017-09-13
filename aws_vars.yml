@@ -44,7 +44,7 @@ aws_key_name: "{{ aws_key_name }}"
 
 # AWS VPC configuration - this is used to setup a new Region
 # Provide a default name for the VPC
-aws_vpc_name: aws_vpc_name
+aws_vpc_name: "{{ aws_vpc_name }}"
 # VPC requires a CIDR block. The key is to ensure that it doesn't conflict with an existing CIDR.
 aws_vpc_cidr_block: "{{ aws_vpc_cidr_block }}"
 # Same as CIDR block
