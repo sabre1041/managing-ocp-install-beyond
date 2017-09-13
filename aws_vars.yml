@@ -40,7 +40,7 @@ aws_subnet_id: "{{ aws_subnet_id }}"
 aws_region: "{{ aws_region }}"
 aws_az_1: "{{ aws_region }}a"
 aws_sec_group: "{{ aws_sec_group }}"
-aws_key_name: rhte
+aws_key_name: "{{ aws_key_name }}"
 
 # AWS VPC configuration - this is used to setup a new Region
 # Provide a default name for the VPC
