@@ -23,4 +23,16 @@ tower_job_template_terminate_all_config: true
 tower_workflow_template_deploy_config: true
 tower_workflow_template_scaleup_config: true
 tower_workflow_template_terminate_config: true
-
+domain_name: "{{ domain_name }}"
+aws_subnet_id: "{{ aws_subnet_id }}"
+aws_region: "{{ aws_region }}"
+aws_az_1: "{{ aws_region }}a"
+aws_sec_group: "{{ aws_sec_group }}"
+aws_key_name: "{{ aws_key_name }}"
+aws_vpc_name: "{{ aws_vpc_name }}"
+aws_vpc_cidr_block: "{{ aws_vpc_cidr_block }}"
+aws_subnet_cidr: "{{ aws_subnet_cidr }}"
+aws_subnet_name: "{{ aws_subnet_name }}"
+aws_route_table: "{{ aws_route_table }}"
+ocp_ami_id: "{{ ocp_ami_id }}"
+...
