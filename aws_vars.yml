@@ -26,40 +26,32 @@ aws_access_key: "{{ec2_access_key}}"
 aws_secret_key: "{{ec2_secret_key}}"
 
 ## Set the AMI IDs here (or override with -e). Some commonly used AMIs are defined here, but ultimately the ones that matter are 'tower_ami_id' and 'ocp_ami_id'
-## Tower AMI unconfigured
-tower_ami_id_unconfigured: ami-29610c4a
-## Tower AMI ID fully configured
-tower_ami_id_configured: ami-800a29e5
 ## Tower AMI ID - This is the only variable used in the Playbooks, set it to one of the above (or override with -e)
-tower_ami_id: "{{ tower_ami_id_unconfigured }}"
-## OCP 3.5 ID
-ocp_ami_id_3_5: ami-3934175c
-## OCP 3.6 ID
-ocp_ami_id_3_6: ami-7975151a
+tower_ami_id: "{{ tower_ami_id }}"
 ## OCP ID - This is the only variable used in the Playbooks, set it to one of the above (or override with -e)
-ocp_ami_id: "{{ ocp_ami_id_3_6 }}"
+ocp_ami_id: "{{ ocp_ami_id }}"
 
 ## AWS Info
 tower_inst_type: t2.medium
 ocp_master_inst_type: t2.large
 ocp_node_inst_type: t2.xlarge
 # The subnet_id can be dynamically set if initially creating it at the same time with the aws_vpc_keypair.yml playbook. Setting is statically for now
-aws_subnet_id: subnet-dba04d92
-aws_region: ap-southeast-1
+aws_subnet_id: "{{ aws_subnet_id }}"
+aws_region: "{{ aws_region }}"
 aws_az_1: "{{ aws_region }}a"
-aws_sec_group: "rhte-apac-security-group"
-aws_key_name: rhte
+aws_sec_group: "{{ aws_sec_group }}"
+aws_key_name: "{{ aws_key_name }}"
 
 # AWS VPC configuration - this is used to setup a new Region
 # Provide a default name for the VPC
-aws_vpc_name: RHTE-APAC-VPC
+aws_vpc_name: aws_vpc_name
 # VPC requires a CIDR block. The key is to ensure that it doesn't conflict with an existing CIDR.
-aws_vpc_cidr_block: 10.10.0.0/16
+aws_vpc_cidr_block: "{{ aws_vpc_cidr_block }}"
 # Same as CIDR block
-aws_subnet_cidr: 10.10.0.0/24
+aws_subnet_cidr: "{{ aws_subnet_cidr }}"
 # Name the VPC subnet, route table, security group and provide a security group description.
-aws_subnet_name: "RHTE APAC Public Subnet"
-aws_route_table: "RHTE APAC Public"
+aws_subnet_name: "{{ aws_subnet_name }}"
+aws_route_table: "{{ aws_route_table }}"
 
 ## Tower config - set this to true to run the tower_config.yml playbook to fully configure the Tower instance (this separate playbook can also be run separately
 tower_config: false
