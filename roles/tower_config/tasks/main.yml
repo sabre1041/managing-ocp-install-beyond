@@ -1,7 +1,9 @@
 ---
 - set_fact:
-    student_id: "{{ hostvars[inventory_hostname].student_id }}"
-    filter: "{{ 'tag' + ':' + 'student_id=' + student_id }}"
+    student_id: "{{ inventory_hostname_short.split('-')[1] + '-' +  inventory_hostname_short.split('-')[2] }}"
+  when: not student_id is defined
+
+- set_fact:
     tower_host: "localhost"
 
 - include: config_type.yml

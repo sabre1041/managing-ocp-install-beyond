@@ -1,5 +1,6 @@
 ---
 # Normally every variable with the exception of 'tower_job_template_self_configure_config' should be true, but for AWS the pre-reqs and credentials have been baked into the AMI so these can be set to false
+# NOTE: For the current run of labs the cli/machine/cloud credentials, prereqs and org are already in the AMI so are set to false here.
 tower_user_add: true
 tower_cli_credentials_config: true
 tower_prereqs_config: false
@@ -25,3 +26,4 @@ tower_job_template_terminate_all_config: true
 tower_workflow_template_deploy_config: true
 tower_workflow_template_scaleup_config: true
 tower_workflow_template_terminate_config: true
+...

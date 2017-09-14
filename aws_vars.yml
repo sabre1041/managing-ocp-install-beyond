@@ -53,9 +53,6 @@ aws_subnet_cidr: "{{ aws_subnet_cidr }}"
 aws_subnet_name: "{{ aws_subnet_name }}"
 aws_route_table: "{{ aws_route_table }}"
 
-## Tower config - set this to true to run the tower_config.yml playbook to fully configure the Tower instance (this separate playbook can also be run separately
-tower_config: false
-
 ## Instance details
 aws_instances:
 - name: master

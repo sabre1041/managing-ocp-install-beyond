@@ -4,12 +4,6 @@ tower_username: admin
 tower_password: "{{ tower_password }}"
 tower_projects_root: "/var/lib/awx/projects"
 tower_user_add: true
-# tower config types are: none, self, full, or test. These are simply an easier way to enable a set of booleans, anything can be overridden as needed. 
-# - none: do not configure anything in tower. This is effectively the same as setting tower_config: false
-# - self (default): sets up a job template that completes the configuration when launched.
-# - full: configures everything in Tower except the self-coinfigure job template.
-# - test: configures everything in Tower. Launches all job and workflow templates except for self-configure and terminate
-tower_config_type: "self"
 
 # Tower CLI config
 tower_cli_credentials_config: true
@@ -49,6 +43,10 @@ tower_inventory_group_description: "AWS dynamic inventory"
 tower_inventory_group_source: "ec2"
 tower_inventory_group_update_on_launch: "yes"
 tower_inventory_group_overwrite: "no"
+tower_inventory_group_source_vars:
+  regions: "{{ aws_region }}"
+  destination_format: "{0}"
+  destination_format_tags: "Name"
 tower_inventory_sync: true
 tower_openshift_install_group: "OSEv3"
 tower_openshift_install_group_config: false
@@ -201,7 +199,7 @@ tower_workflow_template_terminate_schema_path: "tower_workflow_template_terminat
 # Set to true to launch the workflow job at the end of the configuration. Set to true will only have an effect if also setting tower_config: true. This is useful for full end to end testing.
 tower_workflow_job_terminate_launch: false
 # Workflow job timeout in seconds
-tower_workflow_job_terminate_launch_async: 300
+tower_workflow_job_terminate_launch_async: 360
 # Workflow job polling
-tower_workflow_job_terminate_launch_poll: 60
+tower_workflow_job_terminate_launch_poll: 0
 ...

@@ -1,17 +1,21 @@
 ---
+- debug:
+    var: tower_config
+    verbosity: 1
+
 - name: Set Tower Config Type as 'None'
   include_vars: ../vars/none.yml
-  when: tower_config_type|lower == "none" or tower_config_type is not defined
+  when: tower_config|lower == "none" or tower_config is not defined or tower_config|lower == "false"
 
 - name: Set Tower Config Type as 'Self'
   include_vars: ../vars/self.yml
-  when: tower_config_type|lower == "self"
+  when: tower_config|lower == "self"
 
 - name: Set Tower Config Type as 'Full'
   include_vars: ../vars/full.yml
-  when: tower_config_type|lower == "full"
+  when: tower_config|lower == "full"
 
 - name: Set Tower Config Type as 'Test'
   include_vars: ../vars/test.yml
-  when: tower_config_type|lower == "test"
+  when: tower_config|lower == "test"
 ...
