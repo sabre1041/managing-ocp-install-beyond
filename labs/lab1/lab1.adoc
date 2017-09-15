@@ -20,7 +20,7 @@ A link:http://docs.ansible.com/ansible-tower/latest/html/userguide/job_templates
 
 From the Tower overview page, select **TEMPLATES**.
 
-A single Job Template called _0-Self-Configure_ is available that will finalize the rest of the setup. Click the **RocketShip** to launch the template.
+A single Job Template called _0-Self-Configure_ is available that will finalize the rest of the setup. Click the **RocketShip** to launch the template. Feel free to review the details of the playbook while it is running from here: link:https://github.com/sabre1041/managing-ocp-install-beyond/tree/rhte/roles/tower_config/tasks[Tower Config]
 
 image::images/job-template-tower-config.png[]
 

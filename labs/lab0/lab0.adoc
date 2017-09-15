@@ -47,11 +47,11 @@ The following table outlines how to connect to each resource:
 | *Item* | *URL* | *Access*
 | Ansible Tower|
 link:https://tower-<student_id>.rhte.sysdeseng.com[https://tower-<student_id>.rhte.sysdeseng.com] |
-Username: admin +
+Username: <student_id> +
 Password: INSTRUCTOR WILL PROVIDE
 | OpenShift Container Platform |
 link:https://:master-<student_id>.rhte.sysdeseng.com:8443[https://master-<student_id>.rhte.sysdeseng.com:8443] |
-Username: student +
+Username: <student_id> +
 Password: INSTRUCTOR WILL PROVIDE
 | Red Hat CloudForms |
 link:https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com] |
