@@ -37,16 +37,16 @@ Once logged into Ansible Tower, explore the CLI.
 .tower$
 [source, bash]
 ----
-sudo tower-cli --help
-sudo tower-cli version
-sudo tower-cli host list
-sudo tower-cli inventory list
-sudo tower-cli job list
-sudo tower-cli credential list
-sudo tower-cli job_template list
-sudo tower-cli group list
-sudo tower-cli workflow list
-sudo tower-cli project list
+tower-cli --help
+tower-cli version
+tower-cli host list
+tower-cli inventory list
+tower-cli job list
+tower-cli credential list
+tower-cli job_template list
+tower-cli group list
+tower-cli workflow list
+tower-cli project list
 ----
 
 ==== Accessing Ansible Tower Web Console
@@ -61,7 +61,7 @@ image::images/ansible-tower-overview.png[]
 
 ====== Job Templates
 
-First, let’s review the job template that was just executed to provision the OpenShift Container Platform. This workflow template consists of three chained job templates:
+First, let's review the job template that was just executed to provision the OpenShift Container Platform. This workflow template consists of three chained job templates:
 
 * Deploy-1-Provision - Prepares the AWS environment by provisioning two instances, a master and a node
 * Deploy-2-Install - This step utilizes a dynamic inventory of AWS and then installs the OpenShift Container Platform on the instances provisioned previously
