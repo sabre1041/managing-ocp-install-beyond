@@ -13,9 +13,9 @@
       group: "{{ aws_sec_group }}"
       instance_type: "{{ tower_inst_type }}"
       image: "{{ tower_ami_id }}"
-      wait: true
+      wait: yes
       instance_tags:
-        Name: "{{ lab_name + '-tower-' + lab_user + '-' + item }}"
+        Name: "tower-{{ lab_user }}-{{ item }}.{{ domain_name }}"
         lab_name: "{{ lab_name }}"
         lab_user: "{{ lab_user }}"
         lab_role: "tower"
@@ -41,8 +41,9 @@
     ignore_errors: yes
 
   - add_host:
-      name: "{{ item.instances.0.public_dns_name }}"
-      friendly_name: "{{ item.instances.0.tags.Name }}"
+      hostname: "{{ item.instances.0.tags.Name }}"
+      ansible_host: "{{ item.instances.0.public_ip }}"
+      public_dns_name: "{{ item.instances.0.public_dns_name }}"
       public_ip: "{{ item.instances.0.public_ip }}"
       groups: tower_instances
       student_id: "{{ item.instances.0.tags.student_id }}"
@@ -57,6 +58,8 @@
   gather_facts: no
   vars_files:
     - aws_vars.yml
+  vars:
+    - ansible_user: ec2-user
 
   tasks:
     - debug:
@@ -73,8 +76,23 @@
         type: A
         overwrite: True
         ttl: 60
-        record: "tower-{{ hostvars[inventory_hostname].student_id }}.{{ domain_name }}"
-        value: "{{ hostvars[inventory_hostname].public_ip }}"
+        record: "{{ inventory_hostname }}"
+        value: "{{ public_ip }}"
+        wait: yes
+
+    - name: Install bind-utils for host command
+      yum:
+        name: bind-utils
+        state: present
+      become: true
+
+    - name: Wait for resolvable route53 hostname
+      local_action: command host {{ inventory_hostname }}
+      register: host_result
+      until: host_result.rc == 0
+      retries: 60
+      delay: 5
 
 - include: tower_config.yml
-  when: tower_config|bool == true
+  when: tower_config is defined
+...

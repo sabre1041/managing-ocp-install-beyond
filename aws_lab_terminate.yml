@@ -1,0 +1,10 @@
+---
+- name: Cleanup all instances
+  hosts: tower_instances
+  gather_facts: no
+  vars_files:
+    - aws_vars.yml
+    - roles/tower_config/defaults/main.yml
+  tasks:
+  - include: roles/tower_config/tasks/workflows/job_launch_terminate.yml
+...

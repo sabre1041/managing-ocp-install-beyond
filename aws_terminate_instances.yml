@@ -6,17 +6,32 @@
     - aws_vars.yml
 
   tasks:
-    - name: Gather ec2 facts from {{ inventory_hostname }}
+    - name: Gather ec2 facts
       ec2_facts:
 
     - set_fact:
-        short_name: "{{ inventory_hostname.split('_')[1] }}"
         tower_host: "localhost"
         tower_username: "{{ ec2_tag_student_id }}"
         tower_password: "{{ tower_password }}"
 
+    - set_fact:
+        master_hostname: "{{ item }}"
+      with_items: "{{ groups.all }}"
+      when: "'master' in item"
+
     - debug:
         var: hostvars
+        verbosity: 2
+
+    - name: Query for EBS Volumes
+      shell: >
+        oc get pv -l failure-domain.beta.kubernetes.io/region --template '{% raw %}{{ range .items }}{{ index .spec.awsElasticBlockStore.volumeID }}{{ printf "\n" }}{{end}}{% endraw %}' |cut -d/ -f4
+      register: aws_pv
+      run_once: yes
+      when: "'master' in inventory_hostname"
+
+    - debug:
+        var: aws_pv
         verbosity: 2
 
     - name: Remove Instance from Tower Inventory
@@ -29,22 +44,15 @@
         inventory: "{{ tower_inventory }}"
         state: absent
       delegate_to: "ec2-user@{{ tower_host }}"
-      when: ('node' in short_name  or 'master' in short_name)
+      when: "not 'tower' in inventory_hostname"
       ignore_errors: yes
-
-    - name: Pause on Tower instance to allow OCP instances time to receive terminate request
-      pause:
-        seconds: 10
-      when: 
-        - "'tower' in short_name"
-        - terminate_tower|default(false)|bool == true
 
     - name: Retrieve Instance Public DNS Record
       local_action:
         module: route53
         command: get
         zone: "{{ domain_name }}"
-        record: "{{ short_name }}-{{ ec2_tag_student_id }}.{{ domain_name }}"
+        record: "{{ ec2_tag_Name }}"
         type: A
       register: dns_public_record
 
@@ -61,7 +69,7 @@
         ttl: "{{ dns_public_record.set.ttl }}"
         record: "{{ dns_public_record.set.record }}"
         value: "{{ dns_public_record.set.value }}"
-      when: ('tower' in short_name and terminate_tower|default(false)|bool == true) or ('node' in short_name  or 'master' in short_name)
+      when: ('tower' in inventory_hostname and terminate_tower|default(false)|bool == true) or ('node' in inventory_hostname  or 'master' in inventory_hostname)
       ignore_errors: yes
 
     - name: Retrieve Internal Public DNS Record
@@ -69,14 +77,15 @@
         module: route53
         command: get
         zone: "{{ domain_name }}"
-        record: "{{ short_name }}-internal-{{ ec2_tag_student_id }}.{{ domain_name }}"
+        record: "{{ openshift_master_internal_dns_prefix }}-{{ ec2_tag_student_id }}.{{ domain_name }}"
         type: A
       register: dns_internal_record
-      when: "'master' in short_name"
+      when: "'master' in inventory_hostname"
 
     - debug:
         var: dns_internal_record
         verbosity: 2
+      when: "'master' in inventory_hostname"
 
     - name: Delete Internal Public DNS Record
       local_action:
@@ -87,7 +96,7 @@
         ttl: "{{ dns_internal_record.set.ttl }}"
         record: "{{ dns_internal_record.set.record }}"
         value: "{{ dns_internal_record.set.value }}"
-      when: "'master' in short_name"
+      when: "'master' in inventory_hostname"
       ignore_errors: yes
 
     - name: Retrieve Wildcard Public DNS Record
@@ -98,11 +107,12 @@
         record: "*.apps-{{ ec2_tag_student_id }}.{{ domain_name }}"
         type: A
       register: dns_wildcard_record
-      when: "'master' in short_name"
+      when: "'master' in inventory_hostname"
 
     - debug:
         var: dns_wildcard_record
         verbosity: 2
+      when: "'master' in inventory_hostname"
 
     - name: Delete Wildcard Public DNS Record
       local_action:
@@ -113,16 +123,85 @@
         ttl: "{{ dns_wildcard_record.set.ttl }}"
         record: "{{ dns_wildcard_record.set.record }}"
         value: "{{ dns_wildcard_record.set.value }}"
-      when: "'master' in short_name"
+      when: "'master' in inventory_hostname"
       ignore_errors: yes
       
-    - name: Terminate AWS Instances
+    - name: Terminate OCP AWS Instances
       local_action:
         module: ec2
         state: 'absent'
         region: "{{ aws_region }}"
         instance_ids: "{{ ansible_ec2_instance_id }}"
+        wait: yes
       async: 300
       poll: 0
-      when: ('tower' in short_name and terminate_tower|default(false)|bool == true) or ('node' in short_name  or 'master' in short_name)
+      when: "not 'tower' in inventory_hostname"
+      delegate_to: "ec2-user@{{ tower_host }}"
       ignore_errors: yes
+
+    - name: Pause to allow OCP instances time to terminate and unbind any volumes
+      pause:
+        prompt: Waiting for OCP instances to delete ...
+        seconds: 15
+
+    - name: List EBS Volumes
+      local_action:
+        module: ec2_vol
+        id: "{{ item }}"
+        region: "{{ aws_region }}"
+        state: 'list'
+      with_items: "{{ hostvars[master_hostname].aws_pv.stdout_lines }}"
+      async: 120
+      poll: 5
+      when: 
+        - "'tower' in inventory_hostname"
+        - master_hostname is defined
+      register: aws_pv_status
+
+    - debug:
+        var: aws_pv_status
+        verbosity: 2
+      when: 
+        - "'tower' in inventory_hostname"
+        - master_hostname is defined
+
+    - name: Remove EBS Volumes
+      local_action:
+        module: ec2_vol
+        id: "{{ item }}"
+        instance: None
+        region: "{{ aws_region }}"
+        state: 'absent'
+      with_items: "{{ hostvars[master_hostname].aws_pv.stdout_lines }}"
+      async: 120
+      poll: 5
+      register: aws_pv_remove
+      until: not aws_pv_remove | failed
+      retries: 10
+      delay: 10
+      ignore_errors: yes
+      when:
+        - "'tower' in inventory_hostname"
+        - master_hostname is defined
+
+    - debug:
+        var: aws_pv_remove
+        verbosity: 2
+      when:
+        - "'tower' in inventory_hostname"
+        - master_hostname is defined
+
+    - name: Terminate Tower AWS Instance
+      local_action:
+        module: ec2
+        state: 'absent'
+        region: "{{ aws_region }}"
+        instance_ids: "{{ ansible_ec2_instance_id }}"
+        wait: no
+      async: 300
+      poll: 0
+      when: 
+        - "'tower' in inventory_hostname"
+        - terminate_tower|default(false)|bool == true
+      ignore_errors: yes
+...
