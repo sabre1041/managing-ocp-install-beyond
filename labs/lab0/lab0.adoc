@@ -1,4 +1,5 @@
 toc::[]
+= Lab 0 - Overview
 
 image::images/managing-ocp-beyond.png[]
 
@@ -38,7 +39,9 @@ image::images/target-environment.png[]
 
 There are several components that will be utilized throughout the course of this lab. During the lab, you will be asked navigate to components running in the environment from a web browser as well as connect directly to the VMs running in AWS via _SSH_.
 
-A spreadsheet will be available to denote the specific environment tailored for each attendeed. In addition, a private key will also be provided in order to facilitate direct connectivity to the instances.
+A specific `student_id` should have been assigned to you. This must be used consistently throughout the rest of this lab. A private key will also be provided in order to facilitate direct connectivity to the instances.
+
+*IMPORTANT: If you have not been asigned a `student_id` immediately halt and raise your hand to speak with an instructor!*
 
 The following table outlines how to connect to each resource:
 
@@ -57,16 +60,21 @@ Password: INSTRUCTOR WILL PROVIDE
 link:https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com] |
 Username: admin +
 Password: INSTRUCTOR WILL PROVIDE
-| Instructor Host|
-link:http://rhte-instructor.rhte.sysdeseng.com/key[http://rhte-instructor.rhte.sysdeseng.com/key] |
-Username: student +
+| Linux SSH private key
+| link:http://rhte-instructor.rhte.sysdeseng.com/key/rhte.pem[http://rhte-instructor.rhte.sysdeseng.com/key/rhte.pem]
+| Username: student +
+Password: INSTRUCTOR WILL PROVIDE
+| Windows PuTTY private key
+| link:http://rhte-instructor.rhte.sysdeseng.com/key/rhte.ppk[http://rhte-instructor.rhte.sysdeseng.com/key/rhte.ppk]
+| Username: student +
 Password: INSTRUCTOR WILL PROVIDE
 |======================
 
 * Linux
 
-Retrieve the key from the instructor host so that you can _SSH_ into the instances by accessing the password protected directory from the table above. Download the _rhte.pem_ file to your local machine and change the permissions of the file to 600.
+Retrieve the `rhte.pem` key from the instructor server so that you can _SSH_ into the instances by accessing the password protected directory from the table above. Download the _rhte.pem_ file to your local machine and change the permissions of the file to 600.
 
+.workstation$
 [source, bash]
 ----
 chmod 600 rhte.pem
@@ -74,7 +82,9 @@ chmod 600 rhte.pem
 
 * Windows
 
-If using Windows, download the rhte.ppk file to your local machine.
+Install putty on your Windows machine. link:http://www.putty.org/[http://www.putty.org/]
+
+Once installed, use the following instructions to SSH to the Tower instance link:http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html[http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html].
 
 Each component plays a critical role into the overall management of the environment. Now let’s get started!
 

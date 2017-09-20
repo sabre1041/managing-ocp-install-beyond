@@ -1,4 +1,25 @@
-== Reviewing Install of OpenShift 
+= Lab 3 - Reviewing OpenShift Installation
+
+== Connectivity Details for This Lab
+
+[options="header"]
+|======================
+| *Item* | *URL* | *Access*
+| OpenShift Container Platform
+| link:https://:master-<student_id>.rhte.sysdeseng.com:8443[https://master-<student_id>.rhte.sysdeseng.com:8443]
+| Username: <student_id> +
+Password: INSTRUCTOR WILL PROVIDE
+| Linux SSH private key
+| link:http://rhte-instructor.rhte.sysdeseng.com/key/rhte.pem[http://rhte-instructor.rhte.sysdeseng.com/key/rhte.pem]
+| Username: student +
+Password: INSTRUCTOR WILL PROVIDE
+| Windows PuTTY private key
+| link:http://rhte-instructor.rhte.sysdeseng.com/key/rhte.ppk[http://rhte-instructor.rhte.sysdeseng.com/key/rhte.ppk]
+| Username: student +
+Password: INSTRUCTOR WILL PROVIDE
+|======================
+
+== Overview
 
 In this lab, we will review the install of the OpenShift Container Platform using Ansible Tower that we started at the beginning of this session.
 
@@ -12,11 +33,13 @@ From your workstation, open a web browser and navigate to the following address:
 
 link:https://master-<student_id>.rhte.sysdeseng.com:8443[https://master-<student_id>.rhte.sysdeseng.com:8443]
 
+TIP: You can also copy and paste your exact URL from the Workflow Job Template _Extra Variables_ section from the variable `openshift_cluster_public_url`.
+
 If successful, you should see the following page representing the OpenShift landing page:
 
 image::images/openshift-login.png[]
 
-Login using the provided credentials to access the web console:
+Login using the username `student_id` and the provided credentials to access the web console.
 
 The OpenShift web console provides an interactive way to interact with the OpenShift platform. After successfully authenticating, you are presented with an overview page containing all of the projects that you have access to, along with resources that can be deployed to the platform. Since you are a normal user, you do not have access to any projects by default.
 
@@ -83,7 +106,7 @@ master$ sudo cat /etc/origin/cloudprovider/aws.conf
 
 
 [Global]
-Zone = ap-southeast-1a
+Zone = eu-central-1a
 ----
 
 The cloud provider integration file tells OpenShift how to interact with AWS. You can see that it’s doing so via the AWS API which leverages the AWS credentials that were created prior to your going through the lab. This integration between OpenShift and AWS enable capabilities like dynamic storage provisioning for applications. Cloud Provider configurations are specific to each provider, for example, you also have cloud provider configurations for OpenStack, Azure, VMware, etc…

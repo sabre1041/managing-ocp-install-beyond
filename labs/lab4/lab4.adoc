@@ -1,4 +1,29 @@
-=== Installing Red Hat CloudForms
+= Lab 4 - Installing Red Hat CloudForms
+
+== Connectivity Details for This Lab
+
+[options="header"]
+|======================
+| *Item* | *URL* | *Access*
+| OpenShift Container Platform |
+link:https://:master-<student_id>.rhte.sysdeseng.com:8443[https://master-<student_id>.rhte.sysdeseng.com:8443] |
+Username: <student_id> +
+Password: INSTRUCTOR WILL PROVIDE
+| Red Hat CloudForms |
+link:https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com] |
+Username: admin +
+Password: INSTRUCTOR WILL PROVIDE
+| Linux SSH private key
+| link:http://rhte-instructor.rhte.sysdeseng.com/key/rhte.pem[http://rhte-instructor.rhte.sysdeseng.com/key/rhte.pem]
+| Username: student +
+Password: INSTRUCTOR WILL PROVIDE
+| Windows PuTTY private key
+| link:http://rhte-instructor.rhte.sysdeseng.com/key/rhte.ppk[http://rhte-instructor.rhte.sysdeseng.com/key/rhte.ppk]
+| Username: student +
+Password: INSTRUCTOR WILL PROVIDE
+|======================
+
+== Overview
 
 Red Hat CloudForms Management Engine (CFME) delivers the insight, control, and automation necessary to address the challenges of managing complex environments. CloudForms is available as a standalone appliance, but is also available as a containerized solution that can be deployed on the OpenShift Container Platform.
 

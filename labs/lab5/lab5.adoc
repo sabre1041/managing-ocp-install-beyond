@@ -1,4 +1,25 @@
-=== Managing the lifecycle of an Application
+= Lab 5 - Managing the lifecycle of Applications
+
+== Connectivity Details for This Lab
+
+[options="header"]
+|======================
+| *Item* | *URL* | *Access*
+| OpenShift Container Platform |
+link:https://:master-<student_id>.rhte.sysdeseng.com:8443[https://master-<student_id>.rhte.sysdeseng.com:8443] |
+Username: <student_id> +
+Password: INSTRUCTOR WILL PROVIDE
+| Linux SSH private key
+| link:http://rhte-instructor.rhte.sysdeseng.com/key/rhte.pem[http://rhte-instructor.rhte.sysdeseng.com/key/rhte.pem]
+| Username: student +
+Password: INSTRUCTOR WILL PROVIDE
+| Windows PuTTY private key
+| link:http://rhte-instructor.rhte.sysdeseng.com/key/rhte.ppk[http://rhte-instructor.rhte.sysdeseng.com/key/rhte.ppk]
+| Username: student +
+Password: INSTRUCTOR WILL PROVIDE
+|======================
+
+== Overview
 
 The primary function of the Red Hat OpenShift Container Platform is to run end user applications executing in containers. Thus far, the applications that have been deployed were primairly for supporting the overall infrastructure of the platform.
 
