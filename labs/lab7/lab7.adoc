@@ -23,6 +23,7 @@ The following resources are available for your reference:
     ** link:https://docs.openshift.com/[Red Hat OpenShift Container Platform]
     ** link:http://docs.ansible.com/ansible-tower/latest/html/userguide/index.html[Ansible Tower]
     ** link:https://access.redhat.com/documentation/en/red-hat-cloudforms/[Red Hat CloudForms]
+    ** link:https://www.redhat.com/en/resources/deploying-openshift-container-platform-3-amazon-web-services[Red Hat Reference Architecture - Deploying OCP on AWS]
 
 '''
 

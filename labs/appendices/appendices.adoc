@@ -17,8 +17,8 @@ An link:http://docs.ansible.com/ansible-tower/latest/html/userguide/inventories.
 [source, text]
 ----
 student_id: <student_id>
+lab_user: student
 ----
-
 
 ** Click **SAVE**
 
@@ -41,9 +41,9 @@ tag:student_id=<student_id>
 +
 [source, text]
 ----
-regions: ap-southeast-1
-hostname_variable: tag_Name
-vpc_destination_variable: public_dns_name
+regions: 'eu-central-1'
+destination_format_tags: 'Name'
+destination_format: '{0}'
 ----
 +
 ** Click **SAVE**
@@ -53,12 +53,12 @@ Add a new group called _OSEv3_ which will be used as the top level group referen
 * Click **ADD GROUP**
 ** Provide a name of **OSEv3**
 ** Choose a _SOURCE_ of **Manual**
-** Copy the following variables to the VARIABLES pane.  “REPLACE <student_id> with your student ID! student_id takes for form similar to student-1 as used previously. **There are 4 instances of <student_id>** in the variables below - be sure to change each of them.
+** Copy the following variables to the VARIABLES pane.  
 
-+
+IMPORTANT: REPLACE <student_id> with your student ID! student_id takes form similar to `student-1` as used previously. **There are 4 instances of <student_id>** in the variables below - be sure to change each of them.
+
 [source, bash]
 ----
----
 deployment_type: openshift-enterprise
 osm_use_cockpit: no
 openshift_master_default_subdomain: apps-<student_id>.rhte.sysdeseng.com
@@ -94,7 +94,7 @@ openshift_node_labels: "{{ ec2_tag_node_labels }}"
 # Default Node Selector Cannot be Used Due to Issue With Service Catalog Deployment. Is set during Postinstall playbook
 #osm_default_node_selector: 'type=app'
 ----
-
++
 ** Click **SAVE**
 
 In this section, we are going to configure link:http://docs.ansible.com/ansible-tower/latest/html/userguide/inventories.html#groups-and-hosts[groups].  This is important because this is the way that Ansible Tower constructs an inventory to pass to the openshift-ansible byo playbook.
@@ -165,10 +165,23 @@ First a new job template will need to be created in order to provision new insta
 +
 [source, bash]
 ----
-ec2_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY') }}"
-ec2_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
+lab_user: student
 student_id: <student_id>
 openshift_cluster_public_url: "https{{':'}}//master-{{ student_id }}.{{ domain_name }}{{':'}}8443"
+aws_key_name: rhte
+aws_region: eu-central-1
+aws_az_1: eu-central-1a
+aws_route_table: RHTE EMEA Public
+aws_sec_group: rhte-emea-security-group
+aws_subnet_cidr: 10.30.0.0/24
+aws_subnet_id: subnet-e4f8098f
+aws_subnet_name: RHTE EMEA Public Subnet
+aws_vpc_cidr_block: 10.30.0.0/16
+aws_vpc_name: RHTE-emea-VPC
+domain_name: rhte.sysdeseng.com
+ocp_ami_id: ami-4267d02d
+ocp_master_inst_type: t2.large
+ocp_node_inst_type: t2.xlarge
 ----
 
 ** Click **SAVE**.
@@ -236,10 +249,23 @@ Perform these steps from the Ansible Tower host
 +
 [source, bash]
 ----
-ec2_access_key: "{{ lookup('env', 'AWS_ACCESS_KEY') }}"
-ec2_secret_key: "{{ lookup('env', 'AWS_SECRET_KEY') }}"
+lab_user: student
 student_id: <student_id>
 openshift_cluster_public_url: "https{{':'}}//master-{{ student_id }}.{{ domain_name }}{{':'}}8443"
+aws_key_name: rhte
+aws_region: eu-central-1
+aws_az_1: eu-central-1a
+aws_route_table: RHTE EMEA Public
+aws_sec_group: rhte-emea-security-group
+aws_subnet_cidr: 10.30.0.0/24
+aws_subnet_id: subnet-e4f8098f
+aws_subnet_name: RHTE EMEA Public Subnet
+aws_vpc_cidr_block: 10.30.0.0/16
+aws_vpc_name: RHTE-emea-VPC
+domain_name: rhte.sysdeseng.com
+ocp_ami_id: ami-4267d02d
+ocp_master_inst_type: t2.large
+ocp_node_inst_type: t2.xlarge
 ----
 
 ** Click "SAVE".
@@ -347,15 +373,15 @@ Now return the the lab and try again <<Lab 4 - Installing Red Hat CloudForms>>
 
 [options="header]
 |======================
-| Tower Workflow Job | Ansible Playbook | Elapsed Time | Purpose
-|0-Provision and Install OpenShift| | 00:18:06 | Orchestrated workflow to deploy OpenShift
-| | OpenShift Pre-Install | 00:02:38 |Crease servers on OpenStack
-| | OpenShift Install | 00:12:34 | Install OpenShift
-| | OpenShift Post-Install | 00:02:20 | Setup templates and image streams for labs
-| 1-Provision and Scale OpenShift | | 00:07:00
-| O rchestrated workflow to add an additional server to OpenShift
-| | OpenShift Pre-Scaleup | 00:01:19 | Create server on OpenStack
-| | Scaleup OpenShfit | 00:05:24 | Run openshift-ansible to add new node to the OCP
+| Tower Workflow Job | Tower Job | Elapsed Time | Purpose
+|1-Deploy_OpenShift_on_AWS | | 00:24:44 | Orchestrated workflow to deploy OpenShift
+| | Deploy-1-Provision | 00:03:19 |Crease instances on Cloud Provider
+| | Deploy-2-Install | 00:18:06 | Install OpenShift via openshift-ansible
+| | Deploy-3-Post-Install | 00:01:29 | Setup templates and image streams for labs
+| 2-Scaleup_OpenShift_on_AWS | | 00:10:36 | Orchestrated workflow to add an additional instance to OpenShift
+| | Scaleup-1-Provision | 00:02:18 | Create additional instance on Cloud Provider
+| | Scaleup-2-Install | 00:06:05 | Run openshift-ansible to add new node to the OCP
+| | Scaleup-3-Post-Install | 00:00:19 | Run post-install tasks
 |======================
 
 Return to <<Lab 4 - Installing Red Hat CloudForms>>

@@ -1,4 +1,15 @@
-== Lab 1 - Lab Setup
+= Lab 1 - Lab Setup
+
+== Connectivity Details for This Lab
+
+[options="header"]
+|======================
+| *Item* | *URL* | *Access*
+| Ansible Tower|
+link:https://tower-<student_id>.rhte.sysdeseng.com[https://tower-<student_id>.rhte.sysdeseng.com] |
+Username: <student_id> +
+Password: INSTRUCTOR WILL PROVIDE
+|======================
 
 Welcome! We are going to jump right into the lab implementation and then review the overall architecture and strategy afterward. You have been tasked with managing a Red Hat Container Platform environment running in AWS. Ansible Tower is also deployed in this environment and being used to execute and manage the overall installation of OpenShift.
 
@@ -8,7 +19,9 @@ Prior to installing the OpenShift Container Platform, Ansible Tower must be conf
 
 From a local web browser open https://tower-<student_id>.rhte.sysdeseng.com[https://tower-<student_id>.rhte.sysdeseng.com] and login using the credentials provided. This will be the tower instance that was assigned to you.
 
-TIP: The value for “<student_id>” needs to be consistent throughout the rest of the lab. Failure to do so, can cause issues including losing the ability to successfully complete the lab.
+**IMPORTANT**: The value for “<student_id>” needs to be consistent throughout the rest of the lab. Failure to do so, can cause issues including losing the ability to successfully complete the lab.
+
+image::images/tower-login.png[]
 
 The instance of tower has been minimally configured prior to the lab. The installation of OpenShift does take some time to complete, so we will provide a high level overview of each component we will be configuring until the installation has been initiated, and then circle back afterward for a deeper discussion. 
 
@@ -28,7 +41,7 @@ Track the progress of the job until successful completion.
 
 The job configured several aspects of the Ansible Tower. A comprehensive discussion will be covered in the next lab. 
 
-Return to the **TEMPLATES** page and trigger the deployment of instances to AWS and the installation of OpenShift by selecting the **RocketShip** next to _1-Deploy_OpenShift_on_AWS_ Workflow Job.
+Once the _0-Self-Configure_ job is complete, return to the **TEMPLATES** page and trigger the deployment of instances to AWS and the installation of OpenShift by selecting the **RocketShip** next to _1-Deploy_OpenShift_on_AWS_ Workflow Job.
 
 image::images/job-template-install-openshift.png[]
 
