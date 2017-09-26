@@ -247,7 +247,7 @@ As mentioned previously, there are two endpoints in which CloudForms retrieves m
 
 Since CloudForms is deployed within OpenShift, we can leverage the internal service associated with API called _kubernetes_ in the default project. Internal service names can be referenced across projects in the form _<service_name>.<namespace>_
 
-Enter **kubernetes.default** in the _hostname_ field and **443** in the _port_ field.
+Enter **kubernetes.default** in the _hostname_ field and **8443** in the _port_ field.
 
 The token field refers to the OAuth token used to authenticate CloudForms to the OpenShift API. The _management-infra_ project is a preconfigured project as part of the OpenShift installation. A service account called management-admin is available that has access to the requisite resources needed by CloudForms. Each service account has an OAuth token associated with its account. 
 
