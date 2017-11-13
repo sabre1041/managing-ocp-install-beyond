@@ -41,6 +41,10 @@ aws_region: "{{ aws_region }}"
 aws_az_1: "{{ aws_region }}a"
 aws_sec_group: "{{ aws_sec_group }}"
 aws_key_name: "{{ aws_key_name }}"
+aws_route53_zone_id: "{{ aws_route53_zone_id }}"
+
+# AWS Instance Role
+aws_instance_role: "{{ aws_instance_role }}"
 
 # AWS VPC configuration - this is used to setup a new Region
 # Provide a default name for the VPC

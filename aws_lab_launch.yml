@@ -25,6 +25,8 @@
       assign_public_ip: yes
       region: "{{ aws_region }}"
       state: present
+      instance_profile_name: "{{ aws_instance_role }}"
+      user_data: "{{ lookup('template', 'aws_tower_user_data.j2') }}"
     with_sequence: start={{ student_count_start }} end={{ student_count_end }}
     register: instances_created
 
@@ -53,7 +55,7 @@
       var: groups
       verbosity: 2
 
-- name: Create AWS route53 entries for Tower instances
+- name: Configure Tower
   hosts: tower_instances
   gather_facts: no
   vars_files:
@@ -65,33 +67,6 @@
     - debug:
         var: hostvars
         verbosity: 2
-
-    - name: Register route53 entries
-      local_action:
-        module: route53
-        command: create
-        aws_access_key: "{{ec2_access_key}}"
-        aws_secret_key: "{{ec2_secret_key}}"
-        zone: "{{ domain_name }}"
-        type: A
-        overwrite: True
-        ttl: 60
-        record: "{{ inventory_hostname }}"
-        value: "{{ public_ip }}"
-        wait: yes
-
-    - name: Install bind-utils for host command
-      yum:
-        name: bind-utils
-        state: present
-      become: true
-
-    - name: Wait for resolvable route53 hostname
-      local_action: command host {{ inventory_hostname }}
-      register: host_result
-      until: host_result.rc == 0
-      retries: 60
-      delay: 5
 
 - include: tower_config.yml
   when: tower_config is defined

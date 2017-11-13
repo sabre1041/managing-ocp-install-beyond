@@ -1,0 +1,61 @@
+#cloud-config
+packages:
+  - awscli
+write_files:
+- path: /var/lib/cloud/scripts/per-boot/set_route53_dns.sh
+  permissions: '0755'
+  content: |
+    #!/bin/sh
+    
+    ZONE_ID={{ aws_route53_zone_id }}
+    TTL=6
+    SELF_META_URL="http://169.254.169.254/latest/meta-data"
+    PUBLIC_DNS=$(curl ${SELF_META_URL}/public-hostname 2>/dev/null)
+    PUBLIC_IP=$(curl ${SELF_META_URL}/public-ipv4 2>/dev/null)
+
+    cat << EOT > /usr/local/sbin/aws_r53_batch.json
+    {
+      "Comment": "Assign DNS Records For Tower",
+      "Changes": [
+        {
+          "Action": "UPSERT",
+          "ResourceRecordSet": {
+            "Name": "tower-{{ lab_user }}-{{ item }}.{{ domain_name }}",
+            "Type": "A",
+            "TTL": ${TTL},
+            "ResourceRecords": [
+              {
+                "Value": "${PUBLIC_IP}"
+              }
+            ]
+          }
+        }
+      ]
+    }
+    EOT
+
+    cat << EOT > /etc/systemd/system/managing-ocp-dns.service
+    [Unit]
+    Description=Updates AWS Route53 DNS Records
+    After=network.target
+
+    [Service]
+    Type=simple
+    ExecStart=/usr/local/sbin/managing-ocp-dns.sh
+    TimeoutStartSec=0
+
+    [Install]
+    WantedBy=default.target
+    EOT
+
+    cat << EOT > /usr/local/sbin/managing-ocp-dns.sh
+    #!/bin/bash
+    aws route53 change-resource-record-sets --hosted-zone-id ${ZONE_ID} --change-batch file:///usr/local/sbin/aws_r53_batch.json
+    EOT
+
+    chmod +x /usr/local/sbin/managing-ocp-dns.sh
+
+    /usr/local/sbin/managing-ocp-dns.sh
+
+    systemctl daemon-reload
+    systemctl enable managing-ocp-dns
