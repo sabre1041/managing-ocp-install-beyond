@@ -3,6 +3,7 @@
   command: >
     subscription-manager repos
       --enable="rhel-7-server-ose-{{ openshift_deploy_version }}-rpms"
+  ignore_errors: yes
   become: true
 
 - name: Install package requirements for Tower CLI
@@ -11,22 +12,13 @@
     state: present
   become: true
   with_items:
-    - python2-pip
+    - python2-ansible-tower-cli
     - git
     - pyOpenSSL
     - python-netaddr
     - python-six
-    - python2-boto3
     - python-click
     - python-httplib2
-
-- name: Install Tower CLI
-  pip:
-    name: "{{ item }}"
-  become: true
-  with_items:
-    - ansible-tower-cli
-    - boto
 
 - debug:
     var: "{{ item }}"

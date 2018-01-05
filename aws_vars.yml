@@ -12,14 +12,14 @@ student_count_start: 1
 student_count_end: "{{ student_count }}"
 
 ## OpenShift Version to use, this will enable the correct repositories
-openshift_deploy_version: 3.6
+openshift_deploy_version: 3.7
 
 ## OpenShift Variables
 openshift_master_dns_prefix: "master"
 openshift_master_internal_dns_prefix: "master-internal"
 
 ## Domain to use for wildcard
-domain_name: rhte.sysdeseng.com
+domain_name: labs.sysdeseng.com
 
 ## AWS credentials (do not save it here, instead override with -e)
 aws_access_key: "{{ec2_access_key}}"

@@ -1,14 +1,14 @@
 ---
 - name: Add user to manage Tower
-  tower_user:
-    username: "{{ student_id }}"
-    password: "{{ tower_password }}"
-    email: "{{ student_id + '@example.org' }}"
-    state: present
-    superuser: true
-    tower_host: "{{ tower_host }}"
-    tower_username: "{{ tower_username }}"
-    tower_password: "{{ tower_password }}"
+  command: >
+    tower-cli user create 
+      --username "{{ student_id }}"
+      --password "{{ tower_password }}"
+      --email "{{ student_id + '@example.org' }}"
+      --is-superuser true
+      --tower-host "{{ tower_host }}"
+      --tower-username "{{ tower_username }}"
+      --tower-password "{{ tower_password }}"
 
 - set_fact:
     tower_username: "{{ student_id }}"

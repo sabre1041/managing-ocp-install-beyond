@@ -16,14 +16,14 @@
   become: true
 
 - name: Add Tower Project for Install
-  tower_project:
-    name: "{{ tower_project_install }}"
-    description: "{{ tower_project_install_description }}"
-    organization: "{{ tower_org }}"
-    scm_type: "{{ tower_project_install_type }}"
-    local_path: "{{ tower_project_install_local_path }}"
-    state: present
-    tower_host: "{{ tower_host }}"
-    tower_username: "{{ tower_username }}"
-    tower_password: "{{ tower_password }}"
+  command: >
+    tower-cli project create 
+      --name "{{ tower_project_install }}" 
+      --tower-username "{{ tower_username }}" 
+      --tower-password "{{ tower_password }}" 
+      --local-path "{{ tower_project_install_local_path }}"
+      --tower-host "{{ tower_host }}"
+      --description "{{ tower_project_install_description }}" 
+      --organization "{{ tower_org }}" 
+      --scm-type "{{ tower_project_install_type }}" 
 ...

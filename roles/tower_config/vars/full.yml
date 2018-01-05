@@ -3,8 +3,8 @@
 # NOTE: For the current run of labs the cli/machine/cloud credentials, prereqs and org are already in the AMI so are set to false here.
 tower_user_add: true
 tower_cli_credentials_config: true
-tower_prereqs_config: false
-tower_org_config: false
+tower_prereqs_config: true # scollier 1/4/2018
+tower_org_config: true # scollier 1/4/2018
 tower_credential_machine_config: false
 tower_credential_cloud_config: false
 tower_inventory_config: true
