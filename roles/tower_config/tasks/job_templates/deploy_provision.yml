@@ -1,4 +1,5 @@
 ---
+
 - name: Configure Job Template for Deploy-Provision
   tower_job_template:
     tower_host: "{{ tower_host }}"
@@ -13,6 +14,14 @@
     project: "{{ tower_project_provision_and_configure }}"
     playbook: "{{ tower_job_template_deploy_provision_playbook }}"
     machine_credential: "{{ tower_credential_machine }}"
+
+- name: Associate the AWS credential to the template
+  command: >
+    tower-cli job_template associate_credential
+      --job-template "{{ tower_job_template_deploy_provision }}"
+      --credential "{{ tower_credential_cloud }}"
+      --tower-username "{{ tower_username }}"
+      --tower-password "{{ tower_password }}"
 
 - name: Copy Job Template for Deploy-Provision Extra Variables file
   template:

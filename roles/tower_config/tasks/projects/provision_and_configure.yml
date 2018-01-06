@@ -1,23 +1,26 @@
 ---
 - name: Configure Project for Provision and Configure
-  tower_project:
-    tower_host: "{{ tower_host }}"
-    tower_username: "{{ tower_username }}"
-    tower_password: "{{ tower_password }}"
-    name: "{{ tower_project_provision_and_configure }}"
-    description: "{{ tower_project_provision_and_configure_description }}"
-    organization: "{{ tower_org }}"
-    state: present
-    scm_type: "{{ tower_project_provision_and_configure_type }}"
-    scm_url: "{{ tower_project_provision_and_configure_url }}"
-    scm_branch: "{{ tower_project_provision_and_configure_branch }}"
-    scm_clean: "{{ tower_project_provision_and_configure_clean }}"
-    scm_update_on_launch: "{{ tower_project_provision_and_configure_update_on_launch }}"
-    scm_delete_on_update: "{{ tower_project_provision_and_configure_delete_on_update }}"
+  command: >
+    tower-cli project create 
+      --name "{{ tower_project_provision_and_configure }}" 
+      --tower-username "{{ tower_username }}" 
+      --tower-password "{{ tower_password }}" 
+      --tower-host "{{ tower_host }}"
+      --description "{{ tower_project_provision_and_configure_description }}" 
+      --organization "{{ tower_org }}" 
+      --scm-type "{{ tower_project_provision_and_configure_type }}" 
+      --scm-url "{{ tower_project_provision_and_configure_url }}" 
+      --scm-branch "{{ tower_project_provision_and_configure_branch }}" 
+      --scm-clean "{{ tower_project_provision_and_configure_clean }}" 
+      --scm-update-on-launch "{{ tower_project_provision_and_configure_update_on_launch }}" 
+      --scm-delete-on-update "{{ tower_project_provision_and_configure_delete_on_update }}"
 
 - name: Update Project for Provision and Configure
   command: >
     tower-cli project update
+      --tower-username "{{ tower_username }}" 
+      --tower-password "{{ tower_password }}" 
+      --tower-host "{{ tower_host }}"
       --name "{{ tower_project_provision_and_configure }}"
       --wait
       "{{ tower_cli_verbosity }}"

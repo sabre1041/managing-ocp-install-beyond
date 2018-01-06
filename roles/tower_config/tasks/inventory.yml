@@ -20,18 +20,6 @@
     tower_username: "{{ tower_username }}"
     tower_password: "{{ tower_password }}"
 
-- name: Configure Tower Inventory
-  tower_inventory:
-    tower_host: "{{ tower_host }}"
-    tower_username: "{{ tower_username }}"
-    tower_password: "{{ tower_password }}"
-    name: "{{ tower_inventory }}"
-    description: "{{ tower_inventory_description }}"
-    organization: "{{ tower_org }}"
-    variables:
-      - student_id: "{{ student_id }}"
-      - lab_user: "{{ lab_user }}"
-
 - include: inventory/groups.yml
   when: tower_inventory_group_config|bool == true
 ...
