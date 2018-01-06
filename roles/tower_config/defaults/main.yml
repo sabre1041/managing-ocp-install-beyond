@@ -41,12 +41,17 @@ tower_inventory_group: "AWS"
 tower_inventory_group_config: true
 tower_inventory_group_description: "AWS dynamic inventory"
 tower_inventory_group_source: "ec2"
-tower_inventory_group_update_on_launch: "yes"
-tower_inventory_group_overwrite: "no"
+tower_inventory_group_source_description: "EC2 Source"
+tower_inventory_group_source_filters: "tag:student_id={{ student_id }}"
+tower_inventory_group_source_update_on_launch: "yes"
+tower_inventory_group_source_overwrite: "no"
+tower_inventory_group_source_overwrite_vars: "no"
 tower_inventory_group_source_vars:
   regions: "{{ aws_region }}"
   destination_format: "{0}"
   destination_format_tags: "Name"
+  instance_states: "running"
+  all_instances: False
 tower_inventory_sync: true
 tower_openshift_install_group: "OSEv3"
 tower_openshift_install_group_config: false
@@ -54,6 +59,9 @@ tower_openshift_install_group_description: "All OCP nodes"
 tower_openshift_masters_group: "masters"
 tower_openshift_masters_group_config: false
 tower_openshift_masters_description: "OCP masters"
+tower_openshift_etcd_group: "etcd"
+tower_openshift_etcd_group_config: false
+tower_openshift_etcd_description: "OCP etcd"
 tower_openshift_nodes_group: "nodes"
 tower_openshift_nodes_group_config: false
 tower_openshift_nodes_description: "OCP nodes"

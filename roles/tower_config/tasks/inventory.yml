@@ -20,6 +20,22 @@
     tower_username: "{{ tower_username }}"
     tower_password: "{{ tower_password }}"
 
+- name: Add Tower Inventory Source
+  command: >
+    tower-cli inventory_source create
+      --name "{{ tower_inventory_group_source }}"
+      --instance-filters "{{ tower_inventory_group_source_filters }}"
+      --update-on-launch {{ tower_inventory_group_source_update_on_launch }}
+      --credential {{ tower_credential_cloud }}
+      --source {{ tower_inventory_group_source }}
+      --description "{{ tower_inventory_group_source_description }}"
+      --inventory "{{ tower_inventory }}"
+      --overwrite {{ tower_inventory_group_source_overwrite }}
+      --source-regions {{ aws_region }}
+      --overwrite-vars {{ tower_inventory_group_source_overwrite_vars }}
+      --source-vars "{{ tower_inventory_group_source_vars | to_yaml }}"
+      "{{ tower_cli_verbosity }}"
+
 - include: inventory/groups.yml
   when: tower_inventory_group_config|bool == true
 ...

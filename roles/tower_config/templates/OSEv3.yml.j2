@@ -27,8 +27,8 @@ openshift_metrics_cassandra_storage_type: dynamic
 openshift_disable_check: memory_availability
 openshift_enable_service_catalog: true
 {% raw %}
-openshift_cloudprovider_aws_access_key: "{{ lookup('env','AWS_ACCESS_KEY') }}"
-openshift_cloudprovider_aws_secret_key: "{{ lookup('env','AWS_SECRET_KEY') }}"
+openshift_cloudprovider_aws_access_key: "{{ lookup('env','AWS_ACCESS_KEY_ID') }}"
+openshift_cloudprovider_aws_secret_key: "{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
 openshift_node_labels: "{{ ec2_tag_node_labels }}"
 {% endraw %}
 
