@@ -106,7 +106,11 @@ function teardown {
 function vpc-keypair {
   echo "AWS VPC and Keypair setup"
   run_playbook aws_vpc_keypair.yml "-vvv $@"
-  echo "---   Update subnet-id in $ECRETS_FILE   ---"
+  echo "---   Update subnet-id in ${SECRETS_FILE}   ---"
+  echo "---   Move private key to username          ---"
+  echo 'mv aws-private.pem <username>.pem '
+  echo "---   Add key to agent                      ---"
+  echo 'eval `ssh-agent` && ssh-add ./<username>.pem'
 }
 
 # Main function which creates infrastructure and deploys OCP
