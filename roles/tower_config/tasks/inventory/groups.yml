@@ -9,14 +9,7 @@
     tower_password: "{{ tower_password }}"
     name: "{{ tower_inventory_group }}"
     description: "{{ tower_inventory_group_description }}"
-    source: "{{ tower_inventory_group_source }}"
-    credential: "{{ tower_credential_cloud }}"
     inventory: "{{ tower_inventory }}"
-    instance_filters: "{{ filter }}"
-    update_on_launch: "{{ tower_inventory_group_update_on_launch }}"
-    overwrite: "{{ tower_inventory_group_overwrite }}"
-    source_regions: "{{ aws_region }}"
-    source_vars: "{{ tower_inventory_group_source_vars }}"
     state: present
 
 - name: Add OSEv3 Group
@@ -44,11 +37,13 @@
     state: present
   with_items:
     - "{{ tower_openshift_masters_group }}"
+    - "{{ tower_openshift_etcd_group }}"
     - "{{ tower_openshift_nodes_group }}"
     - "{{ tower_master_tag }}"
     - "{{ tower_node_tag }}"
   when: 
     - tower_openshift_masters_group_config|bool == true
+    - tower_openshift_etcd_group_config|bool == true
     - tower_openshift_nodes_group_config|bool == true
 
 - name: Associate OSEv3 Groups
@@ -59,8 +54,9 @@
       --inventory "{{ tower_inventory }}"
       "{{ tower_cli_verbosity }}"
   with_together:
-    - [ "{{ tower_openshift_nodes_group }}", "{{ tower_node_tag }}", "{{ tower_openshift_masters_group }}", "{{ tower_master_tag }}" ]
-    - [ "{{ tower_openshift_install_group }}", "{{ tower_openshift_nodes_group }}", "{{ tower_openshift_nodes_group }}", "{{ tower_openshift_masters_group }}" ]
+    - [ "{{ tower_openshift_nodes_group }}", "{{ tower_node_tag }}", "{{ tower_openshift_masters_group }}", "{{ tower_master_tag }}", "{{ tower_openshift_etcd_group }}", "{{ tower_master_tag }}" ]
+    - [ "{{ tower_openshift_install_group }}", "{{ tower_openshift_nodes_group }}", "{{ tower_openshift_nodes_group }}", "{{ tower_openshift_masters_group }}", "{{ tower_openshift_masters_group }}", "{{ tower_openshift_etcd_group }}" ]
   when: 
     - tower_openshift_masters_group_config|bool == true
+    - tower_openshift_etcd_group_config|bool == true
     - tower_openshift_nodes_group_config|bool == true

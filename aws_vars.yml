@@ -65,6 +65,7 @@ aws_instances:
       zone: default
   groups:
     - masters
+    - etcd
     - osev3
     - creator_"{{ lab_user }}"
 - name: node1

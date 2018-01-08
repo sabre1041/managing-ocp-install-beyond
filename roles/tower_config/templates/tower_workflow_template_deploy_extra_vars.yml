@@ -3,4 +3,5 @@
 lab_user: "{{ lab_user }}"
 student_id: "{{ student_id }}"
 openshift_deploy_version: "{{ openshift_deploy_version }}"
-openshift_cluster_public_url: "https{{':'}}//master-{{ student_id }}.{{ domain_name }}{{':'}}8443" 
+openshift_cluster_public_url: "https{{':'}}//master-{{ student_id }}.{{ domain_name }}{{':'}}8443"
+openshift_clusterid: "{{ student_id }}"
