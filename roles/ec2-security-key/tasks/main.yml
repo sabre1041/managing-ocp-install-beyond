@@ -11,3 +11,11 @@
     aws_access_key:   "{{ ec2_access_key }}"
     aws_secret_key:   "{{ ec2_secret_key }}"
     state:            "present"
+  register: ec2_key
+
+- name:               Save AWS keypair
+  copy:
+    content: "{{ ec2_key.key.private_key }}"
+    dest: "./aws-private.pem"
+    mode: 0600
+  when: ec2_key.changed
