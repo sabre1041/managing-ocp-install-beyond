@@ -36,7 +36,11 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SECRETS_FILE='./my_secrets.yml'
 
 # Assign log file for ansible
-ANSIBLE_LOG_PATH="${DIR}/logs/ansible-$(date +%F_%T).log"
+LOGS_DIR="${DIR}/logs/"
+if [ ! -d ${LOGS_DIR} ]; then
+  mkdir -p ${LOGS_DIR}
+fi
+ANSIBLE_LOG_PATH="${LOGS_DIR}/ansible-$(date +%F_%T).log"
 export ANSIBLE_LOG_PATH
 
 function display_help {
@@ -148,7 +152,7 @@ while true; do
       exit 0
       ;;
     --clear-logs )
-      rm -f "${DIR}"/logs/ansible-*.log
+      rm -f "${LOGS_DIR}"/ansible-*.log
       exit 0
       ;;
     * )
