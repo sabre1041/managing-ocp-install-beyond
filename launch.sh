@@ -101,7 +101,7 @@ function teardown {
 # Creates VPC and Keypair
 function vpc-keypair {
   echo "AWS VPC and Keypair setup"
-  run_playbook aws_vpc_keypair.yml "$@"
+  run_playbook aws_vpc_keypair.yml "-vvv $@"
 }
 
 # Main function which creates infrastructure and deploys OCP
@@ -147,7 +147,7 @@ while true; do
       exit 0
       ;;
     --clear-logs )
-      rm -f "${DIR}"/ansible-*.log
+      rm -f "${DIR}"/logs/ansible-*.log
       exit 0
       ;;
     * )
