@@ -102,6 +102,7 @@ function teardown {
 function vpc-keypair {
   echo "AWS VPC and Keypair setup"
   run_playbook aws_vpc_keypair.yml "-vvv $@"
+  echo "---   Update subnet-id in $ECRETS_FILE   ---"
 }
 
 # Main function which creates infrastructure and deploys OCP
