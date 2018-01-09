@@ -6,15 +6,15 @@
 |======================
 | *Item* | *URL* | *Access*
 | OpenShift Container Platform |
-link:https://:master-<student_id>.rhte.sysdeseng.com:8443[https://master-<student_id>.rhte.sysdeseng.com:8443] |
+link:https://:master-<student_id>.labs.sysdeseng.com:8443[https://master-<student_id>.labs.sysdeseng.com:8443] |
 Username: <student_id> +
 Password: INSTRUCTOR WILL PROVIDE
 | Linux SSH private key
-| link:http://rhte-instructor.rhte.sysdeseng.com/key/rhte.pem[http://rhte-instructor.rhte.sysdeseng.com/key/rhte.pem]
+| link:http://instructor.labs.sysdeseng.com/key/rhte.pem[http://instructor.labs.sysdeseng.com/key/rhte.pem]
 | Username: student +
 Password: INSTRUCTOR WILL PROVIDE
 | Windows PuTTY private key
-| link:http://rhte-instructor.rhte.sysdeseng.com/key/rhte.ppk[http://rhte-instructor.rhte.sysdeseng.com/key/rhte.ppk]
+| link:http://instructor.labs.sysdeseng.com/key/rhte.ppk[http://instructor.labs.sysdeseng.com/key/rhte.ppk]
 | Username: student +
 Password: INSTRUCTOR WILL PROVIDE
 |======================
@@ -31,7 +31,7 @@ One of the steps to validate the successful installation of an OpenShift Contain
 
 We will now put our cluster administrator hat aside and complete the majority of this lab as a developer by using the OpenShift web console to build and deploy the sample application.
 
-Navigate to link:https://master-<student_id>.rhte.sysdeseng.com:8443[https://master-<student_id>.rhte.sysdeseng.com:8443] and login using the provided credentials.
+Navigate to link:https://master-<student_id>.labs.sysdeseng.com:8443[https://master-<student_id>.labs.sysdeseng.com:8443] and login using the provided credentials.
 
 As seen in a prior lab, the OpenShift Web Console provides an intiutive interface for managing applications deployed to OpenShift. Introduced as a technical preview in OpenShift 3.6, a new user interface is available that streamlines how to explore available applications and deploy them to the platform. 
 
@@ -81,7 +81,7 @@ image::images/cakephp-mysql-running-collapsed.png[]
 
 The template automatically creates a route to provide external access to the application. The link is available at the top right corner of the page. Click the link to navigate to the application:
 
-link:http://cakephp-mysql-persistent-cakephp-mysql-persistent.apps-<student_id>.rhte.sysdeseng.com/[http://cakephp-mysql-persistent-cakephp-mysql-persistent.apps-<student_id>.rhte.sysdeseng.com/]
+link:http://cakephp-mysql-persistent-cakephp-mysql-persistent.apps-<student_id>.labs.sysdeseng.com/[http://cakephp-mysql-persistent-cakephp-mysql-persistent.apps-<student_id>.labs.sysdeseng.com/]
 
 image::images/cakephp-app.png[]
 
@@ -187,7 +187,7 @@ image::images/mediawiki-apb-logs.png[]
 
 Once the pod has a status of _Completed_, navigate to the **Overview** page.
 
-Once the mediawiki deployment is _Running_, navigate to the _hyperlink_ on the top right corner of the page to view the application (_http://mediawiki123-mediawiki2.apps-<student_id>.rhte.sysdeseng.com_).
+Once the mediawiki deployment is _Running_, navigate to the _hyperlink_ on the top right corner of the page to view the application (_http://mediawiki123-mediawiki2.apps-<student_id>.labs.sysdeseng.com_).
 
 image::images/mediawiki-error.png[]
 
