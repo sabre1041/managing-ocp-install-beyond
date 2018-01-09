@@ -50,11 +50,6 @@
     command: >
       oc apply -n openshift -f {{ cfme_template }}
   
-  - name: Annotate Service Catalog Projects
-    command: >
-      oc annotate namespace {{ item }} openshift.io/node-selector='{{ service_catalog_default_node_selector }}' --overwrite
-    with_items: "{{ service_catalog_projects_to_annotate }}"
-
   - name: Set Default Node Selector
     become: true
     lineinfile: dest=/etc/origin/master/master-config.yaml  state=present regexp="defaultNodeSelector" line='  defaultNodeSelector{{ ':' }} {{ default_node_selector }}'
@@ -64,19 +59,11 @@
       oc whoami --show-server=true
     register: whoami_result
   
-  - name: Restart OpenShift Master
-    become: true
-    systemd:
-      name: atomic-openshift-master
-      state: restarted
-    when: "groups['masters'] | length  == 1"
-
   - name: Restart OpenShift Master API
     become: true
     systemd:
       name: atomic-openshift-master-api
       state: restarted
-    when: "groups['masters'] | length > 1"
 
   - name: Verify API Server
     become: true
