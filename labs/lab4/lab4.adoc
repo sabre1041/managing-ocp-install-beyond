@@ -6,19 +6,19 @@
 |======================
 | *Item* | *URL* | *Access*
 | OpenShift Container Platform |
-link:https://:master-<student_id>.rhte.sysdeseng.com:8443[https://master-<student_id>.rhte.sysdeseng.com:8443] |
+link:https://:master-<student_id>.labs.sysdeseng.com:8443[https://master-<student_id>.labs.sysdeseng.com:8443] |
 Username: <student_id> +
 Password: INSTRUCTOR WILL PROVIDE
 | Red Hat CloudForms |
-link:https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com] |
+link:https://cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com] |
 Username: admin +
 Password: INSTRUCTOR WILL PROVIDE
 | Linux SSH private key
-| link:http://rhte-instructor.rhte.sysdeseng.com/key/rhte.pem[http://rhte-instructor.rhte.sysdeseng.com/key/rhte.pem]
+| link:http://instructor.labs.sysdeseng.com/key/rhte.pem[http://instructor.labs.sysdeseng.com/key/rhte.pem]
 | Username: student +
 Password: INSTRUCTOR WILL PROVIDE
 | Windows PuTTY private key
-| link:http://rhte-instructor.rhte.sysdeseng.com/key/rhte.ppk[http://rhte-instructor.rhte.sysdeseng.com/key/rhte.ppk]
+| link:http://instructor.labs.sysdeseng.com/key/rhte.ppk[http://instructor.labs.sysdeseng.com/key/rhte.ppk]
 | Username: student +
 Password: INSTRUCTOR WILL PROVIDE
 |======================
@@ -216,7 +216,7 @@ cloudforms  cloudforms-cloudforms.apps.example.com       cloudforms  https   pas
 ----
 
 Open a web browser and navigate securely to the to the hostname retrieved above. This may take a minute or two to completely initialize the web console.
-link:https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com].
+link:https://cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com].
 
 NOTE: If you get an error such as Application Not Available see <<Appendix E - Troubleshooting CloudForms>>
 
