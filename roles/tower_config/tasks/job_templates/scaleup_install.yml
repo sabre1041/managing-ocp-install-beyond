@@ -14,4 +14,12 @@
     become_enabled: "{{ tower_job_template_scaleup_install_become_enabled }}"
     machine_credential: "{{ tower_credential_machine }}"
     cloud_credential: "{{ tower_credential_cloud }}"
+
+- name: Associate the AWS credential to the template
+  command: >
+    tower-cli job_template associate_credential
+      --job-template "{{ tower_job_template_deploy_install }}"
+      --credential "{{ tower_credential_cloud }}"
+      --tower-username "{{ tower_username }}"
+      --tower-password "{{ tower_password }}"
 ...
