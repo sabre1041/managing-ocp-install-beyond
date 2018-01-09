@@ -6,15 +6,15 @@
 |======================
 | *Item* | *URL* | *Access*
 | Ansible Tower|
-link:https://tower-<student_id>.rhte.sysdeseng.com[https://tower-<student_id>.rhte.sysdeseng.com] |
+link:https://tower-<student_id>.labs.sysdeseng.com[https://tower-<student_id>.labs.sysdeseng.com] |
 Username: <student_id> +
 Password: INSTRUCTOR WILL PROVIDE
 | Linux SSH private key
-| link:http://rhte-instructor.rhte.sysdeseng.com/key/rhte.pem[http://rhte-instructor.rhte.sysdeseng.com/key/rhte.pem]
+| link:http://instructor.labs.sysdeseng.com/key/rhte.pem[http://instructor.labs.sysdeseng.com/key/rhte.pem]
 | Username: student +
 Password: INSTRUCTOR WILL PROVIDE
 | Windows PuTTY private key
-| link:http://rhte-instructor.rhte.sysdeseng.com/key/rhte.ppk[http://rhte-instructor.rhte.sysdeseng.com/key/rhte.ppk]
+| link:http://instructor.labs.sysdeseng.com/key/rhte.ppk[http://instructor.labs.sysdeseng.com/key/rhte.ppk]
 | Username: student +
 Password: INSTRUCTOR WILL PROVIDE
 |======================
@@ -43,7 +43,7 @@ Retrieve the `rhte.pem` key from the instructor server so that you can _SSH_ int
 [source, bash]
 ----
 chmod 600 rhte.pem
-ssh -i rhte.pem ec2-user@tower-<student_id>.rhte.sysdeseng.com
+ssh -i rhte.pem ec2-user@tower-<student_id>.labs.sysdeseng.com
 ----
 
 * Windows
@@ -71,7 +71,7 @@ tower-cli project list
 
 ==== Accessing Ansible Tower Web Console
 
-From your workstation machine, open a web browser and navigate to link:https://tower-<student_id>.rhte.sysdeseng.com[https://tower-<student_id>.rhte.sysdeseng.com].
+From your workstation machine, open a web browser and navigate to link:https://tower-<student_id>.labs.sysdeseng.com[https://tower-<student_id>.labs.sysdeseng.com].
 
 Login with the provided credentials.
 
