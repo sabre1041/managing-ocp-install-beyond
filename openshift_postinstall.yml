@@ -8,7 +8,7 @@
     service_catalog_projects_to_annotate: ['kube-service-catalog']
     default_node_selector: 'type=app'
     service_catalog_default_node_selector: 'openshift-infra=apiserver'
-    cfme_template: https://raw.githubusercontent.com/openshift/openshift-ansible/release-3.6/roles/openshift_examples/files/examples/v3.6/cfme-templates/cfme-template.yaml
+    cfme_template: https://raw.githubusercontent.com/openshift/openshift-ansible/release-3.7/roles/openshift_examples/files/examples/v3.7/cfme-templates/cfme-template.yaml
   tasks:
   - name: Get templates
     command: >
