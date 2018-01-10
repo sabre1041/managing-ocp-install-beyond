@@ -1,0 +1,8 @@
+---
+- name: Install playbooks for {{ tower_project_install }}
+  yum:
+    name: "{{ tower_project_install_package }}"
+    state: present
+  become: true
+  when: tower_package_config| bool == true
+...
