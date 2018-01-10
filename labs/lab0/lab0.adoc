@@ -65,7 +65,7 @@ Password: INSTRUCTOR WILL PROVIDE
 | Username: student +
 Password: INSTRUCTOR WILL PROVIDE
 | Windows PuTTY private key
-| link:http://instructor.labs.sysdeseng.com/key/rhte.ppk[http://instructor.labs.sysdeseng.com/key/rhte.ppk]
+| link:https://instructor.labs.sysdeseng.com/rhte.ppk[https://instructor.labs.sysdeseng.com/rhte.ppk]
 | Username: student +
 Password: INSTRUCTOR WILL PROVIDE
 |======================

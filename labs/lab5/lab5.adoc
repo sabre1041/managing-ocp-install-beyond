@@ -10,11 +10,11 @@ link:https://:master-<student_id>.labs.sysdeseng.com:8443[https://master-<studen
 Username: <student_id> +
 Password: INSTRUCTOR WILL PROVIDE
 | Linux SSH private key
-| link:http://instructor.labs.sysdeseng.com/key/rhte.pem[http://instructor.labs.sysdeseng.com/key/rhte.pem]
+| link:https://instructor.labs.sysdeseng.com/rhte.pem[https://instructor.labs.sysdeseng.com/rhte.pem]
 | Username: student +
 Password: INSTRUCTOR WILL PROVIDE
 | Windows PuTTY private key
-| link:http://instructor.labs.sysdeseng.com/key/rhte.ppk[http://instructor.labs.sysdeseng.com/key/rhte.ppk]
+| link:https://instructor.labs.sysdeseng.com/rhte.ppk[https://instructor.labs.sysdeseng.com/rhte.ppk]
 | Username: student +
 Password: INSTRUCTOR WILL PROVIDE
 |======================
