@@ -13,6 +13,9 @@ tower_cli_verbosity: "--verbose"
 # Tower prerequisites
 tower_prereqs_config: false
 
+# Tower package install for 'self' provision
+tower_package_config: true
+
 # Tower Organization
 tower_org: "Default"
 tower_org_config: false
