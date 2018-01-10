@@ -53,6 +53,9 @@ aws_subnet_cidr: "{{ aws_subnet_cidr }}"
 aws_subnet_name: "{{ aws_subnet_name }}"
 aws_route_table: "{{ aws_route_table }}"
 
+# Default SSH key (generated in first step).
+ansible_ssh_private_key_file: "./aws-private.pem"
+
 ## Instance details
 aws_instances:
 - name: master
