@@ -15,12 +15,12 @@ Managing an ecosystem of infrastructure and applications can be challenging. For
 The lab environment that we will utilize today consists of the workstation that you brought with you along with multiple virtual machines running in Amazon Web Services (AWS).  The details of each virtual machine are listed below:
 
 * Student Workstation - This is the workstation / laptop that you brought with you to the lab.
-* AWS is hosting instances that will be used for the Red Hat OpenShift Container Platform 3.6.
+* AWS is hosting instances that will be used for the Red Hat OpenShift Container Platform 3.7.
     * Red Hat OpenShift Container Platform
         ** 1 Master node
         ** 2 Application Nodes (1 Application node intitially, then scaled up to 2)
            *** Red Hat CloudForms (containerized)
-    * Ansible Tower 3.1.4
+    * Ansible Tower 3.2.2
         ** hostname: `tower-<student_id>.labs.sysdeseng.com`
 
 In addition to the virtual machines that are running in AWS, an instructor machine is also contained within the environment and provides additional resources such as the AWS private key.
