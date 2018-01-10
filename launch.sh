@@ -32,6 +32,9 @@ set -euo pipefail
 # Directory of this script
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Set default quiet var value, to make verifications work
+QUIET=0
+
 # Our config file
 SECRETS_FILE='./my_secrets.yml'
 
