@@ -1,4 +1,6 @@
 ---
+- include: roles/tower_config/tasks/projects/install.yml
+
 - name: Configure Job Template for Self-Configure
   tower_job_template:
     tower_host: "{{ tower_host }}"
