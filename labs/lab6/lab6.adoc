@@ -6,23 +6,23 @@
 |======================
 | *Item* | *URL* | *Access*
 | Ansible Tower|
-link:https://tower-<student_id>.rhte.sysdeseng.com[https://tower-<student_id>.rhte.sysdeseng.com] |
+link:https://tower-<student_id>.labs.sysdeseng.com[https://tower-<student_id>.labs.sysdeseng.com] |
 Username: <student_id> +
 Password: INSTRUCTOR WILL PROVIDE
 | OpenShift Container Platform |
-link:https://:master-<student_id>.rhte.sysdeseng.com:8443[https://master-<student_id>.rhte.sysdeseng.com:8443] |
+link:https://:master-<student_id>.labs.sysdeseng.com:8443[https://master-<student_id>.labs.sysdeseng.com:8443] |
 Username: <student_id> +
 Password: INSTRUCTOR WILL PROVIDE
 | Red Hat CloudForms |
-link:https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.rhte.sysdeseng.com] |
+link:https://cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com] |
 Username: admin +
 Password: INSTRUCTOR WILL PROVIDE
 | Linux SSH private key
-| link:http://rhte-instructor.rhte.sysdeseng.com/key/rhte.pem[http://rhte-instructor.rhte.sysdeseng.com/key/rhte.pem]
+| link:https://instructor.labs.sysdeseng.com/rhte.pem[https://instructor.labs.sysdeseng.com/rhte.pem]
 | Username: student +
 Password: INSTRUCTOR WILL PROVIDE
 | Windows PuTTY private key
-| link:http://rhte-instructor.rhte.sysdeseng.com/key/rhte.ppk[http://rhte-instructor.rhte.sysdeseng.com/key/rhte.ppk]
+| link:https://instructor.labs.sysdeseng.com/rhte.ppk[https://instructor.labs.sysdeseng.com/rhte.ppk]
 | Username: student +
 Password: INSTRUCTOR WILL PROVIDE
 |======================
@@ -63,7 +63,7 @@ The _0-Self-Configure_ job template executed earlier configured a set of templat
 
 Using a web browser from the student workstation machine, navigate to the Ansible Tower instance:
 
-link:https://tower-<student_id>.rhte.sysdeseng.com[https://tower-<student_id>.rhte.sysdeseng.com] 
+link:https://tower-<student_id>.labs.sysdeseng.com[https://tower-<student_id>.labs.sysdeseng.com] 
 
 If the web session has not been retained from a prior lab, login once again.
 
@@ -85,7 +85,7 @@ Once the Tower job is completed, there are multiple methods in which to validate
 
 First, as an OpenShift cluster administrator, you can use the OpenShift command line interface from the OpenShift master to view the available nodes and their status.
 
-As the root user on the OpenShift master (_master-<student_id>.rhte.sysdeseng.com_), execute the following command to list the available nodes:
+As the root user on the OpenShift master (_master-<student_id>.labs.sysdeseng.com_), execute the following command to list the available nodes:
 
 .master$
 [source, bash]
