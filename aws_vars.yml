@@ -88,7 +88,7 @@ aws_scaleup_instances:
   type: "{{ ocp_node_inst_type }}"
   image: "{{ ocp_ami_id }}"
   meta:
-    node_type: 'node'
+    node_type: 'new_node'
     node_labels:
       type: app
       zone: default

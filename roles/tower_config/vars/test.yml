@@ -13,6 +13,7 @@ tower_openshift_install_group_config: true
 tower_openshift_masters_group_config: true
 tower_openshift_etcd_group_config: true
 tower_openshift_nodes_group_config: true
+tower_openshift_new_nodes_group_config: true
 tower_project_provision_and_configure_config: true
 tower_project_install_config: true
 tower_job_template_self_configure_config: true
