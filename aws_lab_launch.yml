@@ -80,12 +80,6 @@
         value: "{{ public_ip }}"
         wait: yes
 
-    - name: Install bind-utils for host command
-      yum:
-        name: bind-utils
-        state: present
-      become: true
-
     - name: Wait for resolvable route53 hostname
       local_action: command host {{ inventory_hostname }}
       register: host_result
