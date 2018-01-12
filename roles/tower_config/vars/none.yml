@@ -11,6 +11,7 @@ tower_openshift_install_group_config: false
 tower_openshift_masters_group_config: false
 tower_openshift_etcd_group_config: false
 tower_openshift_nodes_group_config: false
+tower_openshift_new_nodes_group_config: false
 tower_project_provision_and_configure_config: false
 tower_project_install_config: false
 tower_job_template_self_configure_config: false

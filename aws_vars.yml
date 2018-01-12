@@ -54,7 +54,7 @@ aws_subnet_name: "{{ aws_subnet_name }}"
 aws_route_table: "{{ aws_route_table }}"
 
 # Default SSH key (generated in first step).
-ansible_ssh_private_key_file: "./aws-private.pem"
+#ansible_ssh_private_key_file: "./aws-private.pem"
 
 ## Instance details
 aws_instances:
@@ -88,7 +88,7 @@ aws_scaleup_instances:
   type: "{{ ocp_node_inst_type }}"
   image: "{{ ocp_ami_id }}"
   meta:
-    node_type: 'node'
+    node_type: 'new_node'
     node_labels:
       type: app
       zone: default

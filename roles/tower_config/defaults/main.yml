@@ -68,10 +68,15 @@ tower_openshift_etcd_description: "OCP etcd"
 tower_openshift_nodes_group: "nodes"
 tower_openshift_nodes_group_config: false
 tower_openshift_nodes_description: "OCP nodes"
+tower_openshift_new_nodes_group: "new_nodes"
+tower_openshift_new_nodes_group_config: false
+tower_openshift_new_nodes_description: "New OCP nodes"
 tower_master_tag: "tag_lab_role_master"
 tower_master_tag_description: "nodes with the tag 'tag_lab_role_master'"
 tower_node_tag: "tag_lab_role_node"
 tower_node_tag_description: "nodes with the tag 'tag_lab_role_node'"
+tower_new_node_tag: "tag_lab_role_new_node"
+tower_new_node_tag_description: "nodes with the tag 'tag_lab_role_new_node'"
 
 # Tower projet for provision and configure playbooks
 tower_project_provision_and_configure: "Managing OCP from Install and Beyond"
