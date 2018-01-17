@@ -72,7 +72,7 @@ Password: INSTRUCTOR WILL PROVIDE
 
 * Linux/OSX
 
-Retrieve the `rhte.pem` key from the instructor server so that you can _SSH_ into the instances by accessing the password protected directory from the table above. Download the _rhte.pem_ file to your local machine and change the permissions of the file to 600.
+Retrieve the `rhte.pem` key from the instructor server (See Linux SSH private key resource in the table above for the URL) so that you can _SSH_ into the instances by accessing the password protected directory from the table above. Download the _rhte.pem_ file to your local machine and change the permissions of the file to 600.
 
 .workstation$
 [source, bash]
