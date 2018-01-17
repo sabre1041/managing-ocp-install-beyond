@@ -23,7 +23,7 @@ From a local web browser open https://tower-<student_id>.labs.sysdeseng.com[http
 
 image::images/tower-login.png[]
 
-The instance of tower has been minimally configured prior to the lab. The installation of OpenShift does take some time to complete, so we will provide a high level overview of each component we will be configuring until the installation has been initiated, and then circle back afterward for a deeper discussion. 
+The instance of tower has been minimally configured prior to the lab. The installation of OpenShift does take some time to complete, so we will provide a high level overview of each component we will be configuring until the installation has been initiated, and then circle back afterward for a deeper explanation. 
 
 A link:http://docs.ansible.com/ansible-tower/latest/html/userguide/projects.html[Project] that references the Git based repository associated with has been configured on the _PROJECTS_ page called _Managing OCP from Install and Beyond_. 
 
@@ -39,7 +39,7 @@ image::images/job-template-tower-config.png[]
 
 Track the progress of the job until successful completion. 
 
-The job configured several aspects of the Ansible Tower. A comprehensive discussion will be covered in the next lab. 
+The job configured several aspects of the Ansible Tower. A comprehensive explanation will be covered in the next lab. 
 
 Once the _0-Self-Configure_ job is complete, return to the **TEMPLATES** page and trigger the deployment of instances to AWS and the installation of OpenShift by selecting the **RocketShip** next to _1-Deploy_OpenShift_on_AWS_ Workflow Job.
 
