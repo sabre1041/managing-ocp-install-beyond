@@ -32,7 +32,7 @@ tower_ami_id: "{{ tower_ami_id }}"
 ocp_ami_id: "{{ ocp_ami_id }}"
 
 ## AWS Info
-tower_inst_type: t2.medium
+tower_inst_type: t2.large
 ocp_master_inst_type: t2.large
 ocp_node_inst_type: t2.xlarge
 # The subnet_id can be dynamically set if initially creating it at the same time with the aws_vpc_keypair.yml playbook. Setting is statically for now
