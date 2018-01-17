@@ -21,7 +21,7 @@ Password: INSTRUCTOR WILL PROVIDE
 
 == Overview
 
-With the installation of the OpenShift Container Platform started and an understanding of the environment as as whole, we are going to take time waiting for the installation to complete to explore the existing environment in further detail.
+With the installation of the OpenShift Container Platform started and an understanding of the environment as a whole, we are going to take time waiting for the installation to complete to explore the existing environment in further detail.
 
 === Exploring Ansible Tower
 
