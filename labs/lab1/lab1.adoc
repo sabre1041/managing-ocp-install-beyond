@@ -11,7 +11,7 @@ Username: <student_id> +
 Password: INSTRUCTOR WILL PROVIDE
 |======================
 
-Welcome! We are going to jump right into the lab implementation and then review the overall architecture and strategy afterward. You have been tasked with managing a Red Hat Container Platform environment running in AWS. Ansible Tower is also deployed in this environment and being used to execute and manage the overall installation of OpenShift.
+Welcome! We are going to jump right into the lab implementation and then review the overall architecture and strategy afterward. You have been tasked with managing a Red Hat Container Platform environment running in AWS. Ansible Tower is also deployed in this environment and being used to execute and manage the deployment of AWS services and installation of OpenShift.
 
 === Configure Ansible Tower:
 
