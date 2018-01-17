@@ -70,7 +70,9 @@ Password: INSTRUCTOR WILL PROVIDE
 Password: INSTRUCTOR WILL PROVIDE
 |======================
 
-* Linux
+You will need to use a private key file to _SSH_ to the instances that are deployed on AWS. Choose the section below to follow based on your operating system type:
+
+* For Linux/OSX
 
 Retrieve the `rhte.pem` key from the instructor server so that you can _SSH_ into the instances by accessing the password protected directory from the table above. Download the _rhte.pem_ file to your local machine and change the permissions of the file to 600.
 
@@ -80,7 +82,7 @@ Retrieve the `rhte.pem` key from the instructor server so that you can _SSH_ int
 chmod 600 rhte.pem
 ----
 
-* Windows
+* For Windows
 
 Install putty on your Windows machine. link:http://www.putty.org/[http://www.putty.org/]
 
