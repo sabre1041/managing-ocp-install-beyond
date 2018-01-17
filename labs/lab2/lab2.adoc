@@ -118,9 +118,9 @@ The most important component of the inventory for this usecase is the sets of in
 
 link:http://docs.ansible.com/ansible-tower/latest/html/userguide/credentials.html[Credentials] are a mechanism for authenticating against secure resources including target machines, inventory sources and projects leveraging version control systems. Every one of the previously explored areas makes use of a credential. Credentials are configured within the Ansible Tower settings and can be accessed by selecting the **Settings** icon (gear) on the menu bar. Once within the settings page, select the **Credentials** link. The following credentials have been defined:
 
-* AWS - Allows API access to AWS resources
+* AWS - Allows API access to link:http://docs.ansible.com/ansible-tower/latest/html/userguide/credentials.html#amazon-web-services[AWS] resources
 * RHTE SSH - Corresponds to the private key downloaded in lab0. Allows Tower to log in and configure instances running in AWS
-link:http://docs.ansible.com/ansible-tower/latest/html/userguide/credentials.html#amazon-web-services[AWS] platform
+ platform
 
 image::images/ansible-tower-credentials.png[]
 
