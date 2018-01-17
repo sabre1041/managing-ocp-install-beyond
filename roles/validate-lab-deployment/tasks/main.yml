@@ -1,0 +1,16 @@
+---
+# tasks file for validate-lab-deployment
+
+- name: Verify that the Deploy-2-Install job ran successfully.
+  command: >
+    tower-cli job status 7
+  register: job_results
+
+- debug:
+    var: job_results.stdout_lines
+  verbosity: 2
+
+#- name:
+#  fail:
+#    when:
+

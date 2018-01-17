@@ -89,4 +89,7 @@
 
 - include: tower_config.yml
   when: tower_config is defined
+
+- include: validate-lab-deployment.yml
+  when: tower_config == "test"
 ...
