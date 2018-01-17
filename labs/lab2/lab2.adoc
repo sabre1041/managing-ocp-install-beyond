@@ -103,7 +103,7 @@ The configuration of each project can be viewed by selecting the pencil (edit) b
 
 ===== Inventory
 
-An link:http://docs.ansible.com/ansible-tower/latest/html/userguide/inventories.html[inventory] within Ansible Tower is similar to a standalone inventory file and contains a collection of hosts in which jobs may be launched. The inventories defined within Tower can be accessed by clicking on the **INVENTORIES** link on the menu bar. The _OpenShift_ inventory provides a top level container over two child groups:
+An link:http://docs.ansible.com/ansible-tower/latest/html/userguide/inventories.html[inventory] within Ansible Tower is similar to a standalone inventory file and contains a collection of hosts in which jobs may be launched. The inventories defined within Tower can be accessed by clicking on the **INVENTORIES** link on the menu bar. Then click on the _OpenShift_ inventory.  Finally, click on the **GROUPS** box which  provides a top level container over several child groups, notably:
 
 * AWS - link:http://docs.ansible.com/ansible/latest/intro_dynamic_inventory.html[Dynamic inventory] used to populate group and host metadata retrieved from AWS
 * OSEv3 - Group utilized by the OpenShift Instllation. The instances being utilized are organized into _masters_ and _nodes_ child groups based on their overall role and purpose. Also included are child groups with the naming convention `tag_lab_role_*` that is populated with hosts from the AWS dynamic inventory. These tags are applied when the instances are created. To see how the tagging is accomplished view the task in the link:https://github.com/sabre1041/managing-ocp-install-beyond/blob/rhte/aws_create_hosts.yml#L16[provision playbook].

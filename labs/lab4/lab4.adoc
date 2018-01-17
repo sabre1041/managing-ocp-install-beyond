@@ -112,6 +112,7 @@ The describe operation provides additional details about the teamplate. Execute 
 .master$
 [source, bash]
 ----
+oc get pods
 oc describe -n openshift template cloudforms
 ----
 
