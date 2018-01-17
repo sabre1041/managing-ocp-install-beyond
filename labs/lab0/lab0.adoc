@@ -70,7 +70,9 @@ Password: INSTRUCTOR WILL PROVIDE
 Password: INSTRUCTOR WILL PROVIDE
 |======================
 
-* Linux/OSX
+More information about connecting to AWS resources from Linux / OSX and Windows is located below. Also, more instructions follow in Lab 1.
+
+* Linux / OSX
 
 Retrieve the `rhte.pem` key from the instructor server (See Linux SSH private key resource in the table above for the URL) so that you can _SSH_ into the instances by accessing the password protected directory from the table above. Download the _rhte.pem_ file to your local machine and change the permissions of the file to 600.
 
@@ -79,6 +81,8 @@ Retrieve the `rhte.pem` key from the instructor server (See Linux SSH private ke
 ----
 chmod 600 rhte.pem
 ----
+
+In order to connect to an AWS instance, instructions are here: link:https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html[https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html].
 
 * Windows
 
