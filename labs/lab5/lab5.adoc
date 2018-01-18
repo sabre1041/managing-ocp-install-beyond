@@ -43,7 +43,7 @@ To deploy an application that is served by a persistent backend database running
 
 A new dialog appears that walks though configuring the application. Instead of using a two step process of first creating a project and then deploying an application into the project as in prior versions of OpenShift, both can now be completed using the same dialog. 
 
-On the right hand side of the dialog, ensure **Create Project** is selected in the dropdown underneath _Add to Project_.
+On the right hand side of the dialog, click **Next**.
 
 Enter the following information in the first few fields below:
 
@@ -59,13 +59,13 @@ The default values can be utilized in this case. Some of the values will be auto
 
 Click the **Create** button to instantiate the template. 
 
-A page displaying the successful instantiation of the template will be displayed along with a set of next steps that you can take against the application. Click the **Continue to Overview** link to return to the project homepage.
+A page displaying the successful instantiation of the template will be displayed along with a set of next steps that you can take against the application. Click the **Continue to the project overview** link to return to the project homepage.
 
 == Validating Application Deployment
 
 After triggering instantiating the template, a new Source to Image build of the CakePHP application will begin.
 
-The build can be viewed by selecing the _cakephp-mysql-persistent_ deployment and within the _Builds_ section, a log of the running build can be viewed.
+The build can be viewed by selecting the _cakephp-mysql-persistent_ deployment and within the _Builds_ section, a log of the running build can be viewed.
 
 image::images/cakephp-build.png[]
 
@@ -79,11 +79,15 @@ NOTE: You may see an error getting metrics. This is safe to ignore for now as it
 
 image::images/cakephp-mysql-running-collapsed.png[]
 
-The template automatically creates a route to provide external access to the application. The link is available at the top right corner of the page. Click the link to navigate to the application:
+The template automatically creates a route to provide external access to the application. To get to the route, click on the _Applications_ button on the left navigation pane.  Then click on the _Hostname_ shown.
+
+
+image::images/cakephp-route.png[]
 
 link:http://cakephp-mysql-persistent-cakephp-mysql-persistent.apps-<student_id>.labs.sysdeseng.com/[http://cakephp-mysql-persistent-cakephp-mysql-persistent.apps-<student_id>.labs.sysdeseng.com/]
 
 image::images/cakephp-app.png[]
+
 
 Application users and administrators have the ability to leverage several facilities for monitoring the state of an application deployed to the OpenShift Container Platform. While not deployed to the lab environment, OpenShift provides an link:https://docs.openshift.com/container-platform/latest/install_config/aggregate_logging.html[aggregated logging framework] based on the ELK (Elasticsearch, Fluentd and Kibana) stack. However, you can still utilize the telemetry captured by the cluster metrics mechanisms. Cluster metrics were deployed as part of the OpenShift installation and are being used to drive Red Hat CloudForms.
 
@@ -102,10 +106,6 @@ Click on the link displayed which will connect to the Hawkular endpoint. Accept 
 Return to the OpenShift overview page for the _cakephp-mysql-persistent_ project by clicking the **Overview** link on the left side where you should be able to see metrics being displayed associated to each deployment.
 
 image::images/cakephp-mysql-metrics-overview.png[]
-
-An expanded set of information can be displayed by expanding the deployment.
-
-image::images/cakephp-metrics.png[]
 
 Additional details relating to the performance of the application can be viewed by revisiting the _Metrics_ tab within each pod as previously described.
 
@@ -128,9 +128,9 @@ The APB's are shown alongside the traditional OpenShift Templates on the OpenShi
 
 image::images/openshift-landing-apb.png[]
 
-We will first use the MediaWiki APB to deploy an instance of MediaWiki. Navigate to the **Home** page by clicking the house icon in the upper left and select the **MediaWiki (APB)**.
+We will first use the MediaWiki APB to deploy an instance of MediaWiki. Navigate to the **Home** page by clicking the _OPENSHIFT CONTAINER PLATFORM_ link in the upper left and select the **MediaWiki (APB)**.  Click _Next_.
 
-On the right hand side of the dialog, ensure _Create Project_ is selected in the dropdown underneath _Add to Project_.
+Ensure _Create Project_ is selected in the dropdown underneath _Add to Project_.
 
 Enter the following information in the first few fields below:
 
@@ -185,7 +185,7 @@ Locate the pod that starts with _apb-*_ and then click the **Logs** tab.
 
 image::images/mediawiki-apb-logs.png[]
 
-Once the pod has a status of _Completed_, navigate to the **Overview** page.
+Once the pod has a status of _Success_, navigate to the **Overview** page.
 
 Once the mediawiki deployment is _Running_, navigate to the _hyperlink_ on the top right corner of the page to view the application (_http://mediawiki123-mediawiki2.apps-<student_id>.labs.sysdeseng.com_).
 
@@ -193,13 +193,17 @@ image::images/mediawiki-error.png[]
 
 The application fails to load properly since there is no backing datastore available. Let's deploy the PostgreSQL APB to provision a database for the application which will allow the application to function properly.
 
-Return to the _Home_ screen by clicking the **House** at the top left hand corner of the page.
+Return to the _Home_ screen by clicking the **OPENSHIFT CONTAINER PLATFORM** link at the top left hand corner of the page.
 
-Select **PostgreSQL (APB)** to launch the new application dialog.
+Select **PostgreSQL (APB)** to launch the new application dialog. Click _Next_.
+
+Select _Production_ from the available plans, click _Next_.
+
+image::images/postgresql-apb-production-storage.png[]
 
 Ensure **MediaWiki** is selected in the dropdown underneath  _Add to Project_.
 
-Leave all of the parameters at their default values except for selecting **9.5** under _PostgreSQL Version_.
+Leave all of the parameters at their default values.
 
 image::images/postgresql-apb-new-project.png[]
 
@@ -211,13 +215,13 @@ Select the **Do not bind at the time** radio button and then click **Create**.
 
 image::images/postgresql-apb-new-project-bind.png[]
 
-Click **View Project** to return to the project overview page. 
+Click **Continue to the Project Overview** to return to the project overview page. 
 
 The PostgreSQL APB will run and provision the PostgreSQL database in a similar fashion to the MediaWiki earlier.
 
 Once the PostgreSQL application is running, to inject credentials for the MediaWiki application to make use of the PostgreSQL database, a new _Binding_ must be created. 
 
-From the _Overview_ page, locate the mediawiki deployment and create a new _Binding_ by clicking the kabob on the right side of the deployment and selecting **Create Binding**.
+From the _Overview_ page, locate the PostgreSQL deployment and create a new _Binding_ by clicking the **Create Binding** link.
 
 image::images/mediawiki-create-binding.png[]
 
@@ -229,7 +233,11 @@ Click the **Close** button on the confirmation page.
 
 To allow the MediaWiki application to make use of the newly created configuration, a new deployment must be triggered. 
 
-However, since MediaWiki makes use of persistent storage using EBS volumes, only a single application instance can mount the volume at a time. To work around this issue, first scale down the MediaWiki application by clicking the down arrow until the instance count reaches 0 pods.
+However, since MediaWiki makes use of persistent storage using EBS volumes, only a single application instance can mount the volume at a time. To work around this issue, first scale down the MediaWiki application by clicking the arrow to expand the options.
+
+image::images/mediawiki-apb-scale-arrow.png[]
+
+Then scale the application down by clicking the down arrow. Then click _Scale Down_. 
 
 image::images/mediawiki-scaledown.png[]
 
