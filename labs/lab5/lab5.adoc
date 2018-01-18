@@ -225,24 +225,25 @@ From the _Overview_ page, locate the PostgreSQL deployment and create a new _Bin
 
 image::images/mediawiki-create-binding.png[]
 
-Since the PostgreSQL service is the only available service, it is selected by default. Click the **Bind** button to bind the PostgreSQL service to the MediaWiki application. 
+This will create a secret. Take note of the secret that the binding operation created. 
 
 image::images/mediawiki-postgresql-binding.png[]
 
-Take note of the secret that the binding operation created. Click the **Close** button on the confirmation page.
+Click the **Close** button on the confirmation page.
 
 Now we need to go in and associate the PostgreSQL secret that was just created, with the mediawiki application.  On the left hand navigation page, click **Resources** and then **Secrets**.  Look for the secret that was just created.
 
 image::images/postgres-apb-secret.png[]
 
-In the upper right hand corner, click **Add to Application**. From the dropdown select **mediawiki123**, add the secret as an **Environment Variable**. Click **Save**.
+In the upper right hand corner, click **Add to Application**. 
 
 image::images/postgres-apb-add-to-app.png[]
 
+From the dropdown select **mediawiki123**, add the secret as an **Environment Variable**. Click **Save**.
 
 image::images/postgres-apb-add-secret-to-app.png[]
 
-That will trigger a new deployment and the application will be ready after the deployment is finished.
+That will trigger a new deployment and the application will be ready after the deployment is finished. Now go back to the application page and click refresh.
 
 image::images/mediawiki-running.png[]
 
