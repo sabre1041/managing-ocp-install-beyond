@@ -219,7 +219,7 @@ Click **Continue to the Project Overview** to return to the project overview pag
 
 The PostgreSQL APB will run and provision the PostgreSQL database in a similar fashion to the MediaWiki earlier.
 
-Once the PostgreSQL application is running, to inject credentials for the MediaWiki application to make use of the PostgreSQL database, a new _Binding_ must be created. 
+Once the PostgreSQL application is running, we will need to inject credentials for the MediaWiki application to make use of the PostgreSQL database, a new _Binding_ must be created. 
 
 From the _Overview_ page, locate the PostgreSQL deployment and create a new _Binding_ by clicking the **Create Binding** link.
 
