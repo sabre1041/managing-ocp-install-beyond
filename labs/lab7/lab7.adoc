@@ -9,11 +9,11 @@ Let’s recap what you have accomplished during this session.
     ** Red Hat OpenShift Container Platform was installed and configured
         *** Platform metrics were automatically deployed
 * Red Hat Cloudforms was deployed within the Red Hat Container Platform cluster
-    ** Integrated with Red Hat OpenShift Container Platform to monitor the cluster
-* Two sample application using persistent storage deployed on the Red Hat OpenShift Container Platform
-* Ansible Tower was used to execute Ansible platforms to expand the cluster
-    ** New instance deployed within AWS
-    ** Red Hat OpenShift Container Platform node installed and cluster updated
+    ** CloudForms was integrated with Red Hat OpenShift Container Platform to monitor the cluster
+* Two sample applications were deployed using persistent storage deployed on the Red Hat OpenShift Container Platform
+* Ansible Tower was used to execute Ansible playbooks to expand the cluster
+    ** New instances were deployed within AWS
+    ** An additional Red Hat OpenShift Container Platform node was installed and the cluster was updated
 
 The following resources are available for your reference:
 
