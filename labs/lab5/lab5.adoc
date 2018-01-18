@@ -179,13 +179,13 @@ oc get serviceclass mediawiki-apb -o yaml
 
 The majority of the parameters can be left as their default values. Set the _Mediawiki Admin User Password_ parameter to **s3curepw** and then click **Create**. 
 
-The service will then be provisioned in the newly created project. Click **View Project** to view the status. The APB will start and execute actions to create the necessary resources using ansible. Additional insights into the actions the APB is performing can be viewed by selecting **Applications** from the left hand side of the page, and then **Pods**.
+The service will then be provisioned in the newly created project. Click **Continue to the project overview** link to view the status. The APB will start and execute actions to create the necessary resources using ansible. Additional insights into the actions the APB is performing can be viewed by selecting **Applications** from the left hand side of the page, and then **Pods**.
 
-Locate the pod that starts with _apb-*_ and then click the **Logs** tab.
+Locate the mediawiki pod and then click the **Logs** tab.
 
 image::images/mediawiki-apb-logs.png[]
 
-Once the pod has a status of _Success_, navigate to the **Overview** page.
+After reviewing the logs, navigate to the **Overview** page.
 
 Once the mediawiki deployment is _Running_, navigate to the _hyperlink_ on the top right corner of the page to view the application (_http://mediawiki123-mediawiki2.apps-<student_id>.labs.sysdeseng.com_).
 
@@ -229,25 +229,20 @@ Since the PostgreSQL service is the only available service, it is selected by de
 
 image::images/mediawiki-postgresql-binding.png[]
 
-Click the **Close** button on the confirmation page.
+Take note of the secret that the binding operation created. Click the **Close** button on the confirmation page.
 
-To allow the MediaWiki application to make use of the newly created configuration, a new deployment must be triggered. 
+Now we need to go in and associate the PostgreSQL secret that was just created, with the mediawiki application.  On the left hand navigation page, click **Resources** and then **Secrets**.  Look for the secret that was just created.
 
-However, since MediaWiki makes use of persistent storage using EBS volumes, only a single application instance can mount the volume at a time. To work around this issue, first scale down the MediaWiki application by clicking the arrow to expand the options.
+image::images/postgres-apb-secret.png[]
 
-image::images/mediawiki-apb-scale-arrow.png[]
+In the upper right hand corner, click **Add to Application**. From the dropdown select **mediawiki123**, add the secret as an **Environment Variable**. Click **Save**.
 
-Then scale the application down by clicking the down arrow. Then click _Scale Down_. 
+image::images/postgres-apb-add-to-app.png[]
 
-image::images/mediawiki-scaledown.png[]
 
-With the application scaled down, click on the kabob on the right hand side of the MediaWiki deployment and click **Deploy**.
+image::images/postgres-apb-add-secret-to-app.png[]
 
-image::images/mediawiki-redeploy.png[]
-
-Once the deployment completes, click the **Up** arrow to scale up the MediaWiki application.
-
-When the pod is up and running, confirm MediaWiki can be accessed by seleting the hyperlink at the top right corner of the page as completed previously. 
+That will trigger a new deployment and the application will be ready after the deployment is finished.
 
 image::images/mediawiki-running.png[]
 
