@@ -140,44 +140,7 @@ Project Description: **MediaWiki Deployed Using the Ansible Service Broker**
 
 image::images/mediawiki-apb-new-project.png[]
 
-The rest of the dialog defines a set of parameters that can be used to customize the deployed application. These parameters are defined in the mediawiki-apb _ServiceClass_ and can be seen by showing the contents of the _ServiceClass_ from the OpenShift Master. 
-
-.master$
-[source, text]
-----
-oc get serviceclass mediawiki-apb -o yaml
-
-...
-    properties:
-      mediawiki_admin_pass:
-        title: Mediawiki Admin User Password
-        type: string
-      mediawiki_admin_user:
-        default: admin
-        title: Mediawiki Admin User
-        type: string
-      mediawiki_db_schema:
-        default: mediawiki
-        title: Mediawiki DB Schema
-        type: string
-      mediawiki_site_lang:
-        default: en
-        title: Mediawiki Site Language
-        type: string
-      mediawiki_site_name:
-        default: MediaWiki
-        title: Mediawiki Site Name
-        type: string
-    required:
-    - mediawiki_db_schema
-    - mediawiki_site_name
-    - mediawiki_site_lang
-    - mediawiki_admin_user
-    - mediawiki_admin_pass
-...
-----
-
-The majority of the parameters can be left as their default values. Set the _Mediawiki Admin User Password_ parameter to **s3curepw** and then click **Create**. 
+The rest of the dialog defines a set of parameters that can be used to customize the deployed application. These parameters are defined in the mediawiki-apb. The majority of the parameters can be left as their default values. Set the _Mediawiki Admin User Password_ parameter to **s3curepw** and then click **Create**. 
 
 The service will then be provisioned in the newly created project. Click **Continue to the project overview** link to view the status. The APB will start and execute actions to create the necessary resources using ansible. Additional insights into the actions the APB is performing can be viewed by selecting **Applications** from the left hand side of the page, and then **Pods**.
 
