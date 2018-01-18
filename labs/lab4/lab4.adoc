@@ -286,6 +286,7 @@ To force an immediate refresh of the newly added Provider:
     . Choose **Refresh Items and Relationships**
     . Lastly, click the **Refresh** icon just to the left of **Configuration**
     . Now the Relationships should be populated with data from OpenShift
+    . Note that the Utilization metrics will not be immediately populated as these are collected and aggregated over a longer period of time.
 +
 
 image::images/cfme-ocp-provider.png[]
