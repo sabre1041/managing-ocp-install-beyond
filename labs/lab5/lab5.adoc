@@ -21,7 +21,7 @@ Password: INSTRUCTOR WILL PROVIDE
 
 == Overview
 
-The primary function of the Red Hat OpenShift Container Platform is to run end user applications executing in containers. Thus far, the applications that have been deployed were primairly for supporting the overall infrastructure of the platform.
+The primary function of the Red Hat OpenShift Container Platform is to run end user applications executing in containers. Thus far, the applications that have been deployed were primarily for supporting the overall infrastructure of the platform.
 
 In this lab, you will explore two separate methods for deploying applications to OpenShift and use the tools previously deployed to investigate how to manage the applications.
 
