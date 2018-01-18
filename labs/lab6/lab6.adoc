@@ -43,6 +43,7 @@ From the Ansible Tower:
 
 * Click on **INVENTORIES** in the top navigation pane
 * Click on **OpenShift** inventory
+* Click on the **Groups** button to view the groups within the inventory
 * Select the **OSEv3** group and review child groups and the instances within the _Hosts_ section
 
 The lists of instances in the OpenShift cluster can also be viewed from the OpenShift master using the OpenShift CLI:
