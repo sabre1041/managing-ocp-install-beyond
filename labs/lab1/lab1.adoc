@@ -48,9 +48,9 @@ Once the _0-Self-Configure_ job is complete, return to the **TEMPLATES** page an
 template_service_broker_selector: {"type":"infra"}
 ----
 
-After you have added this variable, click **Save**.
+After you have added this variable, click **SAVE**.
 
-Now trigger the deployment of instances to AWS and the installation of OpenShift by selecting the **RocketShip** next to _1-Deploy_OpenShift_on_AWS_ Workflow Job.
+Now trigger the deployment of instances to AWS and the installation of OpenShift by scrolling down and selecting the **RocketShip** next to _1-Deploy_OpenShift_on_AWS_ Workflow Job.
 
 image::images/job-template-install-openshift.png[]
 
