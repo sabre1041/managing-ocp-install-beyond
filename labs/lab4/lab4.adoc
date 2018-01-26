@@ -101,6 +101,8 @@ Verify the template is available in the OpenShift environment
 .master$
 [source, bash]
 ----
+wget https://raw.githubusercontent.com/openshift/openshift-ansible/master/roles/openshift_examples/files/examples/v3.7/cfme-templates/cfme-template.yaml
+oc new-app -n cloudforms -p APPLICATION_MEM_REQ=3072Mi --template=cloudforms
 oc get -n openshift template cloudforms
 
 NAME     DESCRIPTION                  PARAMETERS   OBJECTS
