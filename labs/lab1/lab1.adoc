@@ -41,7 +41,7 @@ Track the progress of the job until successful completion.
 
 The job configured several aspects of the Ansible Tower. A comprehensive explanation will be covered in the next lab. 
 
-Once the _0-Self-Configure_ job is complete, return to the **TEMPLATES** page and configure the template to point the _Template Service Broker_ to the infrastructure node. Add the following the the **Extra Vars** section of the **Deploy-2-Install** template.
+Once the _0-Self-Configure_ job is complete, return to the **TEMPLATES** page and configure the **Deploy-2-Install** template to point the _Template Service Broker_ to the infrastructure node. Add the following the the **Extra Vars** section of the **Deploy-2-Install** template.
 
 [source, bash]
 ----
