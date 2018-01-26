@@ -6,7 +6,7 @@
 |======================
 | *Item* | *URL* | *Access*
 | Ansible Tower|
-link:https://tower-<student_id>.labs.sysdeseng.com[https://tower-<student_id>.labs.sysdeseng.com] |
+link:https://tower-<student-id>.labs.sysdeseng.com[https://tower-<student_id>.labs.sysdeseng.com] |
 Username: <student_id> +
 Password: INSTRUCTOR WILL PROVIDE
 |======================
