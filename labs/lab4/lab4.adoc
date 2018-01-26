@@ -60,8 +60,8 @@ Execute the following command to add the default service account in the cloudfor
 .master$
 [source, bash]
 ----
-oc adm policy add-scc-to-user privileged \
-        system:serviceaccount:cloudforms:default
+oc adm policy add-scc-to-user privileged -z cfme-httpd
+oc adm policy add-scc-to-user privileged -z cfme-orchestrator
 ----
 
 Confirm the user is associated to the privileged SCC:
@@ -101,8 +101,8 @@ Verify the template is available in the OpenShift environment
 .master$
 [source, bash]
 ----
-wget https://raw.githubusercontent.com/openshift/openshift-ansible/master/roles/openshift_examples/files/examples/v3.7/cfme-templates/cfme-template.yaml
-oc new-app -n cloudforms -p APPLICATION_MEM_REQ=3072Mi -f cfme-template.yaml
+wget https://gist.githubusercontent.com/ruromero/c9616542f39311223e245074359cc607/raw/d81a3b1fd8b707a6a9dd7702998a1a6fb43feb99/cfme-template.yaml
+oc new-app -n cloudforms -p APPLICATION_MEM_REQ=3072Mi --template=cloudforms
 
 oc get -n openshift template cloudforms
 
