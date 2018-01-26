@@ -45,6 +45,7 @@ Once the _0-Self-Configure_ job is complete, return to the **TEMPLATES** page an
 
 [source, bash]
 ----
+---
 template_service_broker_selector: {"type":"infra"}
 ----
 
