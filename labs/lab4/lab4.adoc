@@ -2,7 +2,7 @@
 
 == Connectivity Details for This Lab
 
-[options="header"]
+[options="header" -f cfme-template.yaml
 |======================
 | *Item* | *URL* | *Access*
 | OpenShift Container Platform |
@@ -102,7 +102,8 @@ Verify the template is available in the OpenShift environment
 [source, bash]
 ----
 wget https://raw.githubusercontent.com/openshift/openshift-ansible/master/roles/openshift_examples/files/examples/v3.7/cfme-templates/cfme-template.yaml
-oc new-app -n cloudforms -p APPLICATION_MEM_REQ=3072Mi --template=cloudforms
+oc new-app -n cloudforms -p APPLICATION_MEM_REQ=3072Mi -f cfme-template.yaml
+
 oc get -n openshift template cloudforms
 
 NAME     DESCRIPTION                  PARAMETERS   OBJECTS
@@ -126,7 +127,7 @@ Instantiate the template to deploy Red Hat CloudForms. A parameter called _APPLI
 .master$
 [source, bash]
 ----
-oc new-app -n cloudforms -p APPLICATION_MEM_REQ=3072Mi --template=cloudforms
+oc new-app -n cloudforms -p APPLICATION_MEM_REQ=3072Mi -f cfme-template.yaml
 ----
 
 Red Hat CloudForms will now be deployed into the _cloudforms_ project.
