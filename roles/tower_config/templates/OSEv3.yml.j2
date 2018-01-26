@@ -20,7 +20,6 @@ openshift_schedulable: True
 openshift_hosted_router_selector: 'type=infra'
 openshift_hosted_registry_selector: 'type=infra'
 openshift_metrics_selector: "type=infra"
-template_service_broker_selector: 'type=infra'
 openshift_cloudprovider_kind: aws
 openshift_master_cluster_hostname: "{{ openshift_master_internal_dns_prefix }}-{{ student_id }}.{{ domain_name }}"
 openshift_master_cluster_public_hostname: "{{ openshift_master_dns_prefix }}-{{ student_id }}.{{ domain_name }}"
