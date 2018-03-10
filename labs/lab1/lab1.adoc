@@ -6,8 +6,8 @@
 |======================
 | *Item* | *URL* | *Access*
 | Ansible Tower|
-link:https://tower-<student_id>.labs.sysdeseng.com[https://tower-<student_id>.labs.sysdeseng.com] |
-Username: <student_id> +
+link:https://tower-<student-id>.labs.sysdeseng.com[https://tower-<student-id>.labs.sysdeseng.com] |
+Username: <student-id> +
 Password: INSTRUCTOR WILL PROVIDE
 |======================
 
@@ -17,9 +17,9 @@ Welcome! We are going to jump right into the lab implementation and then review 
 
 Prior to installing the OpenShift Container Platform, Ansible Tower must be configured first. This section will introduce several key benefits for using Ansible Tower over standalone ansible and provide a solid baseline for the rest of the lab session. 
 
-From a local web browser open https://tower-<student_id>.labs.sysdeseng.com[https://tower-<student_id>.labs.sysdeseng.com] and login using the credentials provided. This will be the tower instance that was assigned to you.
+From a local web browser open https://tower-<student-id>.labs.sysdeseng.com[https://tower-<student-id>.labs.sysdeseng.com] and login using the credentials provided. This will be the tower instance that was assigned to you.
 
-**IMPORTANT**: The value for “<student_id>” needs to be consistent throughout the rest of the lab. Failure to do so, can cause issues including losing the ability to successfully complete the lab.
+**IMPORTANT**: The value for “<student-id>” needs to be consistent throughout the rest of the lab. Failure to do so, can cause issues including losing the ability to successfully complete the lab.
 
 image::images/tower-login.png[]
 
