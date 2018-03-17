@@ -1,0 +1,13 @@
+---
+- include: ami-ocp.yml
+  when: ami_config == "ocp"
+
+- include: ami-http.yml
+  when: ami_config == "http"
+
+- include: ami-tower.yml
+  when: ami_config == "tower"
+
+- include: ami-rh-container-lab.yml
+  when: ami_config == "rh-container-lab"
+...

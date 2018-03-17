@@ -1,4 +1,11 @@
 ---
+# Set a random number to assign to the name of a VM while building AMIs.  This is only used for building AMIs.
+#tasks:
+#  - name: Set a random number for the AMI name
+#    set_fact:
+#      ami_random: "{{ 100 | random }}"
+#    run_once: yes
+
 ## Name of lab. This is used to tag instances
 lab_name: rhte
 
@@ -10,6 +17,12 @@ student_count: 1
 # These are normally set to start at 1 and end at {{ student_count }} but can be customized as needed
 student_count_start: 1
 student_count_end: "{{ student_count }}"
+
+# Default names of the AMIs that we create
+ami_ocp: ami_ocp-{{ ami_unique_id }}
+ami_tower: ami_tower-{{ ami_unique_id }}
+ami_http: ami_http-{{ ami_unique_id }}
+ami_container: ami_container-{{ ami_unique_id }}
 
 ## OpenShift Version to use, this will enable the correct repositories
 openshift_deploy_version: 3.7
@@ -30,6 +43,8 @@ aws_secret_key: "{{ec2_secret_key}}"
 tower_ami_id: "{{ tower_ami_id }}"
 ## OCP ID - This is the only variable used in the Playbooks, set it to one of the above (or override with -e)
 ocp_ami_id: "{{ ocp_ami_id }}"
+## RHEL base ID - This is used to create the base AMIs for: tower, ocp, and http nodes.  Set it to one of the above (or override with -e)
+rhel_ami_id: "{{ rhel_ami_id}}"
 
 ## AWS Info
 tower_inst_type: t2.medium

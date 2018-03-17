@@ -1,0 +1,13 @@
+{
+    "company_name": "Red Hat", 
+    "contact_email": "jdetiber@redhat.com", 
+    "contact_name": "Jason DeTiberus", 
+    "hostname": "f63eebb84f004ea28b3036c3c147adf7", 
+    "instance_count": 50, 
+    "license_date": 1521912463, 
+    "license_key": "490baf014d660d82ea092b9736171ec2032e63a42c61589dcf4debc082f2e889", 
+    "license_type": "enterprise", 
+    "eula_accepted": "true",
+    "subscription_name": "Ansible Tower by Red Hat (50 Managed Nodes), RHT Internal", 
+    "trial": true
+}

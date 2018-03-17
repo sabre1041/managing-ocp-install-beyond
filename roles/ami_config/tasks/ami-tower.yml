@@ -1,0 +1,128 @@
+---
+# Test to create a ocp file
+
+- include: rh_subscription.yml
+
+- name: This creates a file on the "{{ ami_config }}" AMI so you can check later to see which plays were run.
+  file:
+    path: /tmp/ami-tower-test-file
+    state: touch
+
+#- name: update the system prior to doing any work
+#  yum:
+#    name: "*"
+#    state: latest
+#  become: true
+
+- name: Subscribe to the proper "{{ ami_config }}" repositories
+  shell: >
+    subscription-manager repos
+    --enable="rhel-7-server-rpms"
+    --enable="rhel-7-server-optional-rpms"
+    --enable="rhel-7-server-extras-rpms"
+    --enable="rhel-ha-for-rhel-7-server-htb-rpms"
+  become: true
+
+- name: Add EPEL repository
+  command: yum -y install http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+  become: true
+
+- name: Install packages for the "{{ ami_config }}" AMI
+  yum:  
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - wget
+    - git
+    - net-tools
+    - bind-utils
+    - bash-completion
+    - iptables-services
+    - sos
+    - psacct
+    - python2-ansible-tower-cli
+    - ansible
+    - python-boto3
+    - python-boto
+  become: true
+
+- name: Capture the instance ID of this "{{ ami_config }}" so we can attach a volume later
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - aws_vars.yml
+  ec2_instance_facts:
+    aws_access_key: "{{ ec2_access_key }}"
+    aws_secret_key: "{{ ec2_secret_key }}"
+    region: "{{ aws_region }}"
+    filters:
+      # "tag:Name": "ami-{{ lab_user }}-{{ ami_random }}.{{ domain_name }}"
+      "tag:Name": "ami-{{ lab_user }}-{{ ami_unique_id }}.{{ domain_name }}"
+  register: result
+
+- debug:
+    var: result.instances[0].instance_id
+    verbosity: 2
+
+- name: Download and extract tower.
+  unarchive:
+    src: https://releases.ansible.com/ansible-tower/setup/ansible-tower-setup-latest.tar.gz
+    dest: /home/ec2-user
+    remote_src: yes
+
+- name: Copy over the template for the Tower inventory
+  template:
+    src: tower_config_inventory.j2
+    dest: /home/ec2-user/ansible-tower-setup-3.2.3/inventory
+    backup: yes
+
+- name: Run the Tower setup
+## TODO look into async to watch process.  it won't output, but it can give process. must add another task to poll.
+##   reference the openshift-ansible playbooks for examples
+  command: sudo /home/ec2-user/ansible-tower-setup-3.2.3/setup.sh
+  ignore_errors: yes
+  become: true
+
+#- name: Add user to manage Tower
+#  command: >
+#    tower-cli user create
+#      --username "{{ student_id }}"
+#      --password "{{ tower_password }}"
+#      --email "{{ student_id + '@example.org' }}"
+#      --is-superuser true
+#      --tower-host localhost
+#      --tower-username "{{ student_id }}"
+#      --tower-password "{{ tower_password }}"
+#
+#- set_fact:
+#    tower_username: "{{ student_id }}"
+
+#- name: Post Tower license
+#  uri:
+#    url: ami-{{ lab_user }}-{{ ami_unique_id }}.{{ domain_name }}/api/v2/config/
+#    method: POST
+#    user: "{{ tower_username }}"
+#    password: "{{ tower_password }}"
+#    body: "{{ lookup('template', 'tower_license') }}"
+#    body_format: json
+
+#- name: unsubscribe the host from RH CDN so we don't consume all subscriptions
+#  command: subscription-manager remove --all
+#  become: true
+
+#- name: Create an AMI from the configured VM
+#  local_action:
+#    module: ec2_ami
+#    aws_access_key: "{{ ec2_access_key }}"
+#    aws_secret_key: "{{ ec2_secret_key }}"
+#    instance_id: "{{ result.instances[0].instance_id }}"
+#    name: "{{ ami_tower }}"
+#    region: "{{ aws_region }}"
+#    wait: yes
+#    wait_timeout: 800
+#  register: ami_id
+
+#- debug:
+#    var: ami_id.image_id
+#    verbosity: 2
+...

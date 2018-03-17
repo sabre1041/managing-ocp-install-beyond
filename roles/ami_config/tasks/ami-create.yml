@@ -1,0 +1,18 @@
+---
+- tasks:
+  name: Time to actually create the AMI
+  hosts: localhost
+  gather_facts: no
+  remote_user: ec2-user
+  vars_files:
+    - aws_vars.yml
+    - scollier_secrets-ami_build.yml
+  ec2_ami:
+    aws_access_key: "{{ ec2_access_key }}"
+    aws_secret_key: "{{ ec2_secret_key }}"
+    instance_id: "{{ result.instances[0].instance_id }}"
+    name: "{{ ami_ocp }}"
+    region: "{{ aws_region }}"
+    wait: yes
+    wait_timeout: 800
+...

@@ -1,0 +1,10 @@
+---
+- name: This creates a file on the "{{ ami_config }}" AMI so you can check later to see which plays were run.
+  file:
+    path: /tmp/ami-http-test-file
+    state: touch
+
+- name: unsubscribe the host from RH CDN so we don't consume all subscriptions
+  command: subscription-manager remove --all
+  become: true
+...
