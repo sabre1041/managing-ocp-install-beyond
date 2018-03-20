@@ -46,7 +46,7 @@
     - python-boto
   become: true
 
-- name: Capture the instance ID of this "{{ ami_config }}" so we can attach a volume later
+- name: Capture the instance ID of this "{{ ami_config }}" so we can create an AMI later.
   hosts: localhost
   gather_facts: no
   vars_files:
@@ -83,46 +83,43 @@
   ignore_errors: yes
   become: true
 
-#- name: Add user to manage Tower
-#  command: >
-#    tower-cli user create
-#      --username "{{ student_id }}"
-#      --password "{{ tower_password }}"
-#      --email "{{ student_id + '@example.org' }}"
-#      --is-superuser true
-#      --tower-host localhost
-#      --tower-username "{{ student_id }}"
-#      --tower-password "{{ tower_password }}"
-#
-#- set_fact:
-#    tower_username: "{{ student_id }}"
+- name: Post Tower license
+  uri:
+    url: https://ami-{{ lab_user }}-{{ ami_unique_id }}.{{ domain_name }}/api/v2/config/
+    method: POST
+    validate_certs: no
+    headers:
+      Content-Type: "application/json"
+      Accept: "application/json"
+    force_basic_auth: yes
+    user: admin
+   #user: "{{ tower_username }}"
+    password: password
+   #password: "{{ tower_password }}"
+    body: "{{ lookup('file', '/home/scollier/git_projects/managing-ocp-install-beyond/roles/ami_config/templates/tower_license') }}"
+    body_format: json
 
-#- name: Post Tower license
-#  uri:
-#    url: ami-{{ lab_user }}-{{ ami_unique_id }}.{{ domain_name }}/api/v2/config/
-#    method: POST
-#    user: "{{ tower_username }}"
-#    password: "{{ tower_password }}"
-#    body: "{{ lookup('template', 'tower_license') }}"
-#    body_format: json
+- name: unsubscribe the host from RH CDN so we don't consume all subscriptions
+  command: subscription-manager remove --all
+  become: true
 
-#- name: unsubscribe the host from RH CDN so we don't consume all subscriptions
-#  command: subscription-manager remove --all
-#  become: true
+- name: Create an AMI from the configured VM
+  hosts: localhost
+  gather_facts: yes
+  vars_files:
+    - aws_vars.yml
+    - scollier_secrets-ami_build.yml
+  local_action:
+    module: ec2_ami
+    aws_access_key: "{{ ec2_access_key }}"
+    aws_secret_key: "{{ ec2_secret_key }}"
+    instance_id: "{{ result.instances[0].instance_id }}"
+    name: "{{ ami_tower }}"
+    region: "{{ aws_region }}"
+    wait: yes
+  register: ami_id
 
-#- name: Create an AMI from the configured VM
-#  local_action:
-#    module: ec2_ami
-#    aws_access_key: "{{ ec2_access_key }}"
-#    aws_secret_key: "{{ ec2_secret_key }}"
-#    instance_id: "{{ result.instances[0].instance_id }}"
-#    name: "{{ ami_tower }}"
-#    region: "{{ aws_region }}"
-#    wait: yes
-#    wait_timeout: 800
-#  register: ami_id
-
-#- debug:
-#    var: ami_id.image_id
-#    verbosity: 2
+- debug:
+    var: ami_id.image_id
+    verbosity: 2
 ...

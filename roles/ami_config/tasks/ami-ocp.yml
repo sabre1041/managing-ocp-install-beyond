@@ -118,7 +118,6 @@
     aws_secret_key: "{{ ec2_secret_key }}"
     instance_id: "{{ result.instances[0].instance_id }}"
     name: "{{ ami_container }}"
-    # name: test-ocp-scollier
     region: "{{ aws_region }}"
     wait: yes
   register: ami_id
