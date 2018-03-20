@@ -49,8 +49,7 @@
     aws_secret_key: "{{ ec2_secret_key }}"
     region: "{{ aws_region }}"
     filters:
-      # "tag:Name": "ami-{{ lab_user }}-{{ ami_random }}.{{ domain_name }}"
-      "tag:Name": "ami-{{ lab_user }}-{{ ami_unique-id }}.{{ domain_name }}"
+      "tag:Name": "ami-{{ lab_user }}-{{ ami_unique_id }}.{{ domain_name }}"
   register: result
 
 - debug:
@@ -67,7 +66,7 @@
     aws_secret_key: "{{ ec2_secret_key }}"
     region: "{{ aws_region }}"
     instance: "{{ result.instances[0].instance_id }}"
-    name: "{{ ocp_ami_vol_name }}-{{ ami_unique-id }}"
+    name: "{{ ocp_ami_vol_name }}-{{ ami_unique_id }}"
     volume_size: 50
     volume_type: gp2
     device_name: /dev/sdb
@@ -100,18 +99,31 @@
 
 - name: unsubscribe the host from RH CDN so we don't consume all subscriptions
   command: subscription-manager remove --all
+  ignore_errors: yes
   become: true
+
+- debug:
+    var: result.instances[0].instance_id
+    verbosity: 2
 
 - name: Create an AMI from the configured VM
   hosts: localhost
-  gather_facts: no
+  gather_facts: yes
   vars_files:
     - aws_vars.yml
-  ec2_ami:
+    - scollier_secrets-ami_build.yml
+  local_action:
+    module: ec2_ami
     aws_access_key: "{{ ec2_access_key }}"
     aws_secret_key: "{{ ec2_secret_key }}"
     instance_id: "{{ result.instances[0].instance_id }}"
-    name: "{{ ami_ocp }}"
+    name: "{{ ami_container }}"
+    # name: test-ocp-scollier
     region: "{{ aws_region }}"
     wait: yes
+  register: ami_id
+
+- debug:
+    var: ami_id.image_id
+    verbosity: 2
 ...
