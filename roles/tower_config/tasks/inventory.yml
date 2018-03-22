@@ -20,6 +20,34 @@
     tower_username: "{{ tower_username }}"
     tower_password: "{{ tower_password }}"
 
+- name: Check for existing Tower Inventory Source
+  command: >
+    tower-cli inventory_source list
+      "{{ tower_cli_verbosity }}"
+      --format json
+  register: tower_inventory_source_list
+
+- set_fact:
+    tower_inventory_source_exists: true
+  when: tower_inventory_group_source in tower_inventory_source_list.stdout
+
+- name: Modify Tower Inventory Source
+  command: >
+    tower-cli inventory_source modify
+      --name "{{ tower_inventory_group_source }}"
+      --instance-filters "{{ tower_inventory_group_source_filters }}"
+      --update-on-launch {{ tower_inventory_group_source_update_on_launch }}
+      --credential {{ tower_credential_cloud }}
+      --source {{ tower_inventory_group_source }}
+      --description "{{ tower_inventory_group_source_description }}"
+      --inventory "{{ tower_inventory }}"
+      --overwrite {{ tower_inventory_group_source_overwrite }}
+      --source-regions {{ aws_region }}
+      --overwrite-vars {{ tower_inventory_group_source_overwrite_vars }}
+      --source-vars "{{ tower_inventory_group_source_vars | to_yaml }}"
+      "{{ tower_cli_verbosity }}"
+  when: tower_inventory_source_exists | default(False) | bool == True
+
 - name: Add Tower Inventory Source
   command: >
     tower-cli inventory_source create
@@ -35,6 +63,7 @@
       --overwrite-vars {{ tower_inventory_group_source_overwrite_vars }}
       --source-vars "{{ tower_inventory_group_source_vars | to_yaml }}"
       "{{ tower_cli_verbosity }}"
+  when: not tower_inventory_source_exists | default(False) | bool == True
 
 - include: inventory/groups.yml
   when: tower_inventory_group_config|bool == true

@@ -19,6 +19,13 @@
     - python-six
     - python-click
     - python-httplib2
+    - python2-pip
+
+- name: Pip install requirements for Tower CLI
+  pip:
+    name: pexpect
+    state: latest
+  become: true
 
 - debug:
     var: "{{ item }}"
