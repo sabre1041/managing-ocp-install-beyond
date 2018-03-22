@@ -11,6 +11,8 @@
 - include: prereqs.yml
   when: tower_prereqs_config|bool == true
 
+- include: admin_password.yml
+
 - include: auth.yml
   when: tower_cli_credentials_config|bool == true
 
