@@ -63,4 +63,6 @@
       retries: 60
       delay: 5
       with_indexed_items: "{{ aws_scaleup_instances }}"
+
+- include: docker_version_fix.yml
 ...
