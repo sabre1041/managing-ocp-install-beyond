@@ -1,0 +1,21 @@
+- hosts: OSEv3
+  tasks:
+  - set_fact:
+      current_value: "{{ lookup('ini', 'exclude section=main  file=/etc/yum.conf') }}"
+
+  - debug:
+      msg: "The current Value of the yum exclude package is: {{current_value}}"
+
+  - debug:
+      msg: "The expected new Value of the yum exclude package is: '{{current_value}} docker*1.13*'"
+
+  - ini_file:
+      path: /etc/yum.conf
+      section: main
+      option: exclude
+      value: "{{current_value}} docker*1.13*"
+      backup: yes
+    become: true
+
+  - command: "yum downgrade -y docker-client-1.12.6 docker-common-1.12.6 docker-rhel-push-plugin-1.12.6 docker-1.12.6"
+    become: true
