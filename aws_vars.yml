@@ -12,7 +12,7 @@ student_count_start: 1
 student_count_end: "{{ student_count }}"
 
 ## OpenShift Version to use, this will enable the correct repositories
-openshift_deploy_version: 3.7
+openshift_deploy_version: 3.9
 
 ## OpenShift Variables
 openshift_master_dns_prefix: "master"
