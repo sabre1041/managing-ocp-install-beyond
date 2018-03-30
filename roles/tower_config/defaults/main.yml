@@ -84,7 +84,7 @@ tower_project_provision_and_configure_config: true
 tower_project_provision_and_configure_description: "Git repo with Ansible playbooks for provision (pre-install) and configure (post-install)"
 tower_project_provision_and_configure_type: "git"
 tower_project_provision_and_configure_url: "https://github.com/sabre1041/managing-ocp-install-beyond.git"
-tower_project_provision_and_configure_branch: "rhte"
+tower_project_provision_and_configure_branch: "ocp-3.9"
 tower_project_provision_and_configure_local_branch: ""
 tower_project_provision_and_configure_clean: "yes"
 tower_project_provision_and_configure_update_on_launch: "no"
