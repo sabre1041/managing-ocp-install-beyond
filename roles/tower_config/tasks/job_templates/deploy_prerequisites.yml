@@ -1,5 +1,5 @@
 ---
-- name: Configure Job Template for Deploy-Install
+- name: Configure Job Template for Deploy-Prequisites
   tower_job_template:
     tower_host: "{{ tower_host }}"
     tower_username: "{{ tower_username }}"
