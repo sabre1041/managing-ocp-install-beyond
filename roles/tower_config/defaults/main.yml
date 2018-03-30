@@ -119,15 +119,22 @@ tower_job_template_deploy_provision_description: "Deployment Step 1 - Creates AW
 tower_job_template_deploy_provision_playbook: "aws_create_hosts.yml"
 tower_job_template_deploy_provision_extra_vars_path: "tower_job_template_deploy_provision_extra_vars.yml.j2"
 
+# Tower job template for deployment-prerequisites
+tower_job_template_deploy_prerequisites: "Deploy-2-Prerequisites"
+tower_job_template_deploy_prerequisites_config: false
+tower_job_template_deploy_prerequisites_description: "Deployment Step 2 - Installs Prerequisites for OpenShift Container Platform"
+tower_job_template_deploy_prerequisites_playbook: "ansible/openshift-ansible/playbooks/prerequisites.yml"
+tower_job_template_deploy_prerequisites_become_enabled: "yes"
+
 # Tower job template for deployment-install
-tower_job_template_deploy_install: "Deploy-2-Install"
+tower_job_template_deploy_install: "Deploy-3-Install"
 tower_job_template_deploy_install_config: false
-tower_job_template_deploy_install_description: "Deployment Step 2 - Installs OpenShift Container Platform"
-tower_job_template_deploy_install_playbook: "ansible/openshift-ansible/playbooks/byo/config.yml"
+tower_job_template_deploy_install_description: "Deployment Step 3 - Installs OpenShift Container Platform"
+tower_job_template_deploy_install_playbook: "ansible/openshift-ansible/playbooks/deploy_cluster.yml"
 tower_job_template_deploy_install_become_enabled: "yes"
 
 # Job template for deployment-configure
-tower_job_template_deploy_configure: "Deploy-3-Post-Install"
+tower_job_template_deploy_configure: "Deploy-4-Post-Install"
 tower_job_template_deploy_configure_config: false
 tower_job_template_deploy_configure_description: "Deployment Step 3 - Post-install configuration"
 tower_job_template_deploy_configure_playbook: "openshift_postinstall.yml"
