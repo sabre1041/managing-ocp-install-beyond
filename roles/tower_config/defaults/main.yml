@@ -130,7 +130,7 @@ tower_job_template_deploy_prerequisites_become_enabled: "yes"
 tower_job_template_deploy_install: "Deploy-3-Install"
 tower_job_template_deploy_install_config: false
 tower_job_template_deploy_install_description: "Deployment Step 3 - Installs OpenShift Container Platform"
-tower_job_template_deploy_install_playbook: "ansible/openshift-ansible/playbooks/deploy_cluster.yml"
+tower_job_template_deploy_install_playbook: "ansible/openshift-ansible/playbooks/deploy_cluster_wrapper.yml"
 tower_job_template_deploy_install_become_enabled: "yes"
 
 # Job template for deployment-configure
