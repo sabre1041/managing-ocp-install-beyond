@@ -151,7 +151,7 @@ tower_job_template_scaleup_provision_extra_vars_path: "{{ tower_job_template_dep
 tower_job_template_scaleup_install: "Scaleup-2-Install"
 tower_job_template_scaleup_install_config: false
 tower_job_template_scaleup_install_description: "Scaleup Step 2 - Add instance as a node to existing OCP cluster"
-tower_job_template_scaleup_install_playbook: "ansible/openshift-ansible/playbooks/byo/openshift-node/scaleup.yml"
+tower_job_template_scaleup_install_playbook: "ansible/openshift-ansible/playbooks/openshift-node/scaleup.yml"
 tower_job_template_scaleup_install_become_enabled: "yes"
 
 # Job template for scaleup-configure
