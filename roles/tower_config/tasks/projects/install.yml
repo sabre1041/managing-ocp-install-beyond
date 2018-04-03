@@ -15,6 +15,14 @@
     state: link
   become: true
 
+- name: Copy Deploy Cluster Wrapper Playbook
+  become: true
+  copy:
+    src: deploy_cluster_wrapper.yml
+    dest: "{{ tower_projects_root }}/share/{{ tower_job_template_deploy_install_playbook }}"
+    owner: root
+    group: root
+
 - name: Add Tower Project for Install
   command: >
     tower-cli project create 

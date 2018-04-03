@@ -3,6 +3,8 @@
   when: tower_job_template_self_configure_config|bool == true
 - include: job_templates/deploy_provision.yml
   when: tower_job_template_deploy_provision_config|bool == true
+- include: job_templates/deploy_prerequisites.yml
+  when: tower_job_template_deploy_prerequisites_config|bool == true
 - include: job_templates/deploy_install.yml
   when: tower_job_template_deploy_install_config|bool == true
 - include: job_templates/deploy_configure.yml
