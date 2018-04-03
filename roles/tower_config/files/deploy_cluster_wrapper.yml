@@ -1,0 +1,8 @@
+- hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Deploy Cluster Wrapper
+      debug:
+        msg: "Deploying OpenShift Cluster"
+
+- import_playbook: deploy_cluster.yml
