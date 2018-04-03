@@ -12,8 +12,7 @@ openshift_master_htpasswd_users:
   {{ student_id }}: $apr1$yv51mDpN$bIpurV4keQTUVt8KaXOu.0
 openshift_master_image_policy_config:
   maxImagesBulkImportedPerRepository: 100
-openshift_hosted_metrics_deploy: yes
-openshift_hosted_metrics_storage_kind: dynamic
+openshift_metrics_install_metrics: yes
 os_sdn_network_plugin_name: redhat/openshift-ovs-multitenant
 osn_storage_plugin_deps: []
 openshift_schedulable: True
@@ -34,6 +33,7 @@ openshift_prometheus_node_selector:
 openshift_cloudprovider_aws_access_key: "{{ lookup('env','AWS_ACCESS_KEY_ID') }}"
 openshift_cloudprovider_aws_secret_key: "{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
 openshift_node_labels: "{{ ec2_tag_node_labels }}"
+openshift_prometheus_node_exporter_image_version: "{{ openshift_image_tag }}"
 {% endraw %}
 
 # Default Node Selector Cannot be Used Due to Issue With Service Catalog Deployment. Is set during Postinstall playbook
