@@ -1,0 +1,93 @@
+---
+- name: Create AWS instances for {{ lab_user}} to build out AMI.
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - aws_vars.yml
+  tasks:
+  - name: Provision AMI instance that is either ocp, tower, http
+    ec2:
+      aws_access_key: "{{ec2_access_key}}"
+      aws_secret_key: "{{ec2_secret_key}}"
+      key_name: "{{ aws_key_name }}"
+      group: "{{ aws_sec_group }}"
+      instance_type: "{{ tower_inst_type }}"
+      image: "{{ rhel_ami_id }}"
+      wait: yes
+      instance_tags:
+        # Name: "ami-{{ lab_user }}-{{ ami_random }}.{{ domain_name }}"
+        Name: "ami-{{ lab_user }}-{{ ami_unique_id }}.{{ domain_name }}"
+        lab_name: "{{ lab_name }}"
+        lab_user: "{{ lab_user }}"
+        lab_role: "tower"
+        student_id: "{{ lab_user }}-ami"
+      vpc_subnet_id: "{{ aws_subnet_id }}"
+      zone: "{{ aws_az_1 }}"
+      assign_public_ip: yes
+      region: "{{ aws_region }}"
+      state: present
+    with_sequence: start={{ student_count_start }} end={{ student_count_end }}
+    register: instances_created
+
+  - debug:
+      var: instances_created
+      verbosity: 2
+
+  - name: Wait for ssh
+    wait_for:
+      port: 22
+      host: "{{ item.instances.0.public_ip }}"
+      timeout: 1000
+    with_items: "{{ instances_created.results }}"
+    ignore_errors: yes
+
+  - add_host:
+      hostname: "{{ item.instances.0.tags.Name }}"
+      ansible_host: "{{ item.instances.0.public_ip }}"
+      public_dns_name: "{{ item.instances.0.public_dns_name }}"
+      public_ip: "{{ item.instances.0.public_ip }}"
+      groups: ami_instances
+      student_id: "{{ item.instances.0.tags.student_id }}"
+    with_items: "{{ instances_created.results }}"
+
+  - debug:
+      var: groups
+      verbosity: 2
+
+- name: Create AWS route53 entries for Tower instances
+  hosts: ami_instances
+  gather_facts: no
+  vars_files:
+    - aws_vars.yml
+  vars:
+    - ansible_user: ec2-user
+
+  tasks:
+    - debug:
+        var: hostvars
+        verbosity: 2
+
+    - name: Register route53 entries
+      local_action:
+        module: route53
+        command: create
+        aws_access_key: "{{ec2_access_key}}"
+        aws_secret_key: "{{ec2_secret_key}}"
+        zone: "{{ domain_name }}"
+        type: A
+        overwrite: True
+        ttl: 60
+        record: "{{ inventory_hostname }}"
+        value: "{{ public_ip }}"
+        wait: yes
+
+    - name: Wait for resolvable route53 hostname
+      local_action: command host {{ inventory_hostname }}
+      register: host_result
+      until: host_result.rc == 0
+      retries: 60
+      delay: 5
+
+- include: ami_config.yml
+  when: ami_config is defined
+...

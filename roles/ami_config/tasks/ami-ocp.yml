@@ -1,0 +1,128 @@
+---
+- include: rh_subscription.yml
+
+- name: This creates a file on the "{{ ami_config }}" AMI so you can check later to see which plays were run.
+  file:
+    path: /tmp/ami-ocp-test-file
+    state: touch
+
+- name: Subscribe to the proper "{{ ami_config }}" repositories
+  command: >
+    subscription-manager repos
+    --enable="rhel-7-server-rpms"
+    --enable="rhel-7-server-extras-rpms"
+    --enable="rhel-7-server-ose-3.7-rpms"
+    --enable="rhel-7-fast-datapath-rpms"
+    --enable="rhel-ha-for-rhel-7-server-htb-rpms"
+  become: true
+
+- name: Install packages for the "{{ ami_config }}" AMI
+  yum:  
+    name: "{{ item }}"
+    state: latest
+    ### TODO move the packages to a file and call that from here.  maybe add a variable
+  with_items:
+    - wget
+    - git
+    - net-tools
+    - bind-utils
+    - bash-completion
+    - iptables-services
+    - bridge-utils
+    - kexec-tools
+    - sos
+    - psacct
+    - atomic
+    - atomic-openshift-utils
+    - docker-1.12.6
+    - python-boto3
+    - python-boto
+  become: true
+
+- name: Capture the instance ID of this "{{ ami_config }}" AMI so we can attach a volume later
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - aws_vars.yml
+  ec2_instance_facts:
+    aws_access_key: "{{ ec2_access_key }}"
+    aws_secret_key: "{{ ec2_secret_key }}"
+    region: "{{ aws_region }}"
+    filters:
+      "tag:Name": "ami-{{ lab_user }}-{{ ami_unique_id }}.{{ domain_name }}"
+  register: result
+
+- debug:
+    var: result.instances[0].instance_id
+    verbosity: 2
+
+- name: Create and attach a volume to the AMI so the Docker storage can be setup
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - aws_vars.yml
+  ec2_vol:
+    aws_access_key: "{{ ec2_access_key }}"
+    aws_secret_key: "{{ ec2_secret_key }}"
+    region: "{{ aws_region }}"
+    instance: "{{ result.instances[0].instance_id }}"
+    name: "{{ ocp_ami_vol_name }}-{{ ami_unique_id }}"
+    volume_size: 50
+    volume_type: gp2
+    device_name: /dev/sdb
+
+- name: Configure Docker storage file
+  blockinfile:
+    path: /etc/sysconfig/docker-storage-setup
+    block: |
+      DEVS=/dev/xvdb
+      VG=ocp-docker-vol
+      DATA_SIZE=95%VG
+  become: true
+
+- name: Run docker-storage-setup
+  command: docker-storage-setup
+  become: true
+
+# - name: Grow lv to fill vg
+#   lvol:
+#     lv: root
+#     vg: ocp-docker-vol
+#     size: +100%FREE
+
+- name: start and enable Docker
+  service:
+    name: docker
+    state: restarted
+    enabled: yes
+  become: true
+
+- name: unsubscribe the host from RH CDN so we don't consume all subscriptions
+  command: subscription-manager remove --all
+  ignore_errors: yes
+  become: true
+
+- debug:
+    var: result.instances[0].instance_id
+    verbosity: 2
+
+- name: Create an AMI from the configured VM
+  hosts: localhost
+  gather_facts: yes
+  vars_files:
+    - aws_vars.yml
+    - scollier_secrets-ami_build.yml
+  local_action:
+    module: ec2_ami
+    aws_access_key: "{{ ec2_access_key }}"
+    aws_secret_key: "{{ ec2_secret_key }}"
+    instance_id: "{{ result.instances[0].instance_id }}"
+    name: "{{ ami_container }}"
+    region: "{{ aws_region }}"
+    wait: yes
+  register: ami_id
+
+- debug:
+    var: ami_id.image_id
+    verbosity: 2
+...

@@ -1,0 +1,23 @@
+---
+# Subscribe the AMIs to RH
+
+- name: Register as user
+  redhat_subscription:
+    state: present
+    username: "{{ rhn_username }}"
+    password: "{{ rhn_password }}"
+    pool_ids:
+      - "{{ rhn_pool_id_1 }}"
+      - "{{ rhn_pool_id_2 }}"
+  become: true
+
+- name: Disable RHUI and only use the Red Hat CDN for content
+  command: yum -y erase rh-amazon-rhui-client
+  args:
+    warn: no
+  become: true
+
+- name: Disable all repos on the system
+  command: subscription-manager repos --disable="*"
+  become: true
+...

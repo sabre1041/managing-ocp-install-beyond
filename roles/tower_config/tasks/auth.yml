@@ -1,4 +1,6 @@
 ---
+# Configures a static file on the host with a default username and password
+# so that you don't have to make these calls every time.
 - name: Set Tower CLI Host
   command: tower-cli config host {{ tower_host }}
 

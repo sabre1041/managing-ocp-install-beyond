@@ -1,0 +1,246 @@
+---
+# Test to create a ocp file
+
+- include: rh_subscription.yml
+
+    #### TODO check out blocks.
+
+- name: This creates a file on the "{{ ami_config }}" AMI so you can check later to see which plays were run.
+  file:
+    path: /tmp/ami-rh-container-lab
+    state: touch
+
+- name: Subscribe to the proper "{{ ami_config }}" repositories
+  shell: >
+    subscription-manager repos
+    --enable="rhel-7-server-rpms"
+    --enable="rhel-7-server-optional-rpms"
+    --enable="rhel-7-server-extras-rpms"
+    --enable="rhel-7-server-ose-3.7-rpms"
+    --enable="rhel-ha-for-rhel-7-server-htb-rpms"
+  become: true
+
+- name: Add EPEL repository
+  command: yum -y install http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+  become: true
+
+- name: update the system prior to doing any work
+  yum:
+    name: "*"
+    state: latest
+  become: true
+
+- name: Install packages for the "{{ ami_config }}" AMI
+  yum:  
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - wget
+    - git
+    - net-tools
+    - bind-utils
+    - bash-completion
+    - iptables-services
+    - sos
+    - psacct
+    - docker-latest
+    - ansible
+    - python-boto3
+    - firewalld
+    - python-boto
+#    - "@Development tools"
+    - atomic-openshift-clients
+  become: true
+
+- name: Add the Docker group
+  group:
+    name: docker
+    state: present
+  become: true
+
+- name: Add ec2-user to the Docker group
+  user:
+    name: ec2-user
+    groups: docker
+  become: true
+
+- name: Restart Docker
+  service:
+    name: docker-latest
+    state: restarted
+  become: true
+
+- name: Start firewalld
+  service:
+    name: firewalld
+    state: restarted
+  become: true
+
+- name: Create the firewalld dockerc zone
+  command: firewall-cmd --permanent --new-zone dockerc
+
+- name: Reload the firewalld dockerc zone
+  command: firewall-cmd --reload
+
+- name: configure firewalld dockerc zone
+  firewalld:
+    zone: dockerc
+    source: 172.17.0.0/16
+    permanent: true
+    state: enabled
+  become: true
+
+- name: Add tcp ports to dockerc zone
+  firewalld:
+    port: "{{ item }}"
+    permanent: true
+    state: enabled
+  with_items:
+    - 8443/tcp
+  become: true
+
+- name: Add udp ports to dockerc zone
+  firewalld:
+    zone: dockerc
+    port: "{{ item }}"
+    permanent: true
+    state: enabled
+  with_items:
+    - 53/udp
+    - 8053/udp
+  become: true
+
+- name: Add tcp ports to public zone
+  firewalld:
+    zone: public
+    port: "{{ item }}"
+    permanent: true
+    state: enabled
+  with_items:
+    - 8443/tcp
+    - 80/tcp
+    - 53/tcp
+    - 443/tcp
+    - 2379/tcp
+    - 2380/tcp
+    - 8053/tcp
+    - 8443/tcp
+    - 8444/tcp
+    - 10250/tcp
+  become: true
+
+- name: Add udp ports to public zone
+  firewalld:
+    zone: public
+    state: enabled
+    permanent: true
+    port: "{{ item }}"
+  with_items:
+    - 53/udp
+    - 4789/udp
+    - 8053/udp
+  become: true
+
+- name: Reload firewalld
+  systemd:
+    name: firewalld
+    state: reloaded
+  become: true
+
+- name: Configure sysctl
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: 1
+    state: present
+    reload: yes
+  become: true
+
+- name: Create a directory to clone everything into
+  file:
+    path: /home/ec2-user/rh-container-lab
+    state: directory
+    
+- name: Clone the git repo
+  git:
+    repo: 'https://github.com/tchughesiv/rh-container-lab'
+    dest: /home/ec2-user/rh-container-lab
+  become: true
+
+- name: Move the OC startup scripts to the home directory
+  copy:
+    src: "{{ item }}"
+    dest: /home/ec2-user/
+    remote_src: yes
+  with_items:
+    - /home/ec2-user/rh-container-lab/scripts/host/start-oc.sh
+    - /home/ec2-user/rh-container-lab/scripts/host/cleanup-oc.sh
+  become: true
+
+- name: Change file permissions on script
+  file:
+    path: "{{ item }}"
+    mode: 0755
+  with_items:
+    - /home/ec2-user/start-oc.sh
+    - /home/ec2-user/cleanup-oc.sh
+  become: true
+
+- name: copy over the registries file
+  copy:
+    src: registries.conf
+    dest: /etc/containers/registries.conf
+  become: true
+  
+- name: Restart Docker
+  service:
+    name: docker-latest
+    state: restarted
+    enabled: yes
+  become: true
+
+- name: Run the script and cache the images
+  command: sudo /home/ec2-user/start-oc.sh
+  become: true
+
+- name: Capture the instance ID of this "{{ ami_config }}" so we can attach a volume later
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - aws_vars.yml
+  ec2_instance_facts:
+    aws_access_key: "{{ ec2_access_key }}"
+    aws_secret_key: "{{ ec2_secret_key }}"
+    region: "{{ aws_region }}"
+    filters:
+      "tag:Name": "ami-{{ lab_user }}-{{ ami_unique_id }}.{{ domain_name }}"
+  register: result
+
+- debug:
+    var: result.instances[0].instance_id
+    verbosity: 2
+
+- name: unsubscribe the host from RH CDN so we don't consume all subscriptions
+  command: subscription-manager remove --all
+  ignore_errors: yes
+  become: true
+
+- name: Create an AMI from the configured VM
+  hosts: localhost
+  gather_facts: yes
+  vars_files:
+    - aws_vars.yml
+    - scollier_secrets-ami_build.yml
+  local_action:
+    module: ec2_ami
+    aws_access_key: "{{ ec2_access_key }}"
+    aws_secret_key: "{{ ec2_secret_key }}"
+    instance_id: "{{ result.instances[0].instance_id }}"
+    name: "{{ ami_container }}"
+    region: "{{ aws_region }}"
+    wait: yes
+  register: ami_id
+
+- debug:
+    var: ami_id.image_id
+    verbosity: 2
+

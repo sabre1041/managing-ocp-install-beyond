@@ -1,4 +1,6 @@
 ---
+# This is used to add the student user to the host. This allows the student to log into the web UI.
+# To do this, you have to authenticate via the "tower-username (which is admin), and tower-password"
 - name: Add user to manage Tower
   command: >
     tower-cli user create 
@@ -10,8 +12,11 @@
       --tower-username "{{ tower_username }}"
       --tower-password "{{ tower_password }}"
 
+# This overrides the admin user with the student user so that all future tasks are completed by the student user.
+# This confirms the user has admin access.
 - set_fact:
     tower_username: "{{ student_id }}"
 
+# This adds the credentials to a file on the host.
 - include: auth.yml
 ...
