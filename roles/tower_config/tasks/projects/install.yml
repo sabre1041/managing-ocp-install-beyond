@@ -19,7 +19,7 @@
   become: true
   copy:
     src: deploy_cluster_wrapper.yml
-    dest: "{{ tower_projects_root }}/{{ tower_job_template_deploy_install_playbook }}"
+    dest: "{{ tower_projects_root }}/share/{{ tower_job_template_deploy_install_playbook }}"
     owner: root
     group: root
 
