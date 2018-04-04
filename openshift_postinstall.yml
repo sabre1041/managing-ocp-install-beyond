@@ -8,6 +8,7 @@
     service_catalog_projects_to_annotate: ['kube-service-catalog']
     default_node_selector: 'type=app'
     service_catalog_default_node_selector: 'openshift-infra=apiserver'
+    web_console_namespace: openshift-web-console
     cfme_template: https://raw.githubusercontent.com/openshift/openshift-ansible/release-3.7/roles/openshift_examples/files/examples/v3.7/cfme-templates/cfme-template.yaml
   tasks:
   - name: Get templates
@@ -53,6 +54,10 @@
   - name: Set Default Node Selector
     become: true
     lineinfile: dest=/etc/origin/master/master-config.yaml  state=present regexp="defaultNodeSelector" line='  defaultNodeSelector{{ ':' }} {{ default_node_selector }}'
+
+  - name: Join Prometheus and Web Console Networks
+    command: >
+      oc adm pod-network join-projects --to={{ openshift_prometheus_namespace }} {{ web_console_namespace }}
 
   - name: Locate OpenShift API Server
     command: >
