@@ -24,15 +24,15 @@ tower_org_config: false
 tower_credential_machine: "RHTE SSH"
 tower_credential_machine_config: false
 tower_credential_machine_description: "Private SSH Key"
-tower_credential_machine_kind: "ssh"
-tower_credential_machine_ssh_key_data: "rhte.pem"
+tower_credential_machine_type: "Machine"
+tower_credential_machine_ssh_key_data_file: "tower.pem"
 tower_credential_machine_username: "ec2-user"
 
 # Tower cloud credential
 tower_credential_cloud: "AWS"
 tower_credential_cloud_config: false
 tower_credential_cloud_description: "AWS Access and Secret"
-tower_credential_cloud_kind: "aws"
+tower_credential_cloud_type: "Amazon Web Services"
 tower_credential_cloud_username: "{{ec2_access_key}}"
 tower_credential_cloud_password: "{{ec2_secret_key}}"
 
