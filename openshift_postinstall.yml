@@ -8,6 +8,8 @@
     service_catalog_projects_to_annotate: ['kube-service-catalog']
     default_node_selector: 'type=app'
     service_catalog_default_node_selector: 'openshift-infra=apiserver'
+    web_console_namespace: openshift-web-console
+    tmp_configmap_prometheus: /tmp/prometheus-configmap.yml
     cfme_template: https://raw.githubusercontent.com/openshift/openshift-ansible/release-3.7/roles/openshift_examples/files/examples/v3.7/cfme-templates/cfme-template.yaml
   tasks:
   - name: Get templates
@@ -53,6 +55,40 @@
   - name: Set Default Node Selector
     become: true
     lineinfile: dest=/etc/origin/master/master-config.yaml  state=present regexp="defaultNodeSelector" line='  defaultNodeSelector{{ ':' }} {{ default_node_selector }}'
+
+  - name: Join Prometheus and Web Console Networks
+    command: >
+      oc adm pod-network join-projects --to={{ openshift_prometheus_namespace }} {{ web_console_namespace }}
+
+  - name: Get Router Stats Password
+    command: >
+      oc get dc/router -n default -o jsonpath='{.spec.template.spec.containers[?(.name=="router")].env[?(.name=="STATS_PASSWORD")].value}'
+    register: router_password
+
+  - name: Export Prometheus ConfigMap
+    shell: oc export configmap/prometheus -n {{ openshift_prometheus_namespace }} > {{ tmp_configmap_prometheus }}
+
+  - name: Update Prometheus ConfigMap File
+    lineinfile:
+      insertbefore: "^    alerting:"
+      line: "    # OpenShift Router\n    - job_name: openshift-routers\n      scrape_interval: 30s\n      scrape_timeout: 30s\n      metrics_path: /metrics\n      scheme: http\n      static_configs:\n      - targets:\n        - router.default.svc.cluster.local:1936\n      basic_auth:\n        username: admin\n        password: {{ router_password.stdout }}\n"
+      dest: "{{ tmp_configmap_prometheus }}"
+
+  - name: Update Prometheus ConfigMap
+    command: >
+      oc replace configmap -n {{ openshift_prometheus_namespace }} -f {{ tmp_configmap_prometheus }}
+
+  - name: Remove ConfigMap Exported File
+    file:
+      path: "{{ tmp_configmap_prometheus }}"
+      state: absent
+
+  - name: Remove Prometheus Scrape Annotation
+    shell: oc annotate svc router -n default prometheus.io/scrape=false --overwrite
+
+  - name: Delete Prometheus Pod
+    command: >
+      oc delete pod -n {{ openshift_prometheus_namespace }} -l=app=prometheus
 
   - name: Locate OpenShift API Server
     command: >

@@ -29,6 +29,10 @@ template_service_broker_selector:
 openshift_hosted_prometheus_deploy: true
 openshift_prometheus_node_selector:
   type: infra
+openshift_prometheus_namespace: openshift-metrics
+openshift_node_open_ports:
+  - service: "Prometheus Node Exporter"
+    port: "9100/tcp"
 {% raw %}
 openshift_cloudprovider_aws_access_key: "{{ lookup('env','AWS_ACCESS_KEY_ID') }}"
 openshift_cloudprovider_aws_secret_key: "{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
