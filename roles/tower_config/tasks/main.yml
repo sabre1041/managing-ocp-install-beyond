@@ -3,36 +3,47 @@
     student_id: "{{ inventory_hostname_short.split('-')[1] + '-' +  inventory_hostname_short.split('-')[2] }}"
   when: not student_id is defined
 
-- set_fact:
-    tower_host: "localhost"
+- import_tasks: config_type.yml
 
-- include: config_type.yml
+- import_tasks: cli_options.yml
 
-- include: prereqs.yml
+- import_tasks: prereqs.yml
   when: tower_prereqs_config|bool == true
+  tags: prereqs
 
-- include: admin_password.yml
+- import_tasks: admin_password.yml
+  when: tower_admin_password |bool == true
+  tags: admin_password
 
-- include: auth.yml
+- import_tasks: auth.yml
   when: tower_cli_credentials_config|bool == true
+  tags: auth
 
-- include: user.yml
+- import_tasks: user.yml
   when: tower_user_add|bool == true
+  tags: user
 
-- include: org.yml
+- import_tasks: org.yml
   when: tower_org_config|bool == true
+  tags: org
 
-- include: credentials.yml
+- import_tasks: credentials.yml
+  tags: credentials
 
-- include: inventory.yml
+- import_tasks: inventory.yml
   when: tower_inventory_config|bool == true
+  tags: inventory
 
-- include: projects.yml
+- import_tasks: projects.yml
+  tags: projects
 
-- include: job_templates.yml
+- import_tasks: job_templates.yml
+  tags: job_templates
 
-- include: workflows.yml
+- import_tasks: workflows.yml
+  tags: workflows
 
-- include: deauth.yml
+- import_tasks: deauth.yml
   when: not tower_cli_credentials_keep|bool == true
+  tags: deauth
 ...

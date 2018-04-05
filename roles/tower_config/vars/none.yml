@@ -1,4 +1,5 @@
 ---
+tower_admin_password: false
 tower_user_add: false
 tower_cli_credentials_config: false
 tower_prereqs_config: false

@@ -23,8 +23,7 @@
 - name: Check for existing Tower Inventory Source
   command: >
     tower-cli inventory_source list
-      "{{ tower_cli_verbosity }}"
-      --format json
+      {{ tower_cli_options }}
   register: tower_inventory_source_list
 
 - set_fact:
@@ -45,7 +44,7 @@
       --source-regions {{ aws_region }}
       --overwrite-vars {{ tower_inventory_group_source_overwrite_vars }}
       --source-vars "{{ tower_inventory_group_source_vars | to_yaml }}"
-      "{{ tower_cli_verbosity }}"
+      {{ tower_cli_options }}
   when: tower_inventory_source_exists | default(False) | bool == True
 
 - name: Add Tower Inventory Source
@@ -62,9 +61,9 @@
       --source-regions {{ aws_region }}
       --overwrite-vars {{ tower_inventory_group_source_overwrite_vars }}
       --source-vars "{{ tower_inventory_group_source_vars | to_yaml }}"
-      "{{ tower_cli_verbosity }}"
+      {{ tower_cli_options }}
   when: not tower_inventory_source_exists | default(False) | bool == True
 
-- include: inventory/groups.yml
+- import_tasks: inventory/groups.yml
   when: tower_inventory_group_config|bool == true
 ...

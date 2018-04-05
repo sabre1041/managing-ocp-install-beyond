@@ -11,21 +11,14 @@
     name: "{{ item }}"
     state: present
   become: true
-  with_items:
-    - python2-ansible-tower-cli
-    - git
-    - pyOpenSSL
-    - python-netaddr
-    - python-six
-    - python-click
-    - python-httplib2
-    - python2-pip
+  with_items: "{{ tower_yum_packages }}"
 
 - name: Pip install requirements for Tower CLI
   pip:
-    name: pexpect
-    state: latest
+    name: "{{ item }}"
+    state: present
   become: true
+  with_items: "{{ tower_pip_packages }}"
 
 - debug:
     var: "{{ item }}"

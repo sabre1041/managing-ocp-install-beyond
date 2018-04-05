@@ -55,7 +55,7 @@
       --group "{{ item.0 }}"
       --parent "{{ item.1 }}"
       --inventory "{{ tower_inventory }}"
-      "{{ tower_cli_verbosity }}"
+      {{ tower_cli_options }}
   with_together:
     - [ "{{ tower_openshift_nodes_group }}", "{{ tower_openshift_new_nodes_group }}", "{{ tower_new_node_tag }}", "{{ tower_node_tag }}", "{{ tower_openshift_masters_group }}", "{{ tower_master_tag }}", "{{ tower_openshift_etcd_group }}", "{{ tower_master_tag }}" ]
     - [ "{{ tower_openshift_install_group }}", "{{ tower_openshift_install_group }}", "{{ tower_openshift_new_nodes_group }}", "{{ tower_openshift_nodes_group }}", "{{ tower_openshift_nodes_group }}", "{{ tower_openshift_masters_group }}", "{{ tower_openshift_masters_group }}", "{{ tower_openshift_etcd_group }}" ]

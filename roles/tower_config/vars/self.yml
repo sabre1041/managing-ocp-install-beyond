@@ -1,11 +1,13 @@
 ---
 # Self-configure configure a bare-minimum Tower with a project and a job template to run this role with a full config
+# NOTE: For the current run of labs the prereqs are already in the AMI so are set to false here.
+tower_admin_password: true
 tower_user_add: true
 tower_cli_credentials_config: true
-tower_prereqs_config: true
-tower_org_config: false
-tower_credential_machine_config: false
-tower_credential_cloud_config: false
+tower_prereqs_config: false
+tower_org_config: true
+tower_credential_machine_config: true
+tower_credential_cloud_config: true
 tower_inventory_config: true
 tower_inventory_group_config: true
 tower_openshift_install_group_config: false

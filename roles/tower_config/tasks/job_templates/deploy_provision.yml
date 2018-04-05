@@ -1,5 +1,4 @@
 ---
-
 - name: Configure Job Template for Deploy-Provision
   tower_job_template:
     tower_host: "{{ tower_host }}"
@@ -20,8 +19,7 @@
     tower-cli job_template associate_credential
       --job-template "{{ tower_job_template_deploy_provision }}"
       --credential "{{ tower_credential_cloud }}"
-      --tower-username "{{ tower_username }}"
-      --tower-password "{{ tower_password }}"
+      {{ tower_cli_options }}
 
 - name: Copy Job Template for Deploy-Provision Extra Variables file
   template:
@@ -33,5 +31,5 @@
     tower-cli job_template modify
       --name="{{ tower_job_template_deploy_provision }}"
       --extra-vars="@/tmp/{{ tower_job_template_deploy_provision_extra_vars_path }}"
-      "{{ tower_cli_verbosity }}"
+      {{ tower_cli_options }}
 ...

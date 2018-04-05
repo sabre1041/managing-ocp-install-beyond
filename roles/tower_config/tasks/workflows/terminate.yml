@@ -5,7 +5,7 @@
       --name="{{ tower_workflow_template_terminate }}"
       --description="{{ tower_workflow_template_terminate_description }}"
       --organization="{{ tower_org }}"
-      "{{ tower_cli_verbosity }}"
+      {{ tower_cli_options }}
 
 - debug:
     var: "{{ item }}"
@@ -20,5 +20,5 @@
     dest: "/tmp/{{ tower_workflow_template_terminate_schema_path }}"
 
 - name: Create Workflow Schema for Terminate
-  command: tower-cli workflow schema {{ tower_workflow_template_terminate }} @/tmp/{{ tower_workflow_template_terminate_schema_path }} "{{ tower_cli_verbosity }}"
+  command: tower-cli workflow schema {{ tower_workflow_template_terminate }} @/tmp/{{ tower_workflow_template_terminate_schema_path }} {{ tower_cli_options }}
 ...
