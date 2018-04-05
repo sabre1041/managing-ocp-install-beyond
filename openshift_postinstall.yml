@@ -63,7 +63,7 @@
   - name: Get Router Stats Password
     command: >
       oc get dc/router -n default -o jsonpath='{.spec.template.spec.containers[?(.name=="router")].env[?(.name=="STATS_PASSWORD")].value}'
-      register: router_password
+    register: router_password
 
   - name: Export Prometheus ConfigMap
     shell: oc export configmap/prometheus -n {{ openshift_prometheus_namespace }} > {{ tmp_configmap_prometheus }}
