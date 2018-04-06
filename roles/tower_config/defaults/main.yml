@@ -37,11 +37,11 @@ tower_org: "Default"
 tower_org_config: false
 
 # Tower machine credential
-tower_credential_machine: "RHTE SSH"
+tower_credential_machine: "SSH"
 tower_credential_machine_config: true
 tower_credential_machine_description: "Private SSH Key"
 tower_credential_machine_type: "Machine"
-tower_credential_machine_ssh_key_data_file: "tower.pem"
+tower_credential_machine_ssh_key_data_file: "your_private_key.pem"
 tower_credential_machine_username: "ec2-user"
 
 # Tower cloud credential
