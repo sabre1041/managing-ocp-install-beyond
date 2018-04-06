@@ -71,24 +71,11 @@ aws_instances:
     - etcd
     - osev3
     - creator_"{{ lab_user }}"
-- name: node1
+- name: node-{{ lookup('password', '/dev/null length=5 chars=ascii_letters') | lower }}
   type: "{{ ocp_node_inst_type }}"
   image: "{{ ocp_ami_id }}"
   meta:
-    node_type: 'node'
-    node_labels:
-      type: app
-      zone: default
-  groups:
-    - nodes
-    - osev3
-    - creator_"{{ lab_user }}"
-aws_scaleup_instances:
-- name: node2
-  type: "{{ ocp_node_inst_type }}"
-  image: "{{ ocp_ami_id }}"
-  meta:
-    node_type: 'new_node'
+    node_type: "{{ (aws_ocp_method is defined and aws_ocp_method == 'scaleup') | ternary('new_node','node') }}"
     node_labels:
       type: app
       zone: default

@@ -20,7 +20,8 @@
         region: "{{ aws_region }}"
         state: present
         user_data: "{{ lookup('template', 'aws_user_data.j2') }}"
-      with_items: "{{ aws_scaleup_instances }}"
+      with_items: "{{ aws_instances }}"
+      when: item.meta.node_type == 'node' or item.meta.node_type == 'new_node'
       register: instances_created
   
     - add_host:
@@ -30,6 +31,7 @@
         public_ip: "{{ item.instances.0.public_ip }}"
         groups: OSEv3
         student_id: "{{ item.instances.0.tags.student_id }}"
+      when: item['instances'] is defined
       with_items: "{{ instances_created.results }}"
 
     - debug:
@@ -41,6 +43,7 @@
         port: 22
         host: "{{ item.instances.0.public_ip }}"
         timeout: 1000
+      when: item['instances'] is defined
       with_items: "{{ instances_created.results }}"
 
     - name: Register Host DNS
@@ -50,17 +53,18 @@
         type: A
         overwrite: True
         ttl: 60
-        record: "{{ aws_scaleup_instances[item.0].name }}-{{ student_id }}.{{ domain_name }}"
-        value: "{{ instances_created.results[item.0]['instances'][0]['public_ip'] }}"
+        record: "{{ item['instances'][0]['tags']['Name'] }}"
+        value: "{{ item['instances'][0]['public_ip'] }}"
         wait: yes
-      register: host_dns_entries
-      with_indexed_items: "{{ aws_scaleup_instances }}"
+      when: item['instances'] is defined
+      with_items: "{{ instances_created.results }}"
 
     - name: Wait for resolvable route53 hostname
-      local_action: command host {{ aws_scaleup_instances[item.0].name }}-{{ student_id }}.{{ domain_name }}
+      local_action: command host {{ item['instances'][0]['tags']['Name'] }}
       register: host_result
       until: host_result.rc == 0
       retries: 60
       delay: 5
-      with_indexed_items: "{{ aws_scaleup_instances }}"
+      when: item['instances'] is defined
+      with_items: "{{ instances_created.results }}"
 ...

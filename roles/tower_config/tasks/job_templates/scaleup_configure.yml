@@ -13,4 +13,24 @@
     project: "{{ tower_project_provision_and_configure }}"
     playbook: "{{ tower_job_template_scaleup_configure_playbook }}"
     machine_credential: "{{ tower_credential_machine }}"
+
+- name: Associate the AWS credential to the template
+  command: >
+    tower-cli job_template associate_credential
+      --job-template "{{ tower_job_template_scaleup_configure }}"
+      --credential "{{ tower_credential_cloud }}"
+      --tower-username "{{ tower_username }}"
+      --tower-password "{{ tower_password }}"
+
+- name: Copy Job Template for Scaleup-Provision Extra Variables file
+  template:
+    src: "{{ tower_job_template_scaleup_configure_extra_vars_path }}"
+    dest: "/tmp/{{ tower_job_template_scaleup_configure_extra_vars_path }}"
+
+- name: Update Job Template for Scaleup-Provision with Extra Vars
+  command: >
+    tower-cli job_template modify
+      --name="{{ tower_job_template_scaleup_configure }}"
+      --extra-vars="@/tmp/{{ tower_job_template_scaleup_configure_extra_vars_path }}"
+      "{{ tower_cli_verbosity }}"
 ...
