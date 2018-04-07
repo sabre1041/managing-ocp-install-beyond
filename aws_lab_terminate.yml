@@ -6,5 +6,5 @@
     - aws_vars.yml
     - roles/tower_config/defaults/main.yml
   tasks:
-  - include: roles/tower_config/tasks/workflows/job_launch_terminate.yml
+  - import_tasks: roles/tower_config/tasks/workflows/job_launch_terminate.yml
 ...

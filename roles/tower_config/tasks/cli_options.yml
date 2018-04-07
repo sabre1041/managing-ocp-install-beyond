@@ -1,0 +1,5 @@
+---
+- name: Set Tower CLI options
+  set_fact:
+    tower_cli_options: --tower-username {{ tower_username }} --tower-password {{ tower_password }} --tower-host {{ tower_host }} --format json {{ tower_cli_verbosity }}
+...

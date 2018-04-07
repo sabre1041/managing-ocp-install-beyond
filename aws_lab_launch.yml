@@ -87,6 +87,6 @@
       retries: 60
       delay: 5
 
-- include: tower_config.yml
+- import_playbook: tower_config.yml
   when: tower_config is defined
 ...

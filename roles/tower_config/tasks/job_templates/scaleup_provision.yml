@@ -24,13 +24,12 @@
     tower-cli job_template modify
       --name="{{ tower_job_template_scaleup_provision }}"
       --extra-vars="@/tmp/{{ tower_job_template_scaleup_provision_extra_vars_path }}"
-      "{{ tower_cli_verbosity }}"
+      {{ tower_cli_options }}
 
 - name: Associate the AWS credential to the template
   command: >
     tower-cli job_template associate_credential
       --job-template "{{ tower_job_template_scaleup_provision }}"
       --credential "{{ tower_credential_cloud }}"
-      --tower-username "{{ tower_username }}"
-      --tower-password "{{ tower_password }}"
+      {{ tower_cli_options }}
 ...

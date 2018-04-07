@@ -1,12 +1,13 @@
 ---
 # This is used to fully configure Tower as well as automatically launch the deploy and scale jobs. To terminate override the 'tower_workflow_job_terminate_launch' variable
-# NOTE: For the current run of labs the cli/machine/cloud credentials, prereqs and org are already in the AMI so are set to false here.
+# NOTE: For the current run of labs the prereqs are already in the AMI so are set to false here.
+tower_admin_password: true
 tower_user_add: true
-tower_cli_credentials_config: false
+tower_cli_credentials_config: true
 tower_prereqs_config: false
-tower_org_config: false
-tower_credential_machine_config: false
-tower_credential_cloud_config: false
+tower_org_config: true
+tower_credential_machine_config: true
+tower_credential_cloud_config: true
 tower_inventory_config: true
 tower_inventory_group_config: true
 tower_openshift_install_group_config: true

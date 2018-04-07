@@ -3,9 +3,6 @@
   command: >
     tower-cli project create 
       --name "{{ tower_project_provision_and_configure }}" 
-      --tower-username "{{ tower_username }}" 
-      --tower-password "{{ tower_password }}" 
-      --tower-host "{{ tower_host }}"
       --description "{{ tower_project_provision_and_configure_description }}" 
       --organization "{{ tower_org }}" 
       --scm-type "{{ tower_project_provision_and_configure_type }}" 
@@ -14,14 +11,12 @@
       --scm-clean "{{ tower_project_provision_and_configure_clean }}" 
       --scm-update-on-launch "{{ tower_project_provision_and_configure_update_on_launch }}" 
       --scm-delete-on-update "{{ tower_project_provision_and_configure_delete_on_update }}"
+      {{ tower_cli_options }}
 
 - name: Update Project for Provision and Configure
   command: >
     tower-cli project update
-      --tower-username "{{ tower_username }}" 
-      --tower-password "{{ tower_password }}" 
-      --tower-host "{{ tower_host }}"
       --name "{{ tower_project_provision_and_configure }}"
       --wait
-      "{{ tower_cli_verbosity }}"
+      {{ tower_cli_options }}
 ...

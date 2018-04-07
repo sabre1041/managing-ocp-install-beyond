@@ -19,5 +19,5 @@
     tower-cli job_template modify
       --name="{{ tower_job_template_terminate_ocp }}"
       --extra-vars="{{ tower_job_template_terminate_ocp_extra_vars }}"
-      "{{ tower_cli_verbosity }}"
+      {{ tower_cli_options }}
 ...

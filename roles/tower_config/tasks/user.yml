@@ -6,12 +6,14 @@
       --password "{{ tower_password }}"
       --email "{{ student_id + '@example.org' }}"
       --is-superuser true
-      --tower-host "{{ tower_host }}"
-      --tower-username "{{ tower_username }}"
-      --tower-password "{{ tower_password }}"
+      {{ tower_cli_options }}
 
 - set_fact:
     tower_username: "{{ student_id }}"
 
-- include: auth.yml
+# Re-run auth.yml which sets these options on the host since the user was added so it overwrites previous user of 'admin'
+- import_tasks: auth.yml
+
+# Reset cli_options using the newly created user
+- import_tasks: cli_options.yml
 ...

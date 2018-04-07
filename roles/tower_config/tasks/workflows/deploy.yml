@@ -11,7 +11,7 @@
       --description="{{ tower_workflow_template_deploy_description }}"
       --organization="{{ tower_org }}"
       --extra-vars="@/tmp/{{ tower_workflow_template_deploy_extra_vars }}"
-      "{{ tower_cli_verbosity }}"
+      {{ tower_cli_options }}
 
 - debug:
     var: "{{ item }}"
@@ -26,5 +26,5 @@
     dest: "/tmp/{{ tower_workflow_template_deploy_schema_path }}"
 
 - name: Create Workflow Schema for Deploy
-  command: tower-cli workflow schema {{ tower_workflow_template_deploy }} @/tmp/{{ tower_workflow_template_deploy_schema_path }} "{{ tower_cli_verbosity }}"
+  command: tower-cli workflow schema {{ tower_workflow_template_deploy }} @/tmp/{{ tower_workflow_template_deploy_schema_path }} {{ tower_cli_options }}
 ...

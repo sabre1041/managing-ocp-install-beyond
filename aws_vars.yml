@@ -1,6 +1,6 @@
 ---
 ## Name of lab. This is used to tag instances
-lab_name: rhte
+lab_name: manage_ocp
 
 ## Name of the individual using the lab. For full class deploy this is usually 'student' but for development this can be anything to uniquely identify all instances
 lab_user: student
