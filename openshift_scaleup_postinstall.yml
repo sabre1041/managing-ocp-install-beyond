@@ -1,0 +1,44 @@
+---
+
+- hosts: localhost
+  vars_files:
+    - aws_vars.yml
+    - "roles/tower_config/defaults/main.yml"
+  tasks:
+    - set_fact:
+        tower_host: "localhost"
+
+    - name: Query AWS Instances
+      ec2_instance_facts:
+        region: "{{ aws_region }}"
+        filters:
+          instance-state-name: running
+          "tag:lab_role": "new_node"
+          "tag:student_id": "{{ student_id }}"
+      register: ec2_tags
+
+    - name: Tag Instance As a Normal Node
+      ec2_tag:
+        region: "{{ aws_region }}"
+        resource: "{{ item['instance_id'] }}"
+        tags:
+          lab_role: node
+      with_items: "{{ ec2_tags.instances }}"
+
+    - import_tasks: "roles/tower_config/tasks/auth.yml"
+
+    - name: Disassocaite Host From Tower Inventory
+      command: >
+        tower-cli host disassociate
+          --group "{{ item[1] }}"
+          --host {{ item[0].tags['Name'] }}
+      with_nested:
+        - "{{ ec2_tags.instances }}"
+        - [ '{{ tower_new_node_tag }}', '{{ tower_openshift_new_nodes_group }}' ]
+
+
+    - name: Update Tower Inventory
+      command: >
+        tower-cli inventory batch_update
+          --name {{ tower_inventory }}
+      when: ec2_tags.instances | length > 0

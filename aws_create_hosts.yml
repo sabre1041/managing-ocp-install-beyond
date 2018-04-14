@@ -51,11 +51,11 @@
         type: A
         overwrite: True
         ttl: 60
-        record: "{{ aws_instances[item.0].name }}-{{ student_id }}.{{ domain_name }}"
-        value: "{{ instances_created.results[item.0]['instances'][0]['public_ip'] }}"
+        record: "{{ item['instances'][0]['tags']['Name'] }}"
+        value: "{{ item['instances'][0]['public_ip'] }}"
         wait: yes
       register: host_dns_entries
-      with_indexed_items: "{{ aws_instances }}"
+      with_items: "{{ instances_created.results }}"
 
     - name: Register Public Environment DNS
       route53:
@@ -86,10 +86,10 @@
       when: "'node_type' in item.0['meta'] and 'master' in item.0['meta']['node_type']"
 
     - name: Wait for resolvable route53 hostname
-      local_action: command host {{ aws_instances[item.0].name }}-{{ student_id }}.{{ domain_name }}
+      local_action: command host {{ item['instances'][0]['tags']['Name'] }}
       register: host_result
       until: host_result.rc == 0
       retries: 60
       delay: 5
-      with_indexed_items: "{{ aws_instances }}"
+      with_items: "{{ instances_created.results }}"
 ...

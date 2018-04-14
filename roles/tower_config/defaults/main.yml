@@ -161,7 +161,7 @@ tower_job_template_scaleup_provision: "Scaleup-1-Provision"
 tower_job_template_scaleup_provision_config: false
 tower_job_template_scaleup_provision_description: "Scaleup Step 1 - Creates AWS instance to be added to the existing OCP cluster"
 tower_job_template_scaleup_provision_playbook: "aws_add_node.yml"
-tower_job_template_scaleup_provision_extra_vars_path: "{{ tower_job_template_deploy_provision_extra_vars_path }}"
+tower_job_template_scaleup_provision_extra_vars_path: "tower_job_template_scaleup_provision_extra_vars.yml.j2"
 
 # Tower job template for scaleup-install
 tower_job_template_scaleup_install: "Scaleup-2-Install"
@@ -174,8 +174,9 @@ tower_job_template_scaleup_install_become_enabled: "yes"
 tower_job_template_scaleup_configure: "Scaleup-3-Post-Install"
 tower_job_template_scaleup_configure_config: false
 tower_job_template_scaleup_configure_description: "Scaleup Step 3 Post-Install configuration"
-tower_job_template_scaleup_configure_playbook: "openshift_postinstall.yml"
-tower_job_template_scaleup_configure_become_enabled: "yes"
+tower_job_template_scaleup_configure_playbook: "openshift_scaleup_postinstall.yml"
+tower_job_template_scaleup_configure_extra_vars_path: "tower_job_template_scaleup_postinstall_extra_vars.yml.j2"
+
 
 # Tower job template for terminate-ocp
 tower_job_template_terminate_ocp: "Terminate-OCP"
