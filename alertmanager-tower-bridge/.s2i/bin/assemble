@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -e
+
+echo "---> Installing application source ..."
+mv /tmp/src/* ./
+
+# set permissions for any installed artifacts
+fix-permissions /opt/app-root
