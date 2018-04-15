@@ -4,12 +4,13 @@
     templates_query: '{range .items[*]}{.metadata.name}{"\n"}{end}'
     image_streams_query: '{range .items[*]}{.metadata.name}{"\n"}{end}'
     templates_to_keep: ['cakephp-mysql-persistent', 'metrics-deployer-template', 'registry-console']
-    image_streams_to_keep: ['php', 'mysql']
+    image_streams_to_keep: ['python']
     service_catalog_projects_to_annotate: ['kube-service-catalog']
     default_node_selector: 'type=app'
     service_catalog_default_node_selector: 'openshift-infra=apiserver'
     web_console_namespace: openshift-web-console
     tmp_configmap_prometheus: /tmp/prometheus-configmap.yml
+    tmp_configmap_alertmanager: /tmp/alertmanager-configmap.yml
     cfme_template: https://raw.githubusercontent.com/openshift/openshift-ansible/release-3.7/roles/openshift_examples/files/examples/v3.7/cfme-templates/cfme-template.yaml
   tasks:
   - name: Get templates
@@ -69,10 +70,10 @@
     shell: oc export configmap/prometheus -n {{ openshift_prometheus_namespace }} > {{ tmp_configmap_prometheus }}
 
   - name: Update Prometheus ConfigMap File
-    lineinfile:
-      insertbefore: "^    alerting:"
-      line: "    # OpenShift Router\n    - job_name: openshift-routers\n      scrape_interval: 30s\n      scrape_timeout: 30s\n      metrics_path: /metrics\n      scheme: http\n      static_configs:\n      - targets:\n        - router.default.svc.cluster.local:1936\n      basic_auth:\n        username: admin\n        password: {{ router_password.stdout }}\n"
-      dest: "{{ tmp_configmap_prometheus }}"
+    replace:
+      regexp: "^    alerting:$"
+      replace: "    # OpenShift Router\n    - job_name: openshift-routers\n      scrape_interval: 30s\n      scrape_timeout: 30s\n      metrics_path: /metrics\n      scheme: http\n      static_configs:\n      - targets:\n        - router.default.svc.cluster.local:1936\n      basic_auth:\n        username: admin\n        password: {{ router_password.stdout }}\n    alerting: #"
+      path: "{{ tmp_configmap_prometheus }}"
 
   - name: Update Prometheus ConfigMap
     command: >
@@ -82,6 +83,24 @@
     file:
       path: "{{ tmp_configmap_prometheus }}"
       state: absent
+  
+  - name: AlertManager Template
+    template:
+      src: templates/alertmanager.j2
+      dest: "{{ tmp_configmap_alertmanager }}"
+
+  - name: Delete Prometheus ConfigMap
+    command: >
+      oc delete configmap -n {{ openshift_prometheus_namespace }} alertmanager
+
+  - name: Update AlertManager ConfigMap
+    command: >
+      oc create configmap alertmanager -n {{ openshift_prometheus_namespace }} --from-file=alertmanager.yml={{ tmp_configmap_alertmanager }}
+  
+  - name: Remove AlertManager ConfigMap File
+    file:
+      state: absent
+      path: "{{ tmp_configmap_alertmanager }}"
 
   - name: Remove Prometheus Scrape Annotation
     shell: oc annotate svc router -n default prometheus.io/scrape=false --overwrite
@@ -119,3 +138,4 @@
     command: >
       oc delete pods --all -n {{ item}}
     with_items: "{{ service_catalog_projects_to_annotate }}"
+  

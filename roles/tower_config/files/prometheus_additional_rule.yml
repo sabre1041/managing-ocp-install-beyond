@@ -1,0 +1,13 @@
+groups:
+- name: managing-ocp-cluster-rules
+  interval: 30s # defaults to global interval
+  rules:
+    - alert: Minimum Number of Application Nodes
+      expr: sum(up{type="app",job="kubernetes-nodes"}) < 0
+      for: 2m
+      labels:
+        severity: critical
+        type: ansible-target
+      annotations:
+        description: The Number of Application Nodes is Below Minimum Threshold
+        summary: Minimum Application Nodes

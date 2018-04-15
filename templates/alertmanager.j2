@@ -1,0 +1,23 @@
+global:
+
+# The root route on which each incoming alert enters.
+route:
+    # default route if none match
+    receiver: alert-buffer-wh
+
+    routes:
+    - receiver: 'ansible-tower'
+      group_wait: 20s
+      group_interval: 5m
+      repeat_interval: 24h
+      match:
+        type: 'ansible-tower'
+
+receivers:
+- name: ansible-tower
+  webhook_configs:
+    - url: http://alertmanager-tower-bridge:8080
+    - url: http://localhost:9099/topics/alerts
+- name: alert-buffer-wh
+  webhook_configs:
+    - url: http://localhost:9099/topics/alerts

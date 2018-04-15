@@ -242,4 +242,7 @@ tower_workflow_job_terminate_launch: false
 tower_workflow_job_terminate_launch_async: 360
 # Workflow job polling
 tower_workflow_job_terminate_launch_poll: 0
+
+tower_openshift_config_dir: "/var/lib/aws/openshift"
+tower_openshift_prometheus_config_dir: "{{ tower_openshift_config_dir }}/prometheus"
 ...
