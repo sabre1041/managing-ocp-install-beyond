@@ -38,15 +38,15 @@ tower_org_config: false
 
 # Tower machine credential
 tower_credential_machine: "SSH"
-tower_credential_machine_config: true
+tower_credential_machine_config: false
 tower_credential_machine_description: "Private SSH Key"
 tower_credential_machine_type: "Machine"
-tower_credential_machine_ssh_key_data_file: "your_private_key.pem"
+tower_credential_machine_ssh_key_data_file: "specify_your_private_key_filename_here.pem"
 tower_credential_machine_username: "ec2-user"
 
 # Tower cloud credential
 tower_credential_cloud: "AWS"
-tower_credential_cloud_config: true
+tower_credential_cloud_config: false
 tower_credential_cloud_description: "AWS Access and Secret"
 tower_credential_cloud_type: "Amazon Web Services"
 tower_credential_cloud_username: "{{ec2_access_key}}"
