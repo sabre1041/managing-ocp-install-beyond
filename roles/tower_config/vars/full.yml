@@ -6,8 +6,8 @@ tower_user_add: true
 tower_cli_credentials_config: true
 tower_prereqs_config: false
 tower_org_config: true
-tower_credential_machine_config: true
-tower_credential_cloud_config: true
+tower_credential_machine_config: false
+tower_credential_cloud_config: false
 tower_inventory_config: true
 tower_inventory_group_config: true
 tower_openshift_install_group_config: true
