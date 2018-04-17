@@ -22,8 +22,12 @@ openshift_master_internal_dns_prefix: "master-internal"
 domain_name: labs.sysdeseng.com
 
 ## AWS credentials (do not save it here, instead override with -e)
-aws_access_key: "{{ec2_access_key}}"
-aws_secret_key: "{{ec2_secret_key}}"
+aws_access_key: "{{ ec2_access_key }}"
+aws_secret_key: "{{ ec2_secret_key }}"
+
+## AWS credentials Tower (do not save it here, instead override with -e)
+tower_ec2_access_key: "{{ tower_ec2_access_key }}"
+tower_ec2_secret_key: "{{ tower_ec2_secret_key }}"
 
 ## Set the AMI IDs here (or override with -e). Some commonly used AMIs are defined here, but ultimately the ones that matter are 'tower_ami_id' and 'ocp_ami_id'
 ## Tower AMI ID - This is the only variable used in the Playbooks, set it to one of the above (or override with -e)

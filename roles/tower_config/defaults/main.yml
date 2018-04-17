@@ -41,7 +41,7 @@ tower_credential_machine: "SSH"
 tower_credential_machine_config: false
 tower_credential_machine_description: "Private SSH Key"
 tower_credential_machine_type: "Machine"
-tower_credential_machine_ssh_key_data_file: "specify_your_private_key_filename_here.pem"
+tower_credential_machine_ssh_key_data_file: "{{ tower_credential_machine_ssh_key_data_file }}"
 tower_credential_machine_username: "ec2-user"
 
 # Tower cloud credential
@@ -49,8 +49,8 @@ tower_credential_cloud: "AWS"
 tower_credential_cloud_config: false
 tower_credential_cloud_description: "AWS Access and Secret"
 tower_credential_cloud_type: "Amazon Web Services"
-tower_credential_cloud_username: "{{ec2_access_key}}"
-tower_credential_cloud_password: "{{ec2_secret_key}}"
+tower_credential_cloud_username: "{{ tower_ec2_access_key }}"
+tower_credential_cloud_password: "{{ tower_ec2_secret_key }}"
 
 # Tower inventory
 tower_inventory: "OpenShift"
