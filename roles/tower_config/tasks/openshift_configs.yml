@@ -1,0 +1,24 @@
+- name: Create Directory for OpenShift Configurations
+  become: true
+  file:
+    state: directory
+    owner: awx
+    group: awx
+    path: "{{ tower_openshift_config_dir }}"
+
+- name: Create Directory for Prometheus
+  become: true
+  file:
+    state: directory
+    owner: awx
+    group: awx
+    path: "{{ tower_openshift_prometheus_config_dir }}"
+
+- name: Copy Prometheus Additional Rules
+  become: true
+  copy:
+    src: prometheus_additional_rule.yml
+    dest: "{{ tower_openshift_prometheus_config_dir }}/"
+    owner: awx
+    group: awx
+

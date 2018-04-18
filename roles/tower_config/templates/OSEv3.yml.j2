@@ -30,6 +30,10 @@ openshift_hosted_prometheus_deploy: true
 openshift_prometheus_node_selector:
   type: infra
 openshift_prometheus_namespace: openshift-metrics
+openshift_prometheus_args:
+  - '--storage.tsdb.retention=3d'
+  - '--web.enable-lifecycle'
+openshift_prometheus_additional_rules_file: {{ tower_openshift_prometheus_config_dir }}/prometheus_additional_rule.yml
 openshift_node_open_ports:
   - service: "Prometheus Node Exporter"
     port: "9100/tcp"
