@@ -41,8 +41,8 @@ tower_credential_machine: "SSH"
 tower_credential_machine_config: false
 tower_credential_machine_description: "Private SSH Key"
 tower_credential_machine_type: "Machine"
-# The following should be a private SSH key in the same local directory that the playbook is run. A future refactor should allow absolute filenames instead. Specify this value in your secrets file.
-tower_credential_machine_ssh_key_data_file: "{{ tower_credential_machine_ssh_key_data_file }}"
+# The following should be a private SSH key in the same local directory that the playbook is run. A future refactor should allow absolute filenames instead. Specify this value in your secrets file but ONLY if 'tower_credential_machine_config: true'. Since the default is 'false' this should normally not matter.
+tower_credential_machine_ssh_key_data_file: "set_this_to_a_local_private_key_to_add_as_machine_credential_only_if_overwriting_credentials.pem"
 tower_credential_machine_username: "ec2-user"
 
 # Tower cloud credential
