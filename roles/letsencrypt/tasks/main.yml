@@ -1,0 +1,44 @@
+---
+
+- name: Validate Domains Are Present
+  fail:
+    msg: No Domain Name Values Were Provided
+  when: letsencrypt_domains|length == 0
+
+- name: Validate Domains Are Present
+  fail:
+    msg: No Domain Name Values Were Provided
+  when: letsencrypt_domains|length == 0
+
+- name: Determine Maximum Number of Domains Per Certificate
+  set_fact:
+    letsencrypt_max_domains_per_certificate: "{{ ((letsencrypt_max_names/letsencrypt_num_domains_per_user) |  round(0, 'floor') | int) * letsencrypt_num_domains_per_user}}"
+
+- name: Determine Number of Certificates to Request
+  set_fact:
+    letsencrypt_num_certificate_requests: "{{ (letsencrypt_domains|length / letsencrypt_max_domains_per_certificate | int) | round(0, 'ceil') | int }}"
+
+- name: Create Directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ letsencrypt_acme_destination }}"
+    - "{{ letsencrypt_destination_directory }}"
+
+- name: Retrieve acme.sh
+  unarchive:
+    src: "{{ letsencrypt_acme_source }}"
+    dest: "{{ letsencrypt_acme_destination }}"
+    extra_opts: ['--strip-components=1']
+    remote_src: yes
+
+- name: Generate Certificate
+  include_tasks: generate_certificate.yml max_domains_per_certificate="{{ letsencrypt_max_domains_per_certificate }}"
+  with_sequence: start=1 end=" {{letsencrypt_num_certificate_requests }}"
+  loop_control:
+    loop_var: certificate_group
+
+- name: Show Location
+  debug:
+    msg: "Certificates have been generated in the '{{ letsencrypt_destination_directory }}' directory"

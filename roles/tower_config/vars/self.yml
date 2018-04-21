@@ -31,4 +31,5 @@ tower_workflow_template_deploy_config: false
 tower_workflow_template_scaleup_config: false
 tower_workflow_template_terminate_config: false
 tower_package_config: true
+tower_ssl_config: false
 ...

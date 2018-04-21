@@ -1,0 +1,22 @@
+---
+
+- name: Copy Certificates To Tower
+  copy:
+    src: "{{ letsencrypt_base_directory }}/{{ student_id }}.{{ domain_name }}/"
+    dest: "{{ tower_openshift_letsencrypt_config_dir }}"
+  become: true
+
+- name: Configure Tower SSL
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    remote_src: yes
+  with_items:
+    - { src: "{{ tower_openshift_letsencrypt_config_dir }}/{{ letsencrypt_fullchain_filename  }}", dest: "/etc/tower/tower.cert" }
+    - { src: "{{ tower_openshift_letsencrypt_config_dir }}/{{ letsencrypt_key_filename  }}", dest: "/etc/tower/tower.key" }
+  become: true
+
+- name: Restart Ansible Tower
+  command: >
+    ansible-tower-service restart
+  become: true
