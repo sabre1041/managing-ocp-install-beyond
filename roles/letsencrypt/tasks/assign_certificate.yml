@@ -1,0 +1,20 @@
+---
+
+- name: Create Directory For Certificaete
+  set_fact:
+    assign_certificate_user: "{{ lab_user }}-{{ certificate_assignment }}.{{ domain_name }}"
+
+- name: Create Directory for Assignment
+  file:
+    path: "{{ letsencrypt_destination_directory }}/{{ assign_certificate_user }}" 
+    state: directory
+
+- name: Copy Certificates to Allocated Directory
+  copy:
+    src: "{{ item }}"
+    dest: "{{ letsencrypt_destination_directory }}/{{ assign_certificate_user }}/"
+  with_items:
+    - "{{ letsencrypt_issued_ca }}"
+    - "{{ letsencrypt_issued_crt }}"
+    - "{{ letsencrypt_issued_key }}"
+    - "{{ letsencrypt_issued_fullchain }}"

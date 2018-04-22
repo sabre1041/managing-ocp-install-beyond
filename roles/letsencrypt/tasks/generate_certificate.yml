@@ -1,0 +1,56 @@
+---
+
+- name: Set Starting Point
+  set_fact:
+    letsencrypt_certificate_starting_point: "{{  (((certificate_group | int) - 1) * letsencrypt_max_domains_per_certificate) | int }}"
+
+- name: Ending Point Conditional
+  set_fact:
+    letsencrypt_certificate_ending_point_bool: "{{ ((letsencrypt_certificate_starting_point | int) + (max_domains_per_certificate | int) >  letsencrypt_domains | length) }}"
+
+
+- name: Set Ending Point
+  set_fact:
+    letsencrypt_certificate_ending_point: "{{ (letsencrypt_certificate_ending_point_bool !=  true) | ternary(letsencrypt_certificate_starting_point|int + letsencrypt_max_domains_per_certificate|int, (letsencrypt_domains | length)) }}"
+
+- name: Initialize Variables
+  set_fact:
+    domain_cmd: ""
+    staging_server: ""
+    letsencrypt_issued_base: "{{ letsencrypt_destination_directory }}/{{ lab_user }}-letsencrypt-{{ certificate_group }}.{{ domain_name }}"
+
+- name: Set Domains
+  set_fact:
+    domain_cmd: "{{ domain_cmd}} -d {{ letsencrypt_domains[item|int] }}"
+  with_sequence: start="{{ letsencrypt_certificate_starting_point }}" end="{{ (letsencrypt_certificate_ending_point | int - 1) }}"
+
+- name: Initialize Letsencrypt File Variables
+  set_fact:
+    letsencrypt_issued_fullchain: "{{ letsencrypt_issued_base }}/{{ letsencrypt_issued_fullchain_filename }}"
+    letsencrypt_issued_key: "{{ letsencrypt_issued_base }}/{{ letsencrypt_issued_key_filename }}"
+    letsencrypt_issued_ca: "{{ letsencrypt_issued_base }}/{{ letsencrypt_issued_ca_filename }}"
+    letsencrypt_issued_crt: "{{ letsencrypt_issued_base }}/{{ letsencrypt_issued_crt_filename }}"
+
+- name: Set Staging Server
+  set_fact:
+    staging_server: "--staging"
+  when: letsencrypt_use_staging
+
+- name: Create Certificate Group Directory
+  file:
+    path: "{{ letsencrypt_issued_base }}"
+    state: directory
+
+- name: Request Certificate
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ ec2_access_key }}"
+    AWS_SECRET_ACCESS_KEY: "{{ ec2_secret_key }}"
+  command: >
+    {{ letsencrypt_acme_destination }}/acme.sh --debug --issue {{ staging_server }} {{ domain_cmd }} --dns dns_aws --ca-file {{ letsencrypt_issued_ca }}  --cert-file {{ letsencrypt_issued_crt }} --fullchain-file {{ letsencrypt_issued_fullchain }} --key-file {{ letsencrypt_issued_key }} --force 
+  when: letsencrypt_skip_certificate_request == false
+
+- name: Assign Certificates
+  include_tasks: assign_certificate.yml
+  with_sequence: start="{{ (((letsencrypt_certificate_starting_point | int)+1)/letsencrypt_num_domains_per_user| int) | round(0, 'ceil') | int }}" end="{{ (letsencrypt_certificate_ending_point | int /letsencrypt_num_domains_per_user | int) | round(0, 'ceil') | int }}"
+  loop_control:
+    loop_var: certificate_assignment

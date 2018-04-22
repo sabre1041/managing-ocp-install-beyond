@@ -246,4 +246,10 @@ tower_workflow_job_terminate_launch_poll: 0
 
 tower_openshift_config_dir: "/var/lib/aws/openshift"
 tower_openshift_prometheus_config_dir: "{{ tower_openshift_config_dir }}/prometheus"
+tower_openshift_letsencrypt_config_dir: "{{ tower_openshift_config_dir }}/letsencrypt"
+letsencrypt_base_directory: "/tmp/letsencrypt"
+letsencrypt_fullchain_filename: letsencrypt-fullchain.crt
+letsencrypt_key_filename: letsencrypt.key
+letsencrypt_ca_filename: letsencrypt.ca
+letsencrypt_crt_filename: letsencrypt.crt
 ...

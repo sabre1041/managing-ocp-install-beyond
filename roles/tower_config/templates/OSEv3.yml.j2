@@ -44,5 +44,11 @@ openshift_node_labels: "{{ ec2_tag_node_labels }}"
 openshift_prometheus_node_exporter_image_version: "{{ openshift_image_tag }}"
 {% endraw %}
 
+{% if ocp_ssl_enabled is defined and ocp_ssl_enabled %}
+openshift_master_overwrite_named_certificates: true
+openshift_master_named_certificates: [{"certfile": "{{ tower_openshift_letsencrypt_config_dir }}/{{ letsencrypt_crt_filename }}", "keyfile": "{{ tower_openshift_letsencrypt_config_dir }}/{{ letsencrypt_key_filename }}", "cafile": "{{ tower_openshift_letsencrypt_config_dir }}/{{ letsencrypt_ca_filename }}"}]
+openshift_hosted_router_certificate: {"certfile": "{{ tower_openshift_letsencrypt_config_dir }}/{{ letsencrypt_crt_filename }}", "keyfile": "{{ tower_openshift_letsencrypt_config_dir }}/{{ letsencrypt_key_filename }}", "cafile": "{{ tower_openshift_letsencrypt_config_dir }}/{{ letsencrypt_ca_filename }}"}
+{% endif %}
+
 # Default Node Selector Cannot be Used Due to Issue With Service Catalog Deployment. Is set during Postinstall playbook
 #osm_default_node_selector: 'type=app'

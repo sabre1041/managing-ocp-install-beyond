@@ -1,0 +1,13 @@
+letsencrypt_staging: true
+letsencrypt_domains: []
+letsencrypt_destination_directory: "/tmp/letsencrypt"
+letsencrypt_acme_source: https://github.com/Neilpang/acme.sh/archive/2.7.8.tar.gz
+letsencrypt_acme_destination: "/tmp/acme"
+letsencrypt_num_domains_per_user: 3
+letsencrypt_max_names: 100
+letsencrypt_use_staging: true
+letsencrypt_skip_certificate_request: false
+letsencrypt_issued_fullchain_filename: letsencrypt-fullchain.crt
+letsencrypt_issued_key_filename: letsencrypt.key
+letsencrypt_issued_ca_filename: letsencrypt.ca
+letsencrypt_issued_crt_filename: letsencrypt.crt

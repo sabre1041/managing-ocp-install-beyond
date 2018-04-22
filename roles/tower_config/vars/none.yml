@@ -28,4 +28,5 @@ tower_job_template_terminate_all_config: false
 tower_workflow_template_deploy_config: false
 tower_workflow_template_scaleup_config: false
 tower_workflow_template_terminate_config: false
+tower_ssl_config: false
 ...

@@ -12,7 +12,10 @@
     state: directory
     owner: awx
     group: awx
-    path: "{{ tower_openshift_prometheus_config_dir }}"
+    path: "{{ item }}"
+  with_items:
+    - "{{ tower_openshift_letsencrypt_config_dir }}"
+    - "{{ tower_openshift_prometheus_config_dir }}"
 
 - name: Copy Prometheus Additional Rules
   become: true

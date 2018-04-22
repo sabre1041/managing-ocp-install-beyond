@@ -34,4 +34,5 @@ tower_job_self_configure_launch: false
 tower_workflow_job_deploy_launch: true
 tower_workflow_job_scaleup_launch: true
 tower_workflow_job_terminate_launch: false
+tower_ssl_config: false
 ...

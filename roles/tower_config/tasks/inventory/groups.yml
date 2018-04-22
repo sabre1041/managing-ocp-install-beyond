@@ -12,6 +12,26 @@
     inventory: "{{ tower_inventory }}"
     state: present
 
+- name: Register SSL Variables
+  stat:
+    path: "{{ item }}"
+  with_items:
+    - "{{ tower_openshift_letsencrypt_config_dir }}/{{ letsencrypt_crt_filename }}"
+    - "{{ tower_openshift_letsencrypt_config_dir }}/{{ letsencrypt_ca_filename }}"
+    - "{{ tower_openshift_letsencrypt_config_dir }}/{{ letsencrypt_key_filename }}"
+  register: tower_ssl_results
+
+- name: Debug SSL
+  debug:
+    var: item
+  with_items: tower_ssl_results.results
+
+- name: Set SSL Enabled Fact
+  set_fact:
+    ocp_ssl_enabled: true
+  when: item.stat.exists == true
+  with_items: "{{ tower_ssl_results.results }}"
+
 - name: Add OSEv3 Group
   tower_group:
     tower_host: "{{ tower_host }}"
