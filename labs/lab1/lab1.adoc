@@ -33,23 +33,11 @@ A link:http://docs.ansible.com/ansible-tower/latest/html/userguide/job_templates
 
 From the Tower overview page, select **TEMPLATES**.
 
-A single Job Template called _0-Self-Configure_ is available that will finalize the rest of the setup of the Tower instance itself. Click the **RocketShip** to launch the template. Feel free to review the details of the playbook while it is running from here: link:https://github.com/sabre1041/managing-ocp-install-beyond/tree/rhte/roles/tower_config/tasks[Tower Config]
+A single Job Template called _0-Self-Configure_ is available that will finalize the rest of the setup of the Tower instance itself. Click the **RocketShip** to launch the template. Feel free to review the details of the playbook while it is running from here: link:https://github.com/sabre1041/managing-ocp-install-beyond/tree/summit2018/roles/tower_config/tasks[Tower Config]
 
 image::images/job-template-tower-config.png[]
 
-Track the progress of the job until successful completion. 
-
-The job configured several aspects of the Ansible Tower. A comprehensive explanation will be covered in the next lab. 
-
-Once the _0-Self-Configure_ job is complete, return to the **TEMPLATES** page and configure the **Deploy-2-Install** template to point the _Template Service Broker_ to the infrastructure node. Add the following the the **Extra Vars** section of the **Deploy-2-Install** template. To add the variable, click the **Edit** pencil icon to the right of the **Deploy-2-Install** template.
-
-[source, bash]
-----
----
-template_service_broker_selector: {"type":"infra"}
-----
-
-After you have added this variable, click **SAVE**.
+Track the progress of the job until successful completion. The job configures several aspects of the Ansible Tower. A comprehensive explanation will be covered in the next lab. 
 
 Now trigger the deployment of instances to AWS and the installation of OpenShift by scrolling down and selecting the **RocketShip** next to _1-Deploy_OpenShift_on_AWS_ Workflow Job.
 
