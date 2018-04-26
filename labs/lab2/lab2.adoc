@@ -83,10 +83,11 @@ image::images/ansible-tower-overview.png[]
 
 First, let's review the workflow job template that was just executed to provision the OpenShift Container Platform. This workflow template consists of three chained job templates:
 
-* 1-Deploy_OpenShift_on_AWS - Overall workflow job that ties the job templates together
-* Deploy-1-Provision - Job template that prepares the AWS environment by provisioning two instances, a master and a node
-* Deploy-2-Install - Job template that utilizes a dynamic inventory of AWS and then installs the OpenShift Container Platform on the instances provisioned previously
-* Deploy-3-Post-Install - Job template that customizes the OpenShift cluster for the lab
+* 1-Deploy_OpenShift_on_AWS - Overall workflow template that ties the job templates together
+* Deploy-1-Provision - Job template that by provisions two AWS instances, a master and a node
+* Deploy-2-Prerequisites - Job template that installs OCP prerequisites onto the AWS instances
+* Deploy-3-Install - Job template that installs the OpenShift Container Platform on the instances provisioned previously
+* Deploy-4-Post-Install - Job template that customizes the OpenShift cluster for the lab
 
 Additional job templates relating to scaling the OpenShift environment and terminating the AWS instances have also been configured. A portion of these will be discussed in subsequent labs.
 
@@ -119,7 +120,7 @@ The most important component of the inventory for this usecase is the sets of in
 link:http://docs.ansible.com/ansible-tower/latest/html/userguide/credentials.html[Credentials] are a mechanism for authenticating against secure resources including target machines, inventory sources and projects leveraging version control systems. Every one of the previously explored areas makes use of a credential. Credentials are configured within the Ansible Tower settings and can be accessed by selecting the **Settings** icon (gear) on the menu bar. Once within the settings page, select the **Credentials** link. The following credentials have been defined:
 
 * AWS - Allows API access to link:http://docs.ansible.com/ansible-tower/latest/html/userguide/credentials.html#amazon-web-services[AWS] resources
-* RHTE SSH - Corresponds to the private key downloaded in lab0. Allows Tower to log in and configure instances running in AWS
+* SSH - Corresponds to the private key downloaded in lab0. Allows Tower to log in and configure instances running in AWS
  platform
 
 image::images/ansible-tower-credentials.png[]
