@@ -15,13 +15,12 @@ Managing an ecosystem of infrastructure and applications can be challenging. For
 The lab environment that we will utilize today consists of the workstation that you brought with you along with multiple virtual machines running in Amazon Web Services (AWS).  The details of each virtual machine are listed below:
 
 * Student Workstation - This is the workstation / laptop that you brought with you to the lab.
-* AWS is hosting instances that will be used for the Red Hat OpenShift Container Platform 3.7.
-    * Red Hat OpenShift Container Platform
+* AWS is hosting instances that will be used for hosting the following infrastructure instances:
+    * Red Hat OpenShift Container Platform 3.9
         ** 1 Master node
-        ** 2 Application Nodes (1 Application node intitially, then scaled up to 2)
+        ** 2 Application Nodes (1 Application node intitially, then scaled up to several)
            *** Red Hat CloudForms (containerized)
-    * Ansible Tower 3.2.2
-        ** hostname: `tower-<student_id>.labs.sysdeseng.com`
+    * Ansible Tower 3.2.3 using Ansible Engine 2.5
 
 In addition to the virtual machines that are running in AWS, an instructor machine is also contained within the environment and provides additional resources such as the AWS private key.
 
@@ -61,7 +60,7 @@ link:https://cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com[https://
 Username: admin +
 Password: INSTRUCTOR WILL PROVIDE
 | Linux SSH private key
-| link:https://instructor.labs.sysdeseng.com/rhte.pem[https://instructor.labs.sysdeseng.com/rhte.pem]
+| link:https://instructor.labs.sysdeseng.com/managing-ocp-install-beyond.pem[https://instructor.labs.sysdeseng.com/managing-ocp-install-beyond.pem]
 | Username: student +
 Password: INSTRUCTOR WILL PROVIDE
 | Windows PuTTY private key
@@ -70,16 +69,16 @@ Password: INSTRUCTOR WILL PROVIDE
 Password: INSTRUCTOR WILL PROVIDE
 |======================
 
-More information about connecting to AWS resources from Linux / OSX and Windows is located below. Also, more instructions follow in Lab 1.
+You will need to use a private key file to _SSH_ to the instances that are deployed on AWS. Choose the section below to follow based on your operating system type (more instructions will follow in Lab 1):
 
-* Linux / OSX
+* Linux / macOS / Windows Subsystem for Linux
 
-Retrieve the `rhte.pem` key from the instructor server (See Linux SSH private key resource in the table above for the URL) so that you can _SSH_ into the instances by accessing the password protected directory from the table above. Download the _rhte.pem_ file to your local machine and change the permissions of the file to 600.
+Retrieve the `managing-ocp-install-beyond.pem` key from the instructor server (See Linux SSH private key resource in the table above for the URL) so that you can _SSH_ into the instances by accessing the password protected directory from the table above. Download the _managing-ocp-install-beyond.pem_ file to your local machine and change the permissions of the file to 600.
 
 .workstation$
 [source, bash]
 ----
-chmod 600 rhte.pem
+chmod 600 managing-ocp-install-beyond.pem
 ----
 
 In order to connect to an AWS instance, instructions are here: link:https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html[https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html].
