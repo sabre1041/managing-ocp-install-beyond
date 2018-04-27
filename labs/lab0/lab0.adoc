@@ -69,7 +69,7 @@ Password: INSTRUCTOR WILL PROVIDE
 Password: INSTRUCTOR WILL PROVIDE
 |======================
 
-More information about connecting to AWS resources from Linux / OSX and Windows is located below. Also, more instructions follow in Lab 1.
+You will need to use a private key file to _SSH_ to the instances that are deployed on AWS. Choose the section below to follow based on your operating system type (more instructions will follow in Lab 1):
 
 * Linux / macOS / Windows Subsystem for Linux
 
