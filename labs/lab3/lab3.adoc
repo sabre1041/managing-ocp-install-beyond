@@ -56,7 +56,7 @@ The instances are deployed within the AWS environment, login to the OpenShift Ma
 .workstation$
 [source, bash]
 ----
-ssh -i rhte.pem ec2-user@master-<student_id>.labs.sysdeseng.com
+ssh -i managing-ocp-install-beyond.pem ec2-user@master-<student_id>.labs.sysdeseng.com
 ----
 
 * Windows
