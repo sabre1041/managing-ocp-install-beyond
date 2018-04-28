@@ -11,9 +11,20 @@
 # Create an imagestream
 - name: "Create ImageStream for '{{ app_name }}' image"
   openshift_v1_image_stream:
-    state: "{{ state }}"
+    state: present
     name: "{{ app_name }}"
     namespace: "{{ namespace }}"
+
+- name: Create secret
+  k8s_v1_secret:
+    name: '{{ app_name }}'
+    namespace: '{{ namespace }}'
+    string_data:
+      TOWER_HOST: "{{ tower_host }}"
+      TOWER_JOB_TEMPLATE: '{{ tower_job_template }}'
+      TOWER_USER: '{{ tower_user }}'
+      TOWER_PASSWORD: '{{ tower_password }}'
+    state: present
 
 # Create a buildconfig
 - name: "Create BC for '{{ app_name }}'"
@@ -70,21 +81,25 @@
       application: "{{ app_name }}"
       deploymentConfig: "{{ app_name }}"
     containers:
-    - env:
-      - name: TOWER_HOST
-        value: "{{ tower_host }}"
-      - name: TOWER_JOB_TEMPLATE
-        value: "{{ tower_job_template }}"
-      - name: TOWER_PASSWORD
-        value: "{{ tower_password }}"
-      - name: TOWER_USER
-        value: "{{ tower_user }}"
+    - envFrom:
+      - secretRef:
+          name: "{{ app_name }}"
       name: "{{ app_name }}"
       image: ''
       image_pull_policy: Always
       ports:
       - container_port: 8080
         protocol: TCP
+      liveness_probe:
+        timeout_seconds: 1
+        inital_delay_seconds: 30
+        tcp_socket:
+          port: 8080
+      readiness_probe:
+        timeout_seconds: 1
+        inital_delay_seconds: 5
+        tcp_socket:
+          port: 8080
     triggers:
     - type: ConfigChange
     - type: ImageChange

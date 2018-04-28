@@ -37,6 +37,8 @@ openshift_prometheus_additional_rules_file: {{ tower_openshift_prometheus_config
 openshift_node_open_ports:
   - service: "Prometheus Node Exporter"
     port: "9100/tcp"
+ansible_service_broker_local_registry_whitelist:
+  - ".*-apb$"
 {% raw %}
 openshift_cloudprovider_aws_access_key: "{{ lookup('env','AWS_ACCESS_KEY_ID') }}"
 openshift_cloudprovider_aws_secret_key: "{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"

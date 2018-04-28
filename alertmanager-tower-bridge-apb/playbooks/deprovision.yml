@@ -1,4 +1,4 @@
-- name: alert-1-apb playbook to provision the application
+- name: alertmanager-tower-bridge playbook to deprovision the application
   hosts: localhost
   gather_facts: false
   connection: local
@@ -6,5 +6,7 @@
   - role: ansible.kubernetes-modules
     install_python_requirements: no
   - role: ansibleplaybookbundle.asb-modules
-  - role: provision-alert-1-apb
+  - role: alertmanager-tower-bridge
     playbook_debug: false
+  vars:
+    action: deprovision
