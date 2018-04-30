@@ -44,15 +44,11 @@ class Handler(BaseHTTPRequestHandler):
         }
         query = urllib.urlencode(query)
 
-        # Send the request to find the job template:
-        response = self.send_request(
-            method='GET',
-            path="/api/v2/job_templates/?%s" % query,
-            token=token,
-        )
-
         # Get the identifier of the job template:
-        template_id = response["results"][0]["id"]
+        job_type, template_id = self.find_template(
+            token=token,
+            query=query,
+        )
 
         # Send the request to launch the job template, including all the labels
         # of the alert as extra variables for the AWX job template:
@@ -60,7 +56,7 @@ class Handler(BaseHTTPRequestHandler):
         extra_vars = json.dumps(extra_vars)
         self.send_request(
             method='POST',
-            path="/api/v2/job_templates/%s/launch/" % template_id,
+            path="/api/v2/%s/%s/launch/" % (job_type, template_id),
             token=token,
             body={
               "extra_vars": extra_vars,
@@ -77,6 +73,31 @@ class Handler(BaseHTTPRequestHandler):
             },
         )
         return response["token"]
+
+    def find_template(self, token, query):
+
+        # Look for Job Templates
+        response = self.send_request(
+            method='GET',
+            path="/api/v2/job_templates/?%s" % query,
+            token=token,
+        )
+
+        if response["results"]:
+            return "job_templates", response["results"][0]["id"]
+
+        # Look for Workflow Job Templates
+        response = self.send_request(
+            method='GET',
+            path="/api/v2/workflow_job_templates/?%s" % query,
+            token=token,
+        )
+
+        if response["results"]:
+            return "workflow_job_templates", response["results"][0]["id"]
+
+        return (None, None)
+
 
     def send_request(self, method, path, token=None, body=None):
         print("AWX method: %s" % method)

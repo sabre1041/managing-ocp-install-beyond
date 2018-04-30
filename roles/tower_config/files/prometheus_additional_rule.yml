@@ -7,7 +7,7 @@ groups:
       for: 2m
       labels:
         severity: critical
-        type: ansible-target
+        type: ansible-tower
       annotations:
         description: The Number of Application Nodes is Below Minimum Threshold
         summary: Minimum Application Nodes

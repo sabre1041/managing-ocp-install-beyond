@@ -1,0 +1,34 @@
+# Remove the deployment config
+- name: Remove deployment config
+  openshift_v1_deployment_config:
+    name: "{{ app_name }}"
+    namespace: '{{ namespace }}'
+    state: absent
+
+# Remove the service
+- name: Remove "{{ app_name }}" service
+  k8s_v1_service:
+    name: "{{ app_name }}"
+    namespace: '{{ namespace }}'
+    state: absent
+
+# Remove the buildconfig
+- name: "Remove BC for '{{ app_name }}'"
+  openshift_v1_build_config:
+    name: "{{ app_name }}"
+    namespace: "{{ namespace }}"
+    state: absent
+
+- name: Remove the secret secret
+  k8s_v1_secret:
+    name: '{{ app_name }}'
+    namespace: '{{ namespace }}'
+    state: absent
+
+# Remove the imagestream
+- name: "Remove ImageStream for '{{ app_name }}' image"
+  openshift_v1_image_stream:
+    name: "{{ app_name }}"
+    namespace: "{{ namespace }}"
+    state: absent
+
