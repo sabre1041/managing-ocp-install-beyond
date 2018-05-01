@@ -13,6 +13,10 @@
     tmp_configmap_alertmanager: /tmp/alertmanager-configmap.yml
     cfme_template: https://raw.githubusercontent.com/openshift/openshift-ansible/release-3.9/roles/openshift_examples/files/examples/v3.9/cfme-templates/cfme-template.yaml
   tasks:
+  - name: Update {{ student_id }}-admin user to have cluster-admin privileges
+    command: >
+      oc adm policy add-cluster-role-to-user cluster-admin {{ student-admin }}-admin
+
   - name: Get templates
     command: >
       oc get templates -n openshift -o jsonpath='{{ templates_query }}'

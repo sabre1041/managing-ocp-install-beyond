@@ -13,4 +13,16 @@
     project: "{{ tower_project_provision_and_configure }}"
     playbook: "{{ tower_job_template_deploy_configure_playbook }}"
     machine_credential: "{{ tower_credential_machine }}"
+
+- name: Copy Job Template for Deploy-Configure Extra Variables file
+  template:
+    src: "{{ tower_job_template_deploy_configure_extra_vars_path }}"
+    dest: "/tmp/{{ tower_job_template_deploy_configure_extra_vars_path }}"
+
+- name: Update Job Template for Deploy-Configure with Extra Vars
+  command: >
+    tower-cli job_template modify
+      --name="{{ tower_job_template_deploy_configure }}"
+      --extra-vars="@/tmp/{{ tower_job_template_deploy_configure_extra_vars_path }}"
+      {{ tower_cli_options }}
 ...
