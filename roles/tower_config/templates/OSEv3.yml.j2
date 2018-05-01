@@ -10,7 +10,7 @@ openshift_master_identity_providers:
   filename: /etc/origin/master/htpasswd
 openshift_master_htpasswd_users:
   {{ student_id }}: $apr1$yv51mDpN$bIpurV4keQTUVt8KaXOu.0
-  {{ student_id }}-admin:$apr1$LDX767yn$x7DsQEKGRykDP6vCGxXKH/
+  {{ student_id }}-admin: $apr1$LDX767yn$x7DsQEKGRykDP6vCGxXKH/
 openshift_master_image_policy_config:
   maxImagesBulkImportedPerRepository: 100
 openshift_metrics_install_metrics: yes
