@@ -45,14 +45,14 @@ The OpenShift Container Platform provides methods for link:https://docs.openshif
 
 == Dynamic Scaleup Architecture
 
-The _0-Self-Configure_ job template executed earlier configured a set of templates to automate the process to expand the OpenShift cluster. A workflow job template called **2-Scaleup_OpenShift_on_AWS** was also created as a result. The workflow first creates a new AWS instance and once the instance has been created, the scaleup Ansible playbook will be executed to expand the cluster. Finally, a third job template performs final actions to finalize the cluster scaleup.
+The _0-Self-Configure_ job template executed earlier configured a set of templates to automate the process to expand the OpenShift cluster. A workflow job template called **2-Scaleup_OpenShift_on_AWS** was also created as a result. The workflow first creates a new AWS instance and once the instance has been created, the scaleup Ansible playbook will be executed to expand the cluster. Finally, a third job template performs the actions required to finalize the cluster scaleup.
 
-As part of the deployment of the Prometheus within OpenShift, another component of the Prometheus ecosystem includes a notification component called link:https://prometheus.io/docs/alerting/alertmanager/[AlertManager]. Alerts can be sent to a variety of endpoints ranging from commercial offerings such as Slack, HipChat and PagerDuty, or to generic endpoints using webhooks. 
+As part of the deployment of Prometheus within OpenShift, another component of the Prometheus ecosystem includes a notification component called link:https://prometheus.io/docs/alerting/alertmanager/[AlertManager]. Alerts can be sent to a variety of endpoints ranging from commercial offerings such as Slack, HipChat and PagerDuty, or to generic endpoints using webhooks. 
 
 As mentioned earlier, Ansible Tower features a Rest API for querying resources, including triggering Workflow/Job Templates. 
 
 
-Unfortunately, the API is not compatible with the webhook notifications being emitted by AlertManager. To support the webhook function of AlertManager to trigger Job templates in Ansible Tower, a new "bridge" application will be developed and deployed to OpenShift.  
+Unfortunately, the API is not compatible with the webhook notifications being emitted by AlertManager. To support the webhook function of AlertManager to trigger Job templates in Ansible Tower, a new custom "bridge" application has been developed for this lab and deployed to OpenShift.  
 
 == Create an Ansible Playbook Bundle ==
 
@@ -69,22 +69,29 @@ The Ansible Playbook Bundle CLI (apb) is available in the OpenShift yum reposito
 .master$
 [source, bash]
 ----
-yum install -y apb
+sudo yum install -y apb
 ----
 
 Next, the content for both the AlertManger/Tower bridge application and associated Ansible Playbook Bundle are located in the lab repository on GitHub in the folders _alertmanager-tower-bridge_ and _alertmanager-tower-bridge-apb_ respectively.
 
-Clone the repository to the master:
+Clone the repository to the master from the users' home directory:
 
 .master$
 [source, bash]
 ----
+cd ~
 git clone https://github.com/sabre1041/managing-ocp-install-beyond
 ----
 
 The application itself is located in a file named link:../alertmanager-tower-bridge/bridge[bridge.py] which is Python based and creates a small HTTP based web server which accepts requests in the JSON format AlertManager is expected to send. After parsing the input, the application executes a POST request to Ansible Tower to execute the Job Template. Also included in the application is a set of custom link:https://docs.openshift.com/container-platform/latest/creating_images/s2i.html#s2i-scripts[Source to Image scripts] that dictate how the application should be built and run.
 
 After browsing through the application, change directories to the _alertmanager-tower-bridge-apb_ directory where we will walkthrough the process of creating an Ansible Playbook Bundle.
+
+.master$
+[source, bash]
+----
+cd managing-ocp-install-beyond/alertmanager-tower-bridge-apb
+----
 
 The link:https://access.redhat.com/documentation/en-us/openshift_container_platform/3.9/html-single/ansible_playbook_bundle_development_guide/index[Ansible Playbook Development Guide] provides a detailed overview for developing Ansible Playbook Bundles. The majority of the functionality has already been provided for you.  Take a moment to navigate through the link:https://access.redhat.com/documentation/en-us/openshift_container_platform/3.9/html-single/ansible_playbook_bundle_development_guide/index#apb-devel-writing-ref-directory[folder structure] including the APB spec file (apb.yml) and the directories containing Ansible link:http://docs.ansible.com/ansible/latest/user_guide/playbooks.html[playbooks] and link:https://docs.ansible.com/ansible/devel/user_guide/playbooks_reuse_roles.html[roles].
 
@@ -93,7 +100,7 @@ Build the apb which will execute a Docker build using the _Dockerfile_ located w
 .master$
 [source, bash]
 ----
-apb build
+sudo apb build
 ----
 
 A new image containing the APB was created locally. This can be confirmed by listing all of the images on the machine and locating the image called _alertmanager-tower-bridge-apb_.
@@ -101,7 +108,7 @@ A new image containing the APB was created locally. This can be confirmed by lis
 .master$
 [source, bash]
 ----
-docker images
+sudo docker images
 ----
 
 The final step in the Ansible Playbook Bundle creation process is to push the image from the local machine to OpenShift's internal registry. In order to communicate with the registry, an authenticated user to the platform must be used as they contain an OAuth token needed to facilitate the communication.
@@ -119,7 +126,7 @@ Push the APB to the OpenShift integrated registry
 .master$
 [source, bash]
 ----
-apb push
+sudo apb push
 ----
 
 Confirm the APB is available in the Ansible Service broker by listing all registered APB's.
@@ -129,6 +136,10 @@ Confirm the APB is available in the Ansible Service broker by listing all regist
 ----
 apb list
 ----
+
+Notice how the `localregistry-alertmanager-tower-bridge-apb` is displayed. `localregistry` refers to OpenShift's integrated registry as the source followed by the name of the APB.
+
+NOTE: OpenShift was configured to allow the Ansible Service Broker to utilize APB's that exist in the `openshift` project in the OpenShift registry. The modifications can be seen within the _broker-config_ ConfigMap which exists in the `openshift-ansible-service-broker` project.
 
 Since no additional interaction is needed with OpenShift's registry at this time, login to OpenShift using the _system:admin_ user.
 
@@ -148,7 +159,7 @@ link:https://master-<student_id>.labs.sysdeseng.com:8443[https://master-<student
 
 After logging in, locate "My Projects" on the righthand side and select **View All** to view all projects the user has access to. Select **openshift-metrics**.
 
-To deploy the APB to the project, select **Add to Project** and then **Browse Catalog** from the link on the top righthand side of the page.
+To deploy the APB to the project, in the right hand side of the top navigation panel, select **Add to Project** and then **Browse Catalog**.
 
 Locate and select _AlertManager Ansible Tower Bridge_ from the catalog.
 
@@ -208,7 +219,7 @@ sum(up{job="kubernetes-nodes",type="app"}) < 0
 
 This rule states that the alert will be fired when the number of nodes with the label `type=app` is below 0.
 
-When an alert is triggered, a request is sent to AlertManager, a separate container within the Prometheus pod. AlertManager itself has its own web console for which to interact with the component. Open a new browser tab and navigate to the following location and use the same credentials as were used to access Prometheus.
+When an alert is triggered, a request is sent to AlertManager, a separate container within the Prometheus pod. AlertManager itself has its own web console for which to interact with the component. Open a new browser tab and navigate to the following location and use the same credentials ("<student_id>-admin") as were used to access Prometheus.
 
 link:https://alertmanager-openshift-metrics.apps-<student_id>.labs.sysdeseng.com[https://alertmanager-openshift-metrics.apps-<student_id>.labs.sysdeseng.com]
 
@@ -278,12 +289,20 @@ cat /etc/prometheus/prometheus.additional.rules
 
 It may take up to 1 minute for the value to change. Continue executing the prior command until a change is detected.
 
-Once the value in the files has changed, to force Prometheus to reload its configuration, execute the following request
+Once the value in the file has changed, to force Prometheus to reload its configuration, execute the following request
 
 .prometheus container$
 [source, bash]
 ----
 curl -X POST http://localhost:9090/-/reload
+----
+
+Once complete, the container can be exited.
+
+.prometheus container$
+[source, bash]
+----
+exit
 ----
 
 To confirm the configuration was reloaded properly, revisit the Alerts page within Prometheus and reload the page. The updated value of the rule should be showing which will trigger an alert if the number of application nodes is less than 2 instances.
@@ -292,7 +311,7 @@ Prometheus scrapes the OpenShift API once every 60 seconds. After the interval h
 
 image::images/alertmanager-yellow.png[]
 
-If you recall in the rule, a _for_ clause was provided which defines that a rule will continued to be checked for a set period of time before firing. This allows a condition to resolve itself without a rule firing (such as a temporary network issue). The alert will stay in this condition for 2 minutes, then the alert wil fire. Refresh the page to see the status of the rule in _FIRING_ status:
+If you recall in the rule, a _for_ clause was provided which defines that a rule will continue to be checked for a set period of time before firing. This allows a condition to resolve itself without a rule firing (such as a temporary network issue). The alert will stay in this condition for 2 minutes, then the alert wil fire. Refresh the page to see the status of the rule in _FIRING_ status:
 
 image::images/alertmanager-red.png[]
 
@@ -321,11 +340,11 @@ Navigate to the OpenShift web console and login using the _<student_id>-admin_ a
 
 link:https://master-<student_id>.labs.sysdeseng.com:8443[https://master-<student_id>.labs.sysdeseng.com:8443]
 
-On the righthand side of the page, select the _openshift-metrics_ project. 
+From the landing page, on the righthand side of the page, select the _openshift-metrics_ project. 
 
 From within the _openshift-metrics_ project, select **Applications** and then **Pods** from the lefthand side navigation. 
 
-Locate the _Running_ pod starting with `alertmanager-tower-bridge` and then select the **Logs** tab. When a request is received, details of the alert along with the invocations to Ansible Tower are displayed. The final invocation is the actual request to launch the workflow job template. The response will include an the `id` of the job that was triggered. The presence of this field indicates the invocation was successful and can be used to correlate an action within Ansible Tower.
+Locate and click the _Running_ pod starting with `alertmanager-tower-bridge` and then select the **Logs** tab. When a request is received, details of the alert along with the invocations to Ansible Tower are displayed. The final invocation is the actual request to launch the workflow job template. The response will include an the `id` of the job that was triggered. The presence of this field indicates the invocation was successful and can be used to correlate an action within Ansible Tower.
 
 The final step to verify the status of the **2-Scaleup_OpenShift_on_AWS** workflow job template was invoked expand the OpenShift cluster.
 
