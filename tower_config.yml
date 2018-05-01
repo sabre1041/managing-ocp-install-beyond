@@ -6,6 +6,10 @@
     - ansible_ssh_user: ec2-user
   vars_files:
     - aws_vars.yml
-  roles:
-    - { role: tower_config, when: tower_config is defined }
+  tasks:
+  - include_role:
+      name: tower_config
+    when: 
+      - not tower_config | default ('none', true) == 'none'
+      - tower_config is defined
 ...
