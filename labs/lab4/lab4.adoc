@@ -87,21 +87,7 @@ oc policy add-role-to-user edit system:serviceaccount:cloudforms:cfme-orchestrat
 
 CloudForms retrieves metrics from applications deployed within OpenShift, and it leverages the data exposed by the onboard metrics infrastructure (Hawkular & Prometheus). Since the platform metrics are deployed in the _openshift-infra_ project and CloudForms is deployed in the cloudforms project, they cannot communicate with each other due to use of the link:https://docs.openshift.com/container-platform/latest/architecture/additional_concepts/sdn.html[multitenant SDN plugin] which isolates each project at a network level.
 
-Fortunately, as a cluster administrator, you can manage the configuration of the pod overlay network to allow traffic to traverse between specific projects or be exposed to all projects. Execute the following command to join the _cloudforms_ project to the _openshift-infra_ project
-
-.master$
-[source, bash]
-----
-oc adm pod-network join-projects cloudforms --to=openshift-infra
-----
-
-Verify the NETID is the same for these projects
-
-.master$
-[source, bash]
-----
-oc get netnamespace | egrep 'cloudforms|openshift-infra'
-----
+Fortunately, as a cluster administrator, you can manage the configuration of the pod overlay network to allow traffic to traverse between specific projects or be exposed to all projects. 
 
 ==== Instantiate CloudForms Template
 
