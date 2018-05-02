@@ -60,10 +60,8 @@ Execute the following command to add the default service account in the cloudfor
 .master$
 [source, bash]
 ----
-oc adm policy add-scc-to-user anyuid system:serviceaccount:cloudforms:cfme-anyuid
-oc adm policy add-scc-to-user anyuid system:serviceaccount:cloudforms:cfme-orchestrator
-oc adm policy add-scc-to-user anyuid system:serviceaccount:cloudforms:cfme-httpd
-oc adm policy add-scc-to-user privileged system:serviceaccount:cloudforms:cfme-privileged
+oc adm policy add-scc-to-user privileged -z cfme-httpd
+oc adm policy add-scc-to-user privileged -z cfme-orchestrator
 ----
 
 Confirm the user is associated to the privileged SCC:
@@ -71,17 +69,12 @@ Confirm the user is associated to the privileged SCC:
 .master$
 [source, bash]
 ----
-oc describe scc anyuid | grep Users
+oc get scc privileged -o yaml
 ----
 
-Add the view and edit roles to the cfme-orchestrator service account:
+Confirm _system:serviceaccount:cloudforms:default_ is in the result returned.
 
-.master$
-[source, bash]
-----
-oc policy add-role-to-user view system:serviceaccount:cloudforms:cfme-orchestrator -n cloudforms
-oc policy add-role-to-user edit system:serviceaccount:cloudforms:cfme-orchestrator -n cloudforms
-----
+CloudForms retrieves metrics from applications deployed within OpenShift, and it leverages the data exposed by the onboard metrics infrastructure (Hawkular). Since the platform metrics are deployed in the _openshift-infra_ project and CloudForms is deployed in the cloudforms project, they cannot communicate with each other due to use of the link:https://docs.openshift.com/container-platform/latest/architecture/additional_concepts/sdn.html[multitenant SDN plugin] which isolates each project at a network level.
 
 CloudForms retrieves metrics from applications deployed within OpenShift, and it leverages the data exposed by the onboard metrics infrastructure (Hawkular & Prometheus). Since the platform metrics are deployed in the _openshift-infra_ project and CloudForms is deployed in the cloudforms project, they cannot communicate with each other due to use of the link:https://docs.openshift.com/container-platform/latest/architecture/additional_concepts/sdn.html[multitenant SDN plugin] which isolates each project at a network level.
 
@@ -105,15 +98,20 @@ oc get netnamespace | egrep 'cloudforms|openshift-infra'
 
 The components representing the containerized deployment of Red Hat CloudForms are available as a template and was automatically installed into the OpenShift cluster as part of the installation completed previously.
 
-Copy the example template to your home directory:
+Deploy and verify the template is available in the OpenShift environment:
 
 .master$
-[source, bash]
+ [source, bash]
 ----
-cp /usr/share/ansible/openshift-ansible/roles/openshift_examples/files/examples/v3.9/cfme-templates/cfme-template.yaml .
-----
+wget https://gist.githubusercontent.com/ruromero/c9616542f39311223e245074359cc607/raw/d81a3b1fd8b707a6a9dd7702998a1a6fb43feb99/cfme-template.yaml
+oc create -f cfme-template.yaml
+template "cloudforms" created
 
-Deploy and verify the template is available in the OpenShift environment:
+oc get -n openshift template cloudforms
+
+NAME         DESCRIPTION                                    PARAMETERS     OBJECTS
+cloudforms   CloudForms appliance with persistent storage   56 (1 blank)   24
+----
 
 The describe operation provides additional details about the teamplate. Execute the following command to execute this action against the CloudForms template:
 
@@ -125,14 +123,14 @@ oc describe -n openshift template cloudforms
 
 Notice the different types of information that is displayed including the objects that will be created along with parameters that can be specified.
 
-The persistent storage required by CloudForms will be dynamically provisioned by the link:https://docs.openshift.com/container-platform/3.6/install_config/configuring_aws.html[AWS cloud provider].
+The persistent storage required by CloudForms will be dynamically provisioned by the link:https://docs.openshift.com/container-platform/3.9/install_config/configuring_aws.html[AWS cloud provider].
 
-Instantiate the template to deploy Red Hat CloudForms
+Instantiate the template to deploy Red Hat CloudForms. A parameter called _APPLICATION_MEM_REQ_ will be also specified in order to properly tune the resources for the environment.
 
 .master$
 [source, bash]
 ----
-oc new-app --template=cloudforms
+oc new-app -n cloudforms -p APPLICATION_MEM_REQ=3072Mi -f cfme-template.yaml
 ----
 
 Red Hat CloudForms will now be deployed into the _cloudforms_ project.
@@ -155,7 +153,7 @@ Red Hat CloudForms may take up to 5 minutes to start up for the first time as it
 NAME                 READY     STATUS    RESTARTS   AGE
 cloudforms-0         1/1       Running   0          12m
 httpd-1-deploy       1/1       Running   0          12m
-httpd-1-pr4m9        0/1       Running   7          12m
+httpd-1-pr4m9        0/1       Running   0          12m
 memcached-1-b5cjx    1/1       Running   0          12m
 postgresql-1-bzw5n   1/1       Running   0          12m
 ----
@@ -233,7 +231,7 @@ NOTE: If you get an error such as Application Not Available see <<Appendix E - T
 
 Since Red Hat CloudForms in the lab environment uses a self signed certificate, add an exception in the browser to add an exception. Login with the provided credentials.
 
-Once successfully authenticated, you should be taken to the overview page
+Once successfully authenticated, you should be taken to the overview page:
 
 image::images/cfme-infrastructure-providers.png[]
 
@@ -252,7 +250,7 @@ Configure the container provider:
 
 image::images/cfme-add-provider.png[]
 
-Start adding a new Container Provider by specifying **OCP** as the name and **OpenShift Container Platform** as the type.
+Start adding a new Container Provider by specifying **OCP** as the name and **OpenShift Container Platform** as the type. Set _Alerts_ to and _Metrics_ to **Prometheus**.
 
 As mentioned previously, there are two endpoints in which CloudForms retrieves metrics from. First, configure the connection details to the OpenShift API. 
 
@@ -278,15 +276,23 @@ Click the **Validate** button to verify the configuration.
 
 image::images/cfme-add-provider-dialog.png[]
 
-Next, click on the **Hawkular** tab to configure CloudForms to communicate with the cluster metrics.
+Next, click on the **Metrics** tab to configure CloudForms to communicate with the cluster metrics.
 
-Enter **hawkular-metrics.openshift-infra** in the _hostname_ field, **443** in the _port_ field and **SSL without validation** for the _Security Protocol_ dropdown.
+Enter **prometheus-openshift-metrics.apps-<student-id>.labs.sysdeseng.com** in the _hostname_ field, **443** in the _port_ field and **SSL without validation** for the _Security Protocol_ dropdown.
 
-Click **Validate** to confirm the configuration is correct.
+image::images/cfme-metrics-dialog.png[]
+
+Click on the **Alerts** tab to configure CloudForms to communicate with the cluster alerts.
+
+Enter **alerts-openshift-metrics.apps-<student-id>.labs.sysdeseng.com** in the _hostname_ field, **443** in the _port_ field and **SSL without validation** for the _Security Protocol_ dropdown.
+
+image::images/cfme-alerts-dialog.png[]
+
+Click **Validate** to confirm the configuration is correct for each.
 
 Finally, click **Add** to add the new container provider.
 
-You have now configured Red Hat CloudForms to retrieve metrics from OpenShift. It may take a few minutes to data to be displayed.
+You have now configured Red Hat CloudForms to retrieve metrics and alerts from OpenShift. It may take a few minutes to data to be displayed.
 
 To force an immediate refresh of the newly added Provider:
  
@@ -296,6 +302,7 @@ To force an immediate refresh of the newly added Provider:
     . Choose **Refresh Items and Relationships**
     . Lastly, click the **Refresh** icon just to the left of **Configuration**
     . Now the Relationships should be populated with data from OpenShift
+    . Navigate to _Compute > Containers > Overview_
     . Note that the Utilization metrics will not be immediately populated as these are collected and aggregated over a longer period of time.
 +
 
