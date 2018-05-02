@@ -4,7 +4,7 @@
     templates_query: '{range .items[*]}{.metadata.name}{"\n"}{end}'
     image_streams_query: '{range .items[*]}{.metadata.name}{"\n"}{end}'
     templates_to_keep: ['cakephp-mysql-persistent', 'metrics-deployer-template', 'registry-console']
-    image_streams_to_keep: ['python']
+    image_streams_to_keep: ['python', 'php', 'mysql']
     service_catalog_projects_to_annotate: ['kube-service-catalog']
     default_node_selector: 'type=app'
     service_catalog_default_node_selector: 'openshift-infra=apiserver'
