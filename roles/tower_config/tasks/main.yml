@@ -40,14 +40,14 @@
 - import_tasks: job_templates.yml
   tags: job_templates
 
-- import_tasks: workflows.yml
-  tags: workflows
-
 - import_tasks: openshift_configs.yml
   tags: openshift_configs
 
 - import_tasks: letsencrypt.yml
   when: tower_ssl_config|bool == true
+
+- import_tasks: workflows.yml
+  tags: workflows
 
 - import_tasks: deauth.yml
   when: not tower_cli_credentials_keep|bool == true
