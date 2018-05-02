@@ -60,8 +60,10 @@ Execute the following command to add the default service account in the cloudfor
 .master$
 [source, bash]
 ----
-oc adm policy add-scc-to-user privileged -z cfme-httpd
-oc adm policy add-scc-to-user privileged -z cfme-orchestrator
+oc adm policy add-scc-to-user anyuid system:serviceaccount:cloudforms:cfme-anyuid
+oc adm policy add-scc-to-user anyuid system:serviceaccount:cloudforms:cfme-orchestrator
+oc adm policy add-scc-to-user anyuid system:serviceaccount:cloudforms:cfme-httpd
+oc adm policy add-scc-to-user privileged system:serviceaccount:cloudforms:cfme-privileged
 ----
 
 Confirm the user is associated to the privileged SCC:
@@ -69,12 +71,19 @@ Confirm the user is associated to the privileged SCC:
 .master$
 [source, bash]
 ----
-oc get scc privileged -o yaml
+oc describe scc anyuid | grep Users
 ----
 
-Confirm _system:serviceaccount:cloudforms:default_ is in the result returned.
+Add the view and edit roles to the cfme-orchestrator service account:
 
-CloudForms retrieves metrics from applications deployed within OpenShift, and it leverages the data exposed by the onboard metrics infrastructure (Hawkular). Since the platform metrics are deployed in the _openshift-infra_ project and CloudForms is deployed in the cloudforms project, they cannot communicate with each other due to use of the link:https://docs.openshift.com/container-platform/latest/architecture/additional_concepts/sdn.html[multitenant SDN plugin] which isolates each project at a network level.
+.master$
+[source, bash]
+----
+oc policy add-role-to-user view system:serviceaccount:cloudforms:cfme-orchestrator -n cloudforms
+oc policy add-role-to-user edit system:serviceaccount:cloudforms:cfme-orchestrator -n cloudforms
+----
+
+CloudForms retrieves metrics from applications deployed within OpenShift, and it leverages the data exposed by the onboard metrics infrastructure (Hawkular & Prometheus). Since the platform metrics are deployed in the _openshift-infra_ project and CloudForms is deployed in the cloudforms project, they cannot communicate with each other due to use of the link:https://docs.openshift.com/container-platform/latest/architecture/additional_concepts/sdn.html[multitenant SDN plugin] which isolates each project at a network level.
 
 Fortunately, as a cluster administrator, you can manage the configuration of the pod overlay network to allow traffic to traverse between specific projects or be exposed to all projects. Execute the following command to join the _cloudforms_ project to the _openshift-infra_ project
 
@@ -92,24 +101,19 @@ Verify the NETID is the same for these projects
 oc get netnamespace | egrep 'cloudforms|openshift-infra'
 ----
 
-==== Instantiate CloudForms Templates
+==== Instantiate CloudForms Template
 
 The components representing the containerized deployment of Red Hat CloudForms are available as a template and was automatically installed into the OpenShift cluster as part of the installation completed previously.
 
-Verify the template is available in the OpenShift environment
+Copy the example template to your home directory:
 
 .master$
 [source, bash]
 ----
 cp /usr/share/ansible/openshift-ansible/roles/openshift_examples/files/examples/v3.9/cfme-templates/cfme-template.yaml .
-
-oc create -f cfme-template.yaml
-
-oc get -n openshift template cloudforms
-
-NAME         DESCRIPTION                                    PARAMETERS     OBJECTS
-cloudforms   CloudForms appliance with persistent storage   56 (1 blank)   24
 ----
+
+Deploy and verify the template is available in the OpenShift environment:
 
 The describe operation provides additional details about the teamplate. Execute the following command to execute this action against the CloudForms template:
 
@@ -123,12 +127,12 @@ Notice the different types of information that is displayed including the object
 
 The persistent storage required by CloudForms will be dynamically provisioned by the link:https://docs.openshift.com/container-platform/3.6/install_config/configuring_aws.html[AWS cloud provider].
 
-Instantiate the template to deploy Red Hat CloudForms. A parameter called _APPLICATION_MEM_REQ_ will be also specified in order to properly tune the resources for the environment.
+Instantiate the template to deploy Red Hat CloudForms
 
 .master$
 [source, bash]
 ----
-oc new-app -n cloudforms -p APPLICATION_MEM_REQ=3072Mi -f cfme-template.yaml
+oc new-app --template=cloudforms
 ----
 
 Red Hat CloudForms will now be deployed into the _cloudforms_ project.
@@ -149,11 +153,11 @@ Red Hat CloudForms may take up to 5 minutes to start up for the first time as it
 [source, bash]
 ----
 NAME                 READY     STATUS    RESTARTS   AGE
-cloudforms-0         1/1       Running   0          11m
-httpd-1-5tvwz        0/1       Running   7          11m
-httpd-1-deploy       1/1       Running   0          11m
-memcached-1-mvtfw    1/1       Running   0          11m
-postgresql-1-k8pjc   1/1       Running   0          11m
+cloudforms-0         1/1       Running   0          12m
+httpd-1-deploy       1/1       Running   0          12m
+httpd-1-pr4m9        0/1       Running   7          12m
+memcached-1-b5cjx    1/1       Running   0          12m
+postgresql-1-bzw5n   1/1       Running   0          12m
 ----
 
 Once the deployment is complete, stop the _watch_ command with CTRL+C.
@@ -306,4 +310,3 @@ This concludes lab 4.
 ==== <<../lab3/lab3.adoc#lab3,Previous Lab: Lab 3 - Verifying Installation of Red Hat OpenShift Container Platform Using Ansible Tower>>
 ==== <<../lab5/lab5.adoc#lab5,Next Lab: Lab 5 - Managing the Lifecycle of an Application>>
 ==== <<../../README.adoc#lab1,Home>>
-
