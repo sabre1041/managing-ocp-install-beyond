@@ -1,0 +1,11 @@
+---
+app_name: alertmanager-tower-bridge
+namespace: "{{ NAMESPACE | default('openshift-metrics', true) }}"
+tower_host: "{{ TOWER_HOST }}"
+tower_user: "{{ TOWER_USER | default('admin', true) }}"
+tower_password: "{{ TOWER_PASSWORD }}"
+tower_job_template: "{{ TOWER_JOB_TEMPLATE | default('2-Scaleup_OpenShift_on_AWS', true) }}"
+git_url: "{{ GIT_URL | default('https://github.com/sabre1041/managing-ocp-install-beyond', true) }}"
+git_ref: "{{ GIT_REF | default('summit2018', true) }}"
+context_dir: "{{ CONTEXT_DIR | default('alertmanager-tower-bridge', true) }}"
+

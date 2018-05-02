@@ -1,0 +1,62 @@
+version: 1.0
+name: alertmanager-tower-bridge-apb
+description: Bridge Application between AlertManager and Ansible Tower
+bindable: False
+async: optional
+metadata:
+  displayName: AlertManager Ansible Tower Bridge
+  console.openshift.io/iconClass: icon-ansible
+plans:
+  - name: default
+    description: This default plan deploys alertmanager-tower-bridge
+    free: True
+    metadata:
+      displayName: Default
+    parameters:
+      - name: "TOWER_HOST"
+        title: Ansible Tower Hostname
+        required: true
+        type: string
+
+      - name: "TOWER_USER"
+        title: User with permissions on Tower
+        required: true
+        default: admin
+        type: string
+
+      - name: "TOWER_PASSWORD"
+        title: Password for user with permissions on Tower
+        required: true
+        default: password
+        type: string
+        display_type: password
+
+      - name: "TOWER_JOB_TEMPLATE"
+        title: Ansible Tower Job Template to use
+        required: true
+        default: "2-Scaleup_OpenShift_on_AWS"
+        type: string
+
+      - name: GIT_URL
+        title: Git Repository
+        required: true
+        default: https://github.com/sabre1041/managing-ocp-install-beyond
+        type: string
+
+      - name: GIT_REF
+        title: Git Branch
+        required: true
+        default: summit2018
+        type: string
+
+      - name: CONTEXT_DIR
+        title: Directory of the git repo that the code is in
+        required: true
+        default: alertmanager-tower-bridge
+        type: string
+
+      - name: NAMESPACE
+        title: OCP namespace to deploy the AlertManger Bridge
+        required: true
+        default: openshift-metrics
+        type: string

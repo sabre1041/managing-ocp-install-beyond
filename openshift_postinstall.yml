@@ -4,7 +4,7 @@
     templates_query: '{range .items[*]}{.metadata.name}{"\n"}{end}'
     image_streams_query: '{range .items[*]}{.metadata.name}{"\n"}{end}'
     templates_to_keep: ['cakephp-mysql-persistent', 'metrics-deployer-template', 'registry-console']
-    image_streams_to_keep: ['python']
+    image_streams_to_keep: ['python', 'php', 'mysql']
     service_catalog_projects_to_annotate: ['kube-service-catalog']
     default_node_selector: 'type=app'
     service_catalog_default_node_selector: 'openshift-infra=apiserver'
@@ -13,6 +13,10 @@
     tmp_configmap_alertmanager: /tmp/alertmanager-configmap.yml
     cfme_template: https://raw.githubusercontent.com/openshift/openshift-ansible/release-3.9/roles/openshift_examples/files/examples/v3.9/cfme-templates/cfme-template.yaml
   tasks:
+  - name: Update {{ student_id }}-admin user to have cluster-admin privileges
+    command: >
+      oc adm policy add-cluster-role-to-user cluster-admin {{ student_id }}-admin
+
   - name: Get templates
     command: >
       oc get templates -n openshift -o jsonpath='{{ templates_query }}'

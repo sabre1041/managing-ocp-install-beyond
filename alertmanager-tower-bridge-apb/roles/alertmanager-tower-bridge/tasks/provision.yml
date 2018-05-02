@@ -1,0 +1,112 @@
+- name: "Check Whether Tower Host Has Been Provided"
+  fail:
+    msg: "Ansible Tower Host Variable Must be Provided"
+  when: (tower_host | trim == "") or (tower_host is none) or (tower_host is undefined)
+
+- name: "Check Whether Tower Password Has Been Provided"
+  fail:
+    msg: "Ansible Tower Password Variable Must be Provided"
+  when: (tower_password | trim == "") or (tower_password is none) or (tower_password is undefined)
+
+# Create an imagestream
+- name: "Create ImageStream for '{{ app_name }}' image"
+  openshift_v1_image_stream:
+    state: present
+    name: "{{ app_name }}"
+    namespace: "{{ namespace }}"
+
+- name: Create secret
+  k8s_v1_secret:
+    name: '{{ app_name }}'
+    namespace: '{{ namespace }}'
+    string_data:
+      TOWER_HOST: "{{ tower_host }}"
+      TOWER_JOB_TEMPLATE: '{{ tower_job_template }}'
+      TOWER_USER: '{{ tower_user }}'
+      TOWER_PASSWORD: '{{ tower_password }}'
+    state: present
+
+# Create a buildconfig
+- name: "Create BC for '{{ app_name }}'"
+  openshift_v1_build_config:
+    name: "{{ app_name }}"
+    labels: 
+      application: "{{ app_name }}"
+    namespace: "{{ namespace }}"
+    spec_successful_builds_history_limit: 1
+    spec_failed_builds_history_limit: 1
+    spec_output_to_kind: ImageStreamTag
+    spec_output_to_name: "{{ app_name }}:latest"
+    spec_run_policy: Serial
+    source_context_dir: "{{ context_dir }}"
+    source_git_uri: "{{ git_url }}"
+    spec_source_git_ref: "{{ git_ref }}"
+    spec_source_type: Git
+    strategy_type: Source
+    strategy_source_strategy_from_kind: ImageStreamTag
+    strategy_source_strategy_from_name: python:2.7
+    strategy_source_strategy_from_namespace: openshift
+    triggers:
+    - type: ConfigChange
+    - type: ImageChange
+
+# Create a service
+- name: create "{{ app_name }}" service
+  k8s_v1_service:
+    name: "{{ app_name }}"
+    namespace: '{{ namespace }}'
+    labels:
+      application: "{{ app_name }}"
+    selector:
+      application: "{{ app_name }}"
+      deploymentConfig: "{{ app_name }}"
+    ports:
+      - name: web
+        port: 8080
+        target_port: 8080
+
+# Create a deployment config
+- name: create deployment config
+  openshift_v1_deployment_config:
+    name: "{{ app_name }}"
+    namespace: '{{ namespace }}'
+    labels:
+      application: "{{ app_name }}"
+      deploymentConfig: "{{ app_name }}"
+    replicas: 1
+    selector:
+      application: "{{ app_name }}"
+      deploymentConfig: "{{ app_name }}"
+    spec_template_metadata_labels:
+      application: "{{ app_name }}"
+      deploymentConfig: "{{ app_name }}"
+    containers:
+    - envFrom:
+      - secretRef:
+          name: "{{ app_name }}"
+      name: "{{ app_name }}"
+      image: ''
+      image_pull_policy: Always
+      ports:
+      - container_port: 8080
+        protocol: TCP
+      liveness_probe:
+        timeout_seconds: 1
+        inital_delay_seconds: 30
+        tcp_socket:
+          port: 8080
+      readiness_probe:
+        timeout_seconds: 1
+        inital_delay_seconds: 5
+        tcp_socket:
+          port: 8080
+    triggers:
+    - type: ConfigChange
+    - type: ImageChange
+      image_change_params:
+        automatic: true
+        container_names:
+          - "{{ app_name }}"
+        _from:
+          kind: ImageStreamTag
+          name: '{{ app_name }}:latest'
