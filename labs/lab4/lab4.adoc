@@ -72,6 +72,8 @@ Confirm the user is associated to the privileged SCC:
 [source, bash]
 ----
 oc describe scc anyuid | grep Users
+
+Users:					system:serviceaccount:cloudforms:cfme-anyuid,system:serviceaccount:cloudforms:cfme-orchestrator,system:serviceaccount:cloudforms:cfme-httpd
 ----
 
 Add the view and edit roles to the cfme-orchestrator service account:
