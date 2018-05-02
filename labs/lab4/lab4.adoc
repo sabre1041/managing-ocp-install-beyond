@@ -101,7 +101,9 @@ Verify the template is available in the OpenShift environment
 .master$
 [source, bash]
 ----
-wget https://gist.githubusercontent.com/ruromero/c9616542f39311223e245074359cc607/raw/d81a3b1fd8b707a6a9dd7702998a1a6fb43feb99/cfme-template.yaml
+cp /usr/share/ansible/openshift-ansible/roles/openshift_examples/files/examples/v3.9/cfme-templates/cfme-template.yaml .
+
+oc create -f cfme-template.yaml
 
 oc get -n openshift template cloudforms
 
