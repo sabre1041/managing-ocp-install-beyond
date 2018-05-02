@@ -107,8 +107,8 @@ oc create -f cfme-template.yaml
 
 oc get -n openshift template cloudforms
 
-NAME     DESCRIPTION                  PARAMETERS   OBJECTS
-cloudforms  CloudForms appliance with persistent storage  23 (1 blank)  12
+NAME         DESCRIPTION                                    PARAMETERS     OBJECTS
+cloudforms   CloudForms appliance with persistent storage   56 (1 blank)   24
 ----
 
 The describe operation provides additional details about the teamplate. Execute the following command to execute this action against the CloudForms template:
@@ -149,9 +149,11 @@ Red Hat CloudForms may take up to 5 minutes to start up for the first time as it
 [source, bash]
 ----
 NAME                 READY     STATUS    RESTARTS   AGE
-cloudforms-0         1/1	Running   0          8m
-memcached-1-x33q2    1/1	Running   0          7m
-postgresql-1-h3mww   1/1	Running   0          7m
+cloudforms-0         1/1       Running   0          11m
+httpd-1-5tvwz        0/1       Running   7          11m
+httpd-1-deploy       1/1       Running   0          11m
+memcached-1-mvtfw    1/1       Running   0          11m
+postgresql-1-k8pjc   1/1       Running   0          11m
 ----
 
 Once the deployment is complete, stop the _watch_ command with CTRL+C.
