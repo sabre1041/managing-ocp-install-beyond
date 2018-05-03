@@ -1,17 +1,13 @@
-= Lab 4 - Installing Red Hat CloudForms
+= Lab 4 - Prometheus and Grafana
 
 == Connectivity Details for This Lab
 
-[options="header" -f cfme-template.yaml
+[options="header"]
 |======================
 | *Item* | *URL* | *Access*
-| OpenShift Container Platform |
-link:https://:master-<student_id>.labs.sysdeseng.com:8443[https://master-<student_id>.labs.sysdeseng.com:8443] |
-Username: <student_id> +
-Password: INSTRUCTOR WILL PROVIDE
-| Red Hat CloudForms |
-link:https://cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com] |
-Username: admin +
+| OpenShift Container Platform
+| link:https://:master-<student_id>.labs.sysdeseng.com:8443[https://master-<student_id>.labs.sysdeseng.com:8443]
+| Username: <student_id> +
 Password: INSTRUCTOR WILL PROVIDE
 | Linux SSH private key
 | link:https://instructor.labs.sysdeseng.com/rhte.pem[https://instructor.labs.sysdeseng.com/rhte.pem]
@@ -21,296 +17,157 @@ Password: INSTRUCTOR WILL PROVIDE
 | link:https://instructor.labs.sysdeseng.com/rhte.ppk[https://instructor.labs.sysdeseng.com/rhte.ppk]
 | Username: student +
 Password: INSTRUCTOR WILL PROVIDE
+| Grafana
+| link:https://grafana-grafana.apps-<student_id>.labs.sysdeseng.com[grafana-grafana.apps-<student_id>.labs.sysdeseng.com]
+| Username: <student_id>-admin +
+Password: INSTRUCTOR WILL PROVIDE
+| Prometheus
+| link:https://prometheus-openshift-metrics.apps-<student_id>.labs.sysdeseng.com[prometheus-openshift-metrics.apps-<student_id>.labs.sysdeseng.com]
+| Username: <student_id>-admin +
+Password: INSTRUCTOR WILL PROVIDE
 |======================
 
 == Overview
 
-Red Hat CloudForms Management Engine (CFME) delivers the insight, control, and automation necessary to address the challenges of managing complex environments. CloudForms is available as a standalone appliance, but is also available as a containerized solution that can be deployed on the OpenShift Container Platform.
+In this lab, we will explore how to handle metrics and visualization of those metrics using OpenShift, link:https://prometheus.io/[Prometheus] and link:https://grafana.com/[Grafana]. We'll do a high level overview of each component, discuss how they interoperate and finally explore the environment to see how to these components together.
 
-In this lab, you will deploy a single instance/replica of Red Hat CloudForms to the OpenShift Container Platform cluster and configure the container provider to monitor the OpenShift environment.
+=== Prometheus
 
-=== Deploy Red Hat CloudForms
+From the website: "Prometheus is an open-source systems monitoring and alerting toolkit originally built at SoundCloud". Prometheus has gained in popularity over the past couple of years and has native integration with OpenShift which enables us to leverage it's powerful capabilities to gain insight into our clusters. Prometheus is a project in the Cloud Native Computing Foundation. As all admins and developers know, Day 1 operations of installation and configuration are fun, but the fun really starts on Day 2.  Keeping an eye on our performance and making sure the cluster is functioning properly is easier with the right tools. That's where Prometheus comes in.
 
-NOTE: If you are repeating this lab due to an issue encountered, consider using <<Appendix B - Script For Deploying CloudForms>>
+=== OpenShift
 
-Since Red Hat CloudForms is available as a container, it can be deployed to the OpenShift Container Platform in a few short steps.
+OpenShift is Red Hat's enterprise version of Kubernetes. Kubernetes has built in endpoints that Prometheus can scrape to gather information from and store in the Prometheus database. This tight integration is provided to you in a seamless out of box experience in Tech Preview status as of OpenShift 3.9.
 
-A user with _cluster-admin_ permissions must be used to configure the environment as CloudForms requires access to privileged resources
+=== Grafana
 
-First, using the OpenShift Command Line, create a new project called **cloudforms**
+Grafana is "The open platform for beautiful analytics and monitoring". We will leverage Grafana to visualize the data that Prometheus is storing. Much of this is automated as we will simply point Grafana to the Prometheus datastore and it will provide a dashboard with several key metrics that we should and will be interested in.
 
-.master$
-[source, bash]
-----
-oc new-project cloudforms
-----
 
-By creating a new project, the context of the CLI is automatically switched into the _cloudforms_ project:
+==== Exploring Prometheus
 
-.master$
-[source, bash]
-----
-oc config current-context
-----
+To set some context here, Prometheus was deployed on your OpenShift cluster with the following options, which are subject to change in future iterations.
 
-When creating a new project, a set of service accounts are automatically provisioned. These accounts are used when building, deploying and running containers. The _default_ service account is the de facto service account used by pods. Since CloudForms is deployed within a pod and requires access to key metrics in the OpenShift environment along with the host, it must be granted elevated access as a privileged resource. In OpenShift, permissions associated to pods are managed by link:https://docs.openshift.com/container-platform/latest/admin_guide/manage_scc.html[Security Context Constraints] and the service account that is used to run them.
-
-Execute the following command to add the default service account in the cloudforms project to the privileged SCC:
-
-.master$
-[source, bash]
-----
-oc adm policy add-scc-to-user privileged -z cfme-httpd
-oc adm policy add-scc-to-user privileged -z cfme-orchestrator
-----
-
-Confirm the user is associated to the privileged SCC:
+```
+openshift_hosted_prometheus_deploy: true
+openshift_prometheus_node_selector:
+  type: infra
+openshift_prometheus_namespace: openshift-metrics
+openshift_prometheus_args:
+  - '--storage.tsdb.retention=3d'
+  - '--web.enable-lifecycle'
+openshift_prometheus_additional_rules_file: {{ tower_openshift_prometheus_config_dir }}/prometheus_additional_rule.yml
+openshift_node_open_ports:
+  - service: "Prometheus Node Exporter"
+    port: "9100/tcp"
+openshift_prometheus_node_exporter_image_version: "{{ openshift_image_tag }}" 
+```
 
 .master$
 [source, bash]
 ----
-oc get scc privileged -o yaml
+$ oc whoami
 ----
 
-Confirm _system:serviceaccount:cloudforms:default_ is in the result returned.
-
-CloudForms retrieves metrics from applications deployed within OpenShift, and it leverages the data exposed by the onboard metrics infrastructure (Hawkular). Since the platform metrics are deployed in the _openshift-infra_ project and CloudForms is deployed in the cloudforms project, they cannot communicate with each other due to use of the link:https://docs.openshift.com/container-platform/latest/architecture/additional_concepts/sdn.html[multitenant SDN plugin] which isolates each project at a network level.
-
-CloudForms retrieves metrics from applications deployed within OpenShift, and it leverages the data exposed by the onboard metrics infrastructure (Hawkular & Prometheus). Since the platform metrics are deployed in the _openshift-infra_ project and CloudForms is deployed in the cloudforms project, they cannot communicate with each other due to use of the link:https://docs.openshift.com/container-platform/latest/architecture/additional_concepts/sdn.html[multitenant SDN plugin] which isolates each project at a network level.
-
-Fortunately, as a cluster administrator, you can manage the configuration of the pod overlay network to allow traffic to traverse between specific projects or be exposed to all projects. 
-
-==== Instantiate CloudForms Template
-
-The components representing the containerized deployment of Red Hat CloudForms are available as a template and was automatically installed into the OpenShift cluster as part of the installation completed previously.
-
-Deploy and verify the template is available in the OpenShift environment:
-
-.master$
- [source, bash]
-----
-wget https://gist.githubusercontent.com/ruromero/c9616542f39311223e245074359cc607/raw/d81a3b1fd8b707a6a9dd7702998a1a6fb43feb99/cfme-template.yaml
-oc create -f cfme-template.yaml
-template "cloudforms" created
-
-oc get -n openshift template cloudforms
-
-NAME         DESCRIPTION                                    PARAMETERS     OBJECTS
-cloudforms   CloudForms appliance with persistent storage   56 (1 blank)   24
-----
+Change to the `openshift-metrics` project
 
 .master$
 [source, bash]
 ----
-oc create -f cfme-template.yaml
-
-oc get -n openshift template cloudforms
-
-NAME         DESCRIPTION                                    PARAMETERS     OBJECTS
-cloudforms   CloudForms appliance with persistent storage   56 (1 blank)   24
+oc project openshift-metrics
 ----
 
-The describe operation provides additional details about the teamplate. Execute the following command to execute this action against the CloudForms template:
+Look at the routes, statefulsets, services and pods assocated with the openshift-metrics namespace.
 
 .master$
 [source, bash]
 ----
-oc describe -n openshift template cloudforms
+oc get all
 ----
 
-Notice the different types of information that is displayed including the objects that will be created along with parameters that can be specified.
-
-The persistent storage required by CloudForms will be dynamically provisioned by the link:https://docs.openshift.com/container-platform/3.9/install_config/configuring_aws.html[AWS cloud provider].
-
-Instantiate the template to deploy Red Hat CloudForms. A parameter called _APPLICATION_MEM_REQ_ will be also specified in order to properly tune the resources for the environment.
+Look at the Prometheus ConfigMap as well. ConfigMap's allow us to pass in parameters and configure applications on the fly.
 
 .master$
 [source, bash]
 ----
-oc new-app -n cloudforms -p APPLICATION_MEM_REQ=3072Mi -f cfme-template.yaml
+oc describe configmap prometheus 
 ----
 
-Red Hat CloudForms will now be deployed into the _cloudforms_ project.
-
-==== Validating a Successful Deployment
-
-There are several steps that can be taken in order to verify the deployment of Red Hat CloudForms in OpenShift.
-First validate that all pods are successfully running by watching the status of the pods.
-
-.master$ 
-[source, bash]
-----
-watch oc get pods -n cloudforms
-----
-
-Red Hat CloudForms may take up to 5 minutes to start up for the first time as it builds the content of the initial database. When the Memcached, PostgreSQL and CloudForms pods (ones that are not suffixed by "-deploy") have a _Status_ of **Running** and a _Ready_ field of **1/1**, the deployment is complete and successful. A successful deployment is represented below:
-
-[source, bash]
-----
-NAME                 READY     STATUS    RESTARTS   AGE
-cloudforms-0         1/1       Running   0          12m
-httpd-1-deploy       1/1       Running   0          12m
-httpd-1-pr4m9        0/1       Running   0          12m
-memcached-1-b5cjx    1/1       Running   0          12m
-postgresql-1-bzw5n   1/1       Running   0          12m
-----
-
-Once the deployment is complete, stop the _watch_ command with CTRL+C.
-
-Further validation can be completed using the steps below.
-
-Execute the following command to view the overall status of the pods in the cloudforms project
+List the containers in the Prometheus pod
 
 .master$
 [source, bash]
 ----
-oc status -n cloudforms
+$ oc get pods -l app=prometheus -o=custom-columns=NAME:.metadata.name,CONTAINERS:.spec.containers[*].name
 ----
 
-For full details of the deployed application run
+List the routes for Prometheus and open up the web interface. Copy the URL for prometheus and sign in with the user <student_id>-admin.
 
 .master$
 [source, bash]
 ----
-oc get pods
-oc describe -n cloudforms pod/cloudforms-<pod_name>
+oc get routes
 ----
 
-Next, in order to validate the cloudforms pod is running with the proper _privileged_ SCC, export the contents and inspect the _openshift.io/scc_ annotation to confirm the _privileged_ value is present:
+
+- Go to web interface and add a graph manually. The credentials are listed in the table at the top of the page. Your route will look something like:
+
+```
+prometheus-openshift-metrics.apps-<student_id>.labs.sysdeseng.com
+```
+
+Once in the web UI, the `console` is the default view. Click on `Graph` in the top navigation pane.  Next, click on the `"insert metric at cursor"` dropdown and scroll to `node_memory_MemAvailable`, then click `Execute`. This should create a graph on your screen. Make sure to hover over the lines in the graph and get a sense of what's being offered here. You can continue adding graphs and organizing your dashboard how you want it.
+
+Once you have created a graph or two, take some time to explore the other options on the top navigation bar: `Alerts`, `Status`, `Help`. In the subsequent lab, we are going to spend some time on `Alerts`.
+
+==== Deploy Grafana
+
+Now that we have explored some of the capabilities of Prometheus, let's have a look at how we can use Graphana to do more visualization of the data.
+
+Clone the OpenShift Origin repo and change to the Grafana directory. We are going to checkout a known good commit.
 
 .master$
 [source, bash]
 ----
-oc -n cloudforms get -o yaml pod cloudforms-<pod_name>
-
-...
-metadata:
- annotations:
-  openshift.io/scc: privileged
-...
+cd ~
+git clone --depth 1 https://github.com/openshift/origin.git
+git checkout 2075da460d166a98eb557fd9f4bfdaebee3659f7
+cd origin/examples/grafana/
 ----
 
-For more details check events:
+Deploy Grafana and locate the route.
 
 .master$
 [source, bash]
 ----
-oc -n cloudforms get events
+./setup-grafana.sh -n prometheus -p openshift-metrics
+oc project grafana
+oc get routes
 ----
 
-You can also check volumes:
+To close out here, a new project has been created along with the accompanying resources including pods, deployments, etc...  In addition to those components, we also have added a new dashboard that we can log into and review.
 
-.master$
-[source, bash]
-----
-oc -n cloudforms get pv
-----
+=== Explore Grafana
 
-NOTE: If for any reason failures are observed, you may need to remove the project and start this section over again.  **Only perform this task if there was an irrecoverable failure. Let and instructor know before doing this.** <<Appendix C - Recovering From Failed CloudForms  Deployment>>
+Log in with your OpenShift admin account: <student_id>-admin and the password from your instructor.
 
-==== Accessing the CloudForms User Interface
+https://grafana-grafana.apps-<student_id>.labs.sysdeseng.com
 
-As part of the template instantiation, a route was created that allows for accessing resources from outside the OpenShift cluster. Execute the following command to locate the name of the route that was created for CloudForms
+In the upper left navigation pane, click the `Home` button and that will expose the `openshift cluster monitoring` link which you should select.
 
-.master$
-[source, bash]
-----
-oc -n cloudforms get routes
+image::images/openshift-login.png[]
+IMAGE HERE FOR GRAFANA HOME BUTTON
 
-NAME     HOST/PORT                   PATH   SERVICES   PORT   TERMINATION
-cloudforms  cloudforms-cloudforms.apps.example.com       cloudforms  https   passthrough
-----
+image::images/openshift-login.png[]
+IMAGE HERE FOR GRAFANA CLUSTER MONITORING LINK
 
-Open a web browser and navigate securely to the to the hostname retrieved above. This may take a minute or two to completely initialize the web console.
-link:https://cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com].
+At this point you have access to quite a few dashboards. Please do feel free to check out `Total Usage` to get a high level overview of available resources. Click on a lot of them and explore. See which metrics you are interested in and think about which metrics and thresholds you would be looking at in your environment.
 
-NOTE: If you get an error such as Application Not Available see <<Appendix E - Troubleshooting CloudForms>>
-
-Since Red Hat CloudForms in the lab environment uses a self signed certificate, add an exception in the browser to add an exception. Login with the provided credentials.
-
-Once successfully authenticated, you should be taken to the overview page:
-
-image::images/cfme-infrastructure-providers.png[]
-
-==== Configuring the Container Provider
-
-Red Hat CloudForms gathers metrics from infrastructure components through the use of providers. An OpenShift container provider is available that queries the OpenShift API and platform metrics. As part of the OpenShift installation completed previously, cluster metrics were automatically deployed and configured. CloudForms must be configured to consume from each of these resources.
-
-Configure the container provider:
-
-    . Hover your mouse over the **Compute** tab.
-    . Once over the compute tab, additional panes will appear. (do not click anything yet)
-    . Hover over **Containers** and then click on **Providers**.
-    . No container providers are configured by default. Add a new container provider by clicking on **Configuration** (with a gear icon)
-    . Lastly select **Add Existing Container Provider**
-+
-
-image::images/cfme-add-provider.png[]
-
-Start adding a new Container Provider by specifying **OCP** as the name and **OpenShift Container Platform** as the type. Set _Alerts_ to and _Metrics_ to **Prometheus**.
-
-As mentioned previously, there are two endpoints in which CloudForms retrieves metrics from. First, configure the connection details to the OpenShift API. 
-
-Since CloudForms is deployed within OpenShift, we can leverage the internal service associated with API called _kubernetes_ in the default project. Internal service names can be referenced across projects in the form _<service_name>.<namespace>_
-
-Enter **kubernetes.default** in the _hostname_ field and **443** in the _port_ field.
-
-The token field refers to the OAuth token used to authenticate CloudForms to the OpenShift API. The _management-infra_ project is a preconfigured project as part of the OpenShift installation. A service account called management-admin is available that has access to the requisite resources needed by CloudForms. Each service account has an OAuth token associated with its account. 
-
-Execute the following command to retrieve the token.
-
-.master$
-[source, bash]
-----
-oc serviceaccounts get-token -n management-infra management-admin
-----
-
-Copy the value returned into the token fields.
-
-Finally, since the SSL certificates for the OpenShift API are not currently configured within CloudForms, SSL validation would fail. To work around this issue, select the dropdown next to _Security Protocol_ and select **SSL without validation**
-
-Click the **Validate** button to verify the configuration.
-
-image::images/cfme-add-provider-dialog.png[]
-
-Next, click on the **Metrics** tab to configure CloudForms to communicate with the cluster metrics.
-
-Enter **prometheus-openshift-metrics.apps-<student-id>.labs.sysdeseng.com** in the _hostname_ field, **443** in the _port_ field and **SSL without validation** for the _Security Protocol_ dropdown.
-
-image::images/cfme-metrics-dialog.png[]
-
-Click on the **Alerts** tab to configure CloudForms to communicate with the cluster alerts.
-
-Enter **alerts-openshift-metrics.apps-<student-id>.labs.sysdeseng.com** in the _hostname_ field, **443** in the _port_ field and **SSL without validation** for the _Security Protocol_ dropdown.
-
-image::images/cfme-alerts-dialog.png[]
-
-Click **Validate** to confirm the configuration is correct for each.
-
-Finally, click **Add** to add the new container provider.
-
-You have now configured Red Hat CloudForms to retrieve metrics and alerts from OpenShift. It may take a few minutes to data to be displayed.
-
-To force an immediate refresh of the newly added Provider:
- 
-    . Select the **OCP** provider icon
-    . Notice all of the components have 0 items
-    . Now select the **Configuration** drop-down again
-    . Choose **Refresh Items and Relationships**
-    . Lastly, click the **Refresh** icon just to the left of **Configuration**
-    . Now the Relationships should be populated with data from OpenShift
-    . Navigate to _Compute > Containers > Overview_
-    . Note that the Utilization metrics will not be immediately populated as these are collected and aggregated over a longer period of time.
-+
-
-image::images/cfme-ocp-provider.png[]
-
-Feel free to explore the CloudForms web console as time permits to view additional details exposed from the OpenShift cluster.
-
-This concludes lab 4.
+This concludes lab 4
 
 '''
 
 ==== <<../lab3/lab3.adoc#lab3,Previous Lab: Lab 3 - Verifying Installation of Red Hat OpenShift Container Platform Using Ansible Tower>>
-==== <<../lab5/lab5.adoc#lab5,Next Lab: Lab 5 - Managing the Lifecycle of an Application>>
+==== <<../lab5/lab5.adoc#lab5,Next Lab: Lab 5 - Expanding the OpenShift Container Platform Cluster>>
 ==== <<../../README.adoc#lab1,Home>>
+
