@@ -10,6 +10,8 @@ tower_user_add: true
 tower_cli_credentials_config: true
 tower_cli_credentials_keep: true
 tower_cli_verbosity: "--verbose"
+# For the following variable, any valid 'tower-cli workflow_job launch --help' e.g. --wait --monitor --timeout INTEGER or nothing at all to launch the workflow_job as async, 
+tower_cli_workflow_job_launch_options: "--monitor"
 
 # Tower prerequisites
 tower_prereqs_config: false

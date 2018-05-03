@@ -1,6 +1,6 @@
 ---
 - name: Launch Workflow Job for Terminate - this will block while the job runs and will wait up to {{ tower_workflow_job_terminate_launch_async // 60 }} minutes to complete, see Tower UI Jobs for detailed progress
-  command: tower-cli workflow_job launch -W {{ tower_workflow_template_terminate }} --monitor {{ tower_cli_options }}
+  command: tower-cli workflow_job launch -W {{ tower_workflow_template_terminate }} {{ tower_cli_workflow_job_launch_options }} {{ tower_cli_options }}
   async: "{{ tower_workflow_job_terminate_launch_async }}"
   poll: "{{ tower_workflow_job_terminate_launch_poll }}"
 ...
