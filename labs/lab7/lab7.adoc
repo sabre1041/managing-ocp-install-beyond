@@ -27,6 +27,6 @@ The following resources are available for your reference:
 
 '''
 
-==== <<../lab6/lab6.adoc#lab6,Previous Lab: Lab 6 - Expanding the OpenShift Container Platform Cluster>>
+==== <<../lab6/lab6.adoc#lab6,Previous Lab: Lab 6 - Installing Red Hat CloudForms>>
 ==== <<../../README.adoc#lab1,Home>>
 

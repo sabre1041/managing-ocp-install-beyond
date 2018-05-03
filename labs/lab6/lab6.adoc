@@ -14,7 +14,7 @@ link:https://cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com[https://
 Username: admin +
 Password: INSTRUCTOR WILL PROVIDE
 | Linux SSH private key
-| link:https://instructor.labs.sysdeseng.com/rhte.pem[https://instructor.labs.sysdeseng.com/rhte.pem]
+| link:https://instructor.labs.sysdeseng.com/summit/managing-ocp-install-beyond.pem[https://instructor.labs.sysdeseng.com/summit/managing-ocp-install-beyond.pem]
 | Username: student +
 Password: INSTRUCTOR WILL PROVIDE
 | Windows PuTTY private key
