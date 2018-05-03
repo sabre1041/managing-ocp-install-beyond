@@ -87,22 +87,11 @@ The components representing the containerized deployment of Red Hat CloudForms a
 Deploy and verify the template is available in the OpenShift environment:
 
 .master$
- [source, bash]
+[source, bash]
 ----
 wget https://gist.githubusercontent.com/ruromero/c9616542f39311223e245074359cc607/raw/d81a3b1fd8b707a6a9dd7702998a1a6fb43feb99/cfme-template.yaml
 oc create -f cfme-template.yaml
 template "cloudforms" created
-
-oc get -n openshift template cloudforms
-
-NAME         DESCRIPTION                                    PARAMETERS     OBJECTS
-cloudforms   CloudForms appliance with persistent storage   56 (1 blank)   24
-----
-
-.master$
-[source, bash]
-----
-oc create -f cfme-template.yaml
 
 oc get -n openshift template cloudforms
 
@@ -148,11 +137,10 @@ Red Hat CloudForms may take up to 5 minutes to start up for the first time as it
 [source, bash]
 ----
 NAME                 READY     STATUS    RESTARTS   AGE
-cloudforms-0         1/1       Running   0          12m
-httpd-1-deploy       1/1       Running   0          12m
-httpd-1-pr4m9        0/1       Running   0          12m
-memcached-1-b5cjx    1/1       Running   0          12m
-postgresql-1-bzw5n   1/1       Running   0          12m
+cloudforms-0         1/1	Running   0          4m
+httpd-1-tqltv        1/1	Running   0          4m
+memcached-1-7gg4s    1/1	Running   0          4m
+postgresql-1-v5sz2   1/1	Running   0          4m
 ----
 
 Once the deployment is complete, stop the _watch_ command with CTRL+C.
@@ -206,7 +194,7 @@ You can also check volumes:
 oc -n cloudforms get pv
 ----
 
-NOTE: If for any reason failures are observed, you may need to remove the project and start this section over again.  **Only perform this task if there was an irrecoverable failure. Let and instructor know before doing this.** <<Appendix C - Recovering From Failed CloudForms  Deployment>>
+NOTE: If for any reason failures are observed, you may need to remove the project and start this section over again.  **Only perform this task if there was an irrecoverable failure. Let and instructor know before doing this.**
 
 ==== Accessing the CloudForms User Interface
 
@@ -224,7 +212,7 @@ cloudforms  cloudforms-cloudforms.apps.example.com       cloudforms  https   pas
 Open a web browser and navigate securely to the to the hostname retrieved above. This may take a minute or two to completely initialize the web console.
 link:https://cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com].
 
-NOTE: If you get an error such as Application Not Available see <<Appendix E - Troubleshooting CloudForms>>
+NOTE: If you get an error such as _Application Not Available_ allow some time for the POD's to start and if they are running; run **oc -n cloudforms get events** to reivew for errors.
 
 Since Red Hat CloudForms in the lab environment uses a self signed certificate, add an exception in the browser to add an exception. Login with the provided credentials.
 
@@ -242,7 +230,7 @@ Configure the container provider:
     . Once over the compute tab, additional panes will appear. (do not click anything yet)
     . Hover over **Containers** and then click on **Providers**.
     . No container providers are configured by default. Add a new container provider by clicking on **Configuration** (with a gear icon)
-    . Lastly select **Add Existing Container Provider**
+    . Lastly select **Add a new Containers Provider**
 +
 
 image::images/cfme-add-provider.png[]
@@ -297,7 +285,7 @@ To force an immediate refresh of the newly added Provider:
     . Notice all of the components have 0 items
     . Now select the **Configuration** drop-down again
     . Choose **Refresh Items and Relationships**
-    . Lastly, click the **Refresh** icon just to the left of **Configuration**
+    . Hit _F5_ to refresh the browser
     . Now the Relationships should be populated with data from OpenShift
     . Navigate to _Compute > Containers > Overview_
     . Note that the Utilization metrics will not be immediately populated as these are collected and aggregated over a longer period of time.
