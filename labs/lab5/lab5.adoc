@@ -1,13 +1,29 @@
-= Lab 5 - Managing the lifecycle of Applications
+= Lab 5 - Expanding the OpenShift Container Platform Cluster
 
 == Connectivity Details for This Lab
 
 [options="header"]
 |======================
 | *Item* | *URL* | *Access*
-| OpenShift Container Platform |
-link:https://:master-<student_id>.labs.sysdeseng.com:8443[https://master-<student_id>.labs.sysdeseng.com:8443] |
+| Ansible Tower|
+link:https://tower-<student_id>.labs.sysdeseng.com[https://tower-<student_id>.labs.sysdeseng.com] |
 Username: <student_id> +
+Password: INSTRUCTOR WILL PROVIDE
+| OpenShift Container Platform |
+link:https://master-<student_id>.labs.sysdeseng.com:8443[https://master-<student_id>.labs.sysdeseng.com:8443] |
+Username: <student_id>-admin +
+Password: INSTRUCTOR WILL PROVIDE
+| Prometheus |
+link:https://prometheus-openshift-metrics.apps-<student_id>.labs.sysdeseng.com[https://prometheus-openshift-metrics.apps-<student_id>.labs.sysdeseng.com] |
+Username: <student_id>-admin +
+Password: INSTRUCTOR WILL PROVIDE
+| AlertManager |
+link:https://alertmanager-openshift-metrics.apps-<student_id>.labs.sysdeseng.com[https://alertmanager-openshift-metrics.apps-<student_id>.labs.sysdeseng.com] |
+Username: <student_id>-admin +
+Password: INSTRUCTOR WILL PROVIDE
+| Red Hat CloudForms |
+link:https://cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com] |
+Username: admin +
 Password: INSTRUCTOR WILL PROVIDE
 | Linux SSH private key
 | link:https://instructor.labs.sysdeseng.com/rhte.pem[https://instructor.labs.sysdeseng.com/rhte.pem]
@@ -21,211 +37,362 @@ Password: INSTRUCTOR WILL PROVIDE
 
 == Overview
 
-The primary function of the Red Hat OpenShift Container Platform is to run end user applications executing in containers. Thus far, the applications that have been deployed were primarily for supporting the overall infrastructure of the platform.
+In this lab, you will leverage the tools and skills from prior labs to create an Ansible Playbook Bundle which will aid in automatically scaling the OpenShift cluster through metrics collected by Prometheus.
 
-In this lab, you will explore two separate methods for deploying applications to OpenShift and use the tools previously deployed to investigate how to manage the applications.
+One of the benefits of the OpenShift Container Platform architecture is the effective scheduling of workloads onto compute resources (nodes). However, available capacity may result in the need to add additional resources. As an OpenShift cluster administrator, having a defined process for adding resources in an automated manner helps guarantee the stability of the overall cluster.
 
-== Deploy a Sample Application and view Metrics
+The OpenShift Container Platform provides methods for link:https://docs.openshift.com/container-platform/latest/install_config/adding_hosts_to_existing_cluster.html[adding resources to an existing cluster], whether it be a master or node. The method for executing the scale up task depends on the installation method used for the cluster. Both methods make use of an Ansible playbook to automate the process. The execution of the playbook can be driven through Ansible Tower to further simplify adding resources to a cluster. The triggering of this playbook can be executed manually from within Ansible Tower or invoked from a remote source using Ansible Tower Rest API.
 
-One of the steps to validate the successful installation of an OpenShift Container Platform cluster is to build and deploy a sample application. OpenShift contains a number of quickstart templates that can be used to demonstrate different application frameworks along with the integration with a backend data store. One of these example applications consists of a CakePHP based web application with state stored in a MySQL database.
+== Dynamic Scaleup Architecture
 
-We will now put our cluster administrator hat aside and complete the majority of this lab as a developer by using the OpenShift web console to build and deploy the sample application.
+The _0-Self-Configure_ job template executed earlier configured a set of templates to automate the process to expand the OpenShift cluster. A workflow job template called **2-Scaleup_OpenShift_on_AWS** was also created as a result. The workflow first creates a new AWS instance and once the instance has been created, the scaleup Ansible playbook will be executed to expand the cluster. Finally, a third job template performs the actions required to finalize the cluster scaleup.
 
-Navigate to link:https://master-<student_id>.labs.sysdeseng.com:8443[https://master-<student_id>.labs.sysdeseng.com:8443] and login using the provided credentials.
+As part of the deployment of Prometheus within OpenShift, another component of the Prometheus ecosystem includes a notification component called link:https://prometheus.io/docs/alerting/alertmanager/[AlertManager]. Alerts can be sent to a variety of endpoints ranging from commercial offerings such as Slack, HipChat and PagerDuty, or to generic endpoints using webhooks. 
 
-As seen in a prior lab, the OpenShift Web Console provides an intiutive interface for managing applications deployed to OpenShift. Introduced as a technical preview in OpenShift 3.6, a new user interface is available that streamlines how to explore available applications and deploy them to the platform. 
+As mentioned earlier, Ansible Tower features a Rest API for querying resources, including triggering Workflow/Job Templates. 
 
-image::images/openshift-landing.png[]
 
-The overview page contains a collection of applications that can be deployed via traditional OpenShift link:https://docs.openshift.com/container-platform/latest/architecture/core_concepts/templates.html[templates] as well as new offerings delivered through the link:https://docs.openshift.com/container-platform/latest/architecture/service_catalog/index.html[Service Catalog]. 
+Unfortunately, the API is not compatible with the webhook notifications being emitted by AlertManager. To support the webhook function of AlertManager to trigger Job templates in Ansible Tower, a new custom "bridge" application has been developed for this lab and deployed to OpenShift.  
 
-To deploy an application that is served by a persistent backend database running in OpenShift using a template, select **CakePHP + MySQL (Persistent)**.
+== Create an Ansible Playbook Bundle ==
 
-A new dialog appears that walks though configuring the application. Instead of using a two step process of first creating a project and then deploying an application into the project as in prior versions of OpenShift, both can now be completed using the same dialog. 
+In link:../lab5/lab5.adoc[Lab 5], an Ansible Playbook Bundle was used to deploy MediaWiki which was backed by a PostgreSQL database. In this lab, an Ansible Playbook Bundle will be created to build and deploy the AlertManager/Tower bridge application.
 
-On the right hand side of the dialog, click **Next**.
+Developing Ansible Playbook bundles requires the following:
 
-Enter the following information in the first few fields below:
+* The Ansible Playbook Bundle CLI Tool (apb)
+* A user logged in to OpenShift
+* Permissions to access cluster level resources
 
-Project Name: **cakephp-mysql-persistent** +
-Project Display Name: **CakePHP MySQL Persistent** +
-Project Description: **Sample Project Demonstrating A CakePHP MySQL Application Using Persistent Storage**
+The Ansible Playbook Bundle CLI (apb) is available in the OpenShift yum repositories which have already been enabled on the OpenShift master. Execute the following command to install the _apb_ CLI:
 
-image::images/new-app-cakephp.png[]
+.master$
+[source, bash]
+----
+sudo yum install -y apb
+----
 
-The template that is being utilized provides a set of default parameters for the rest of the fields in the right hand side of the dialog including the location of the source code, application name and additional items to customize the build and deployment.
+Next, the content for both the AlertManger/Tower bridge application and associated Ansible Playbook Bundle are located in the lab repository on GitHub in the folders _alertmanager-tower-bridge_ and _alertmanager-tower-bridge-apb_ respectively.
 
-The default values can be utilized in this case. Some of the values will be automatically generated (such as passords). Do spend a few moments reviewing each of the parameters are some of these items are frequently used in OpenShift templates.
+Clone the repository to the master from the users' home directory:
 
-Click the **Create** button to instantiate the template. 
+.master$
+[source, bash]
+----
+cd ~
+git clone https://github.com/sabre1041/managing-ocp-install-beyond
+----
 
-A page displaying the successful instantiation of the template will be displayed along with a set of next steps that you can take against the application. Click the **Continue to the project overview** link to return to the project homepage.
+The application itself is located in a file named link:../alertmanager-tower-bridge/bridge[bridge.py] which is Python based and creates a small HTTP based web server which accepts requests in the JSON format AlertManager is expected to send. After parsing the input, the application executes a POST request to Ansible Tower to execute the Job Template. Also included in the application is a set of custom link:https://docs.openshift.com/container-platform/latest/creating_images/s2i.html#s2i-scripts[Source to Image scripts] that dictate how the application should be built and run.
 
-== Validating Application Deployment
+After browsing through the application, change directories to the _alertmanager-tower-bridge-apb_ directory where we will walkthrough the process of creating an Ansible Playbook Bundle.
 
-After triggering instantiating the template, a new Source to Image build of the CakePHP application will begin.
+.master$
+[source, bash]
+----
+cd managing-ocp-install-beyond/alertmanager-tower-bridge-apb
+----
 
-The build can be viewed by selecting the _cakephp-mysql-persistent_ deployment and within the _Builds_ section, a log of the running build can be viewed.
+The link:https://access.redhat.com/documentation/en-us/openshift_container_platform/3.9/html-single/ansible_playbook_bundle_development_guide/index[Ansible Playbook Development Guide] provides a detailed overview for developing Ansible Playbook Bundles. The majority of the functionality has already been provided for you.  Take a moment to navigate through the link:https://access.redhat.com/documentation/en-us/openshift_container_platform/3.9/html-single/ansible_playbook_bundle_development_guide/index#apb-devel-writing-ref-directory[folder structure] including the APB spec file (apb.yml) and the directories containing Ansible link:http://docs.ansible.com/ansible/latest/user_guide/playbooks.html[playbooks] and link:https://docs.ansible.com/ansible/devel/user_guide/playbooks_reuse_roles.html[roles].
 
-image::images/cakephp-build.png[]
+Build the apb which will execute a Docker build using the _Dockerfile_ located within the _alertmanager-tower-bridge-apb_ directory.
 
-Once the application build completes, the _Deployments_ section will fill in with contents related to the deployment including the running Pod.
+.master$
+[source, bash]
+----
+sudo apb build
+----
 
-=== View Application
+A new image containing the APB was created locally. This can be confirmed by listing all of the images on the machine and locating the image called _alertmanager-tower-bridge-apb_.
 
-From the **Overview** page in the project, verify pods are running for both _cakephp-mysql-persistent_ and _mysql_ applications.
+.master$
+[source, bash]
+----
+sudo docker images
+----
 
-NOTE: You may see an error getting metrics. This is safe to ignore for now as it will be covered in a subsequent section.
+The final step in the Ansible Playbook Bundle creation process is to push the image from the local machine to OpenShift's internal registry. In order to communicate with the registry, an authenticated user to the platform must be used as they contain an OAuth token needed to facilitate the communication.
 
-image::images/cakephp-mysql-running-collapsed.png[]
+Login as the "<student_id>-admin" user which has elevated cluster privileges:
 
-The template automatically creates a route to provide external access to the application. To get to the route, click on the _Applications_ button on the left navigation pane.  Then click on the _Hostname_ shown.
+.master$
+[source, bash]
+----
+oc login -u <student_id>-admin
+----
 
+Push the APB to the OpenShift integrated registry
 
-image::images/cakephp-route.png[]
+.master$
+[source, bash]
+----
+sudo apb push
+----
 
-link:http://cakephp-mysql-persistent-cakephp-mysql-persistent.apps-<student_id>.labs.sysdeseng.com/[http://cakephp-mysql-persistent-cakephp-mysql-persistent.apps-<student_id>.labs.sysdeseng.com/]
+Confirm the APB is available in the Ansible Service broker by listing all registered APB's.
 
-image::images/cakephp-app.png[]
+.master$
+[source, bash]
+----
+apb list
+----
 
+Notice how the `localregistry-alertmanager-tower-bridge-apb` is displayed. `localregistry` refers to OpenShift's integrated registry as the source followed by the name of the APB.
 
-Application users and administrators have the ability to leverage several facilities for monitoring the state of an application deployed to the OpenShift Container Platform. While not deployed to the lab environment, OpenShift provides an link:https://docs.openshift.com/container-platform/latest/install_config/aggregate_logging.html[aggregated logging framework] based on the ELK (Elasticsearch, Fluentd and Kibana) stack. However, you can still utilize the telemetry captured by the cluster metrics mechanisms. Cluster metrics were deployed as part of the OpenShift installation and are being used to drive Red Hat CloudForms.
+NOTE: OpenShift was configured to allow the Ansible Service Broker to utilize APB's that exist in the `openshift` project in the OpenShift registry. The modifications can be seen within the _broker-config_ ConfigMap which exists in the `openshift-ansible-service-broker` project.
 
-With the _cakephp-mysql-persistent_ application deployed, you can use the OpenShift web console to view metrics that has been gathered by the cluster metrics facility. Since the metrics facility within the web console reaches out to Hawkular deployed in OpenShift from your web browser, you will need to perform one additional step to configure your browser to trust the self signed certificate configured before metrics can start to be displayed.
+Since no additional interaction is needed with OpenShift's registry at this time, login to OpenShift using the _system:admin_ user.
 
-    . From the overview page, click on **Applications** on the lefthand side
-    . Select **Pods**
-    . Select the _Running cakephp_ pod
-    . Navigate to the **Metrics tab**.
-+
+.master$
+[source, bash]
+----
+oc login -u system:admin
+----
 
-image::images/cakephp-metrics-insecure.png[]
+== Deploying the AlertManager-Tower-Bridge Application
 
-Click on the link displayed which will connect to the Hawkular endpoint. Accept the self signed certificate and if successful, the Hawkular logo along with additional details about the status of the service will be displayed.
+The AlertManager-Tower-Bridge application aid in providing cluster capabilities to dynamically scale the size of the OpenShift. Since the application is loosely tied to the Prometheus ecosystem and specifically AlertManager, it should be deployed alongside Prometheus in the `openshift-metrics` project. Given this project requires elevated rights, the _<student_id>-admin_ should be utilized. 
 
-Return to the OpenShift overview page for the _cakephp-mysql-persistent_ project by clicking the **Overview** link on the left side where you should be able to see metrics being displayed associated to each deployment.
+Navigate to the OpenShift Web Console and login as the _<student_id>-admin_ user.
 
-image::images/cakephp-mysql-metrics-overview.png[]
+link:https://master-<student_id>.labs.sysdeseng.com:8443[https://master-<student_id>.labs.sysdeseng.com:8443]
 
-Additional details relating to the performance of the application can be viewed by revisiting the _Metrics_ tab within each pod as previously described.
+After logging in, locate "My Projects" on the righthand side and select **View All** to view all projects the user has access to. Select **openshift-metrics**.
 
-While normal consumers of the platform are able to view metrics for only the applications they have permissions to access, cluster administrators can make use of Red Hat CloudForms to view metrics from all applications deployed to the OpenShift Container platform from a single pane of glass.
+To deploy the APB to the project, in the right hand side of the top navigation panel, select **Add to Project** and then **Browse Catalog**.
 
-== Deploy an Application Through the Service Catalog
+Locate and select _AlertManager Ansible Tower Bridge_ from the catalog.
 
-Introduced as a Technology Preview feature in OpenShift 3.6, the _service catalog_, is an implementation of the link:https://openservicebrokerapi.org/[Open Service Broker (OSB) API] for Kubernetes, and allows cluster administrators to integrate multiple platforms using a single API specification to provision and manage the lifecycle of applications. Users are given the opportunity to discover and instantiate services on their behalf which provides ease of use and consistency across different types of services and providers.
+image::images/openshift-metrics-catalog.png[]
 
-At the heart of the Service Catalog is a Service Broker, or a resource, that conforms to the OSB API and manages a set of services. Cluster administrators register brokers to the platform which enables the services each broker provides to the Service Catalog. A full discussion of the concepts and terminology associated with the Service Catalog can be found link:https://docs.openshift.com/container-platform/latest/architecture/service_catalog/index.html#service-catalog-concepts-terminology[here].
+A dialog will appear to walk through the process of deploying the application. Click **Next** at the bottom right to process to the next dialog.
 
-=== Ansible Service Broker
+Several fields are defined on the Configuration page. The majority of these fields can be left to their default values. The following fields must be specified:
 
-The link:https://docs.openshift.com/container-platform/latest/architecture/service_catalog/ansible_service_broker.html[Ansible Service Broker] is an implementation of the OSB API that manages applications defined by link:https://docs.openshift.com/container-platform/3.6/architecture/service_catalog/ansible_service_broker.html#service-catalog-apb[Ansible Playbook Bundles (APB's)] that provides a method for defining and distributing container images. The bundle consists of Ansible playbooks that automates complex deployments. The Ansible Service Broker provides two services in the form of APB's:
+Ansible Tower Hostname: **tower-<student_id>.labs.sysdeseng.com** +
+User with permissions on Tower: **<student_id>** +
+Password for user with permission on Tower: **<provided_password>** +
+Retype password for user with permission on Tower: **<provided_password>**
 
-* link:https://www.mediawiki.org/wiki/MediaWiki[MediaWiki] - An Open Source wiki package
-* link:https://www.postgresql.org/[PostgreSQL] - Open Source object-relational database
+Click **Create** to provision the service which will launch the Ansible Playbook Bundle.
 
-The APB's are shown alongside the traditional OpenShift Templates on the OpenShift Home Screen.
+The APB will create a Secret containing credentials, a BuildConfig to build a new image containing the application, a Service and a DeploymentConfig to deploy the application after the image has been built.
 
-image::images/openshift-landing-apb.png[]
+Click the **Overview** tab to view the status of the image build and deployment.
 
-We will first use the MediaWiki APB to deploy an instance of MediaWiki. Navigate to the **Home** page by clicking the _OPENSHIFT CONTAINER PLATFORM_ link in the upper left and select the **MediaWiki (APB)**.  Click _Next_.
+image::images/alertmanager-tower-bridge-app-overview.png[]
 
-Ensure _Create Project_ is selected in the dropdown underneath _Add to Project_.
+A running pod similar to the image above indicates the application deployment was successful. 
 
-Enter the following information in the first few fields below:
+== Scaling the Cluster
 
-Project Name: **mediawiki** +
-Project Display Name: **MediaWiki** +
-Project Description: **MediaWiki Deployed Using the Ansible Service Broker**
+With the components in place to integrate AlertManager with Ansible Tower, lets turn our attention into how the cluster can be dynamically scaled. Alerts are sent to AlertManager based on rules that have been defined within Prometheus. The rules and their current status can be viewed from the Prometheus User Interface.
 
-image::images/mediawiki-apb-new-project.png[]
+Navigate to the Prometheus user interface and login using the "<student_id>-admin" user account
 
-The rest of the dialog defines a set of parameters that can be used to customize the deployed application. These parameters are defined in the mediawiki-apb. The majority of the parameters can be left as their default values. Set the _Mediawiki Admin User Password_ parameter to **s3curepw** and then click **Create**. 
+link:https://prometheus-openshift-metrics.apps-<student_id>.labs.sysdeseng.com[https://prometheus-openshift-metrics.apps-<student_id>.labs.sysdeseng.com]
 
-The service will then be provisioned in the newly created project. Click **Continue to the project overview** link to view the status. The APB will start and execute actions to create the necessary resources using ansible. Additional insights into the actions the APB is performing can be viewed by selecting **Applications** from the left hand side of the page, and then **Pods**.
+On the toolbar, select **Alerts**
 
-Locate the mediawiki pod and then click the **Logs** tab.
+One alert has been defined (_Minimum Number of Application Nodes_). Currently, the status is _Green_, or OK. If you click on the alert, the rule is shown.
 
-image::images/mediawiki-apb-logs.png[]
+image::images/alertmanager-green.png[]
 
-After reviewing the logs, navigate to the **Overview** page.
+The rule validates the number of OpenShift application nodes, or nodes with the label `type=app`.
 
-Once the mediawiki deployment is _Running_, navigate to the _hyperlink_ on the top right corner of the page to view the application (_http://mediawiki123-mediawiki2.apps-<student_id>.labs.sysdeseng.com_).
+Using the OpenShift Command Line Tool on the master, you can verify the label associated with the nodes
 
-image::images/mediawiki-error.png[]
+.master$
+[source, bash]
+----
+oc get nodes --show-labels
+----
 
-The application fails to load properly since there is no backing datastore available. Let's deploy the PostgreSQL APB to provision a database for the application which will allow the application to function properly.
+Notice that only 1 node as denoted with _COMPUTE_ as the "ROLES" has a label with `type=app`. 
 
-Return to the _Home_ screen by clicking the **OPENSHIFT CONTAINER PLATFORM** link at the top left hand corner of the page.
+The expression for the  _Mininum Number of Application Nodes_ rule is defined using the link:https://prometheus.io/docs/prometheus/latest/querying/basics/[Prometheus Query Language (PromQL)] as follows:
 
-Select **PostgreSQL (APB)** to launch the new application dialog. Click _Next_.
+[source, bash]
+----
+sum(up{job="kubernetes-nodes",type="app"}) < 0
+----
 
-Select _Production_ from the available plans, click _Next_.
+This rule states that the alert will be fired when the number of nodes with the label `type=app` is below 0.
 
-image::images/postgresql-apb-production-storage.png[]
+When an alert is triggered, a request is sent to AlertManager, a separate container within the Prometheus pod. AlertManager itself has its own web console for which to interact with the component. Open a new browser tab and navigate to the following location and use the same credentials ("<student_id>-admin") as were used to access Prometheus.
 
-Ensure **MediaWiki** is selected in the dropdown underneath  _Add to Project_.
+link:https://alertmanager-openshift-metrics.apps-<student_id>.labs.sysdeseng.com[https://alertmanager-openshift-metrics.apps-<student_id>.labs.sysdeseng.com]
 
-Leave all of the parameters at their default values.
 
-image::images/postgresql-apb-new-project.png[]
+The landing page will display any active alerts. Since no alerts are currently firing, it will display "No Alerts Found".
 
-Click **Next** to move to the next portion of the dialog.
+Select the **Status** link at the top of the page and scroll down to the _Config_. This is where the the rules for each alert that is received are defined. 
 
-The 2nd dialog provides the opportunity for applications, such as MediaWiki, to _bind_ to the newly created service. A binding will inject an OpenShift secret that is created by the Service Broker containing the password for PostgreSQL into the MediaWiki application. While the end goal will make use of a binding, we will hold off for the moment. 
+First, locate the _routes_ property. When a alert is received with a label of `type=ansible-tower`, it will instruct the alert to be sent to a _receiver_ with the name `ansible-tower`. In the Prometheus Alert _Minimum Number of Application Nodes_, a series of labels were defined. One of which was `type=ansible-tower`. Since a match will occur in AlertManager, the _ansible-tower_ receiver will be triggered. In the receiver definition, a webhook with a reference to _alertmanager-tower-bridge_ application is configured. Thus, when an alert with the label `type=ansible-tower` is received, a request is sent to the Ansible Tower Bridge application which in turn will invoke the Ansible Tower workflow job to scale up the OpenShift cluster.
 
-Select the **Do not bind at the time** radio button and then click **Create**.
+Returning to the Prometheus rule again, notice how this rule wil never fire as it is impossible for a count such as this to have a negative number. This was done intentionally during the lab preparation to ensure an alert did not accidentally fire. 
 
-image::images/postgresql-apb-new-project-bind.png[]
+In this lab, the minimum number of application nodes will be modified from 0 to 2, or 1 more than are currently running.
 
-Click **Continue to the Project Overview** to return to the project overview page. 
+The configuration for Prometheus and AlertManager are defined in ConfigMaps and mounted as volumes into each container. Using the OpenShift CLI, first switch into the `openshift-metrics` project.
 
-The PostgreSQL APB will run and provision the PostgreSQL database in a similar fashion to the MediaWiki earlier.
+.master$
+[source, bash]
+----
+oc project openshift-metrics
+----
 
-Once the PostgreSQL application is running, we will need to inject credentials for the MediaWiki application to make use of the PostgreSQL database, a new _Binding_ must be created. 
+Now, list all defined ConfigMaps
 
-From the _Overview_ page, locate the PostgreSQL deployment and create a new _Binding_ by clicking the **Create Binding** link.
+.master$
+[source, bash]
+----
+oc get configmaps
+----
 
-image::images/mediawiki-create-binding.png[]
+To modify the Prometheus rules, edit the prometheus ConfigMap
 
-This will create a secret. Take note of the secret that the binding operation created. 
+.master$
+[source, bash]
+----
+oc edit configmap prometheus
+----
 
-image::images/mediawiki-postgresql-binding.png[]
+Locate the rule that is defined in the key `prometheus.additional.rules`
 
-Click the **Close** button on the confirmation page.
+Modify the expression for the _Minimum Number of Application Nodes_ rule as shown below:
 
-Now we need to go in and associate the PostgreSQL secret that was just created, with the mediawiki application.  On the left hand navigation page, click **Resources** and then **Secrets**.  Look for the secret that was just created.
+[source, bash]
+----
+sum(up{type="app",job="kubernetes-nodes"}) < 2
+----
 
-image::images/postgres-apb-secret.png[]
+One of the benefits of ConfigMaps is that once a change has been made, the resulting value is made available in the pod. 
 
-In the upper right hand corner, click **Add to Application**. 
+With the value of the rule file changed, Prometheus can be instructed to reload its own configuration based on the updated values without having to stop the instance or the pod. This can be done by making a request against the API. The easiest method to do so is to obtain a remote session inside the pod.
 
-image::images/postgres-apb-add-to-app.png[]
+Execute the following command to access the Prometheus container:
 
-From the dropdown select **mediawiki123**, add the secret as an **Environment Variable**. Click **Save**.
+.master$
+[source, bash]
+----
+oc rsh -c prometheus $(oc get pods -l=app=prometheus -o 'jsonpath={.items[0].metadata.name}')
+----
 
-image::images/postgres-apb-add-secret-to-app.png[]
+Once inside the container, confirm the file mounted in the ConfigMap has been updated.
 
-That will trigger a new deployment and the application will be ready after the deployment is finished. Now go back to the application page and click refresh.
+.prometheus container$
+[source, bash]
+----
+cat /etc/prometheus/prometheus.additional.rules
+----
 
-image::images/mediawiki-running.png[]
+It may take up to 1 minute for the value to change. Continue executing the prior command until a change is detected.
 
-You have now demonstrated two mechanisms for deploying applications to the OpenShift Container Platform!
+Once the value in the file has changed, to force Prometheus to reload its configuration, execute the following request
 
-== Navigate through the OpenShift Web Console
+.prometheus container$
+[source, bash]
+----
+curl -X POST http://localhost:9090/-/reload
+----
 
-With an applications deployed to the OpenShift cluster, we can navigate through the various options exposed by the OpenShift web console. Use this time as an opportunity to explore the following sections at your own pace if time allots:
+Once complete, the container can be exited.
 
-* Various details provided with each pod including pod details, application logs and the ability to access a remote shell
-    ** Hover over **Applications** from the left hand navigation bar and select **Pods**. Select one of the available pods and navigate through each of the provided tabs
-* Secrets used by the platform and the applications
-    ** Hover over **Resources** from the left hand navigation bar and select **Secrets**
-* Persistent storage dynamically allocated by the cluster to support persistent storage
-    ** Click on the **Storage** tab
+.prometheus container$
+[source, bash]
+----
+exit
+----
+
+To confirm the configuration was reloaded properly, revisit the Alerts page within Prometheus and reload the page. The updated value of the rule should be showing which will trigger an alert if the number of application nodes is less than 2 instances.
+
+Prometheus scrapes the OpenShift API once every 60 seconds. After the interval has passed, refresh the page again and the alert should turn _yellow_. This indicates the alert is pending:
+
+image::images/alertmanager-yellow.png[]
+
+If you recall in the rule, a _for_ clause was provided which defines that a rule will continue to be checked for a set period of time before firing. This allows a condition to resolve itself without a rule firing (such as a temporary network issue). The alert will stay in this condition for 2 minutes, then the alert wil fire. Refresh the page to see the status of the rule in _FIRING_ status:
+
+image::images/alertmanager-red.png[]
+
+The series of actions described previously should have been executed:
+
+1. Prometheus notifies AlertManager
+2. AlertManager parses the alert, passes it to the receiver and invokes the AlertManager Tower Bridge application
+3. The AlertManager Tower Bridge Application parses the alert and invokes the Workflow Job in Ansible Tower
+4. The Ansible Tower Workflow job runs to completion.
+
+Let's validate that this occurred properly.
+
+First, navigate to the AlertManager console or the tab that was previously open.
+
+link:https://alertmanager-openshift-metrics.apps-<student_id>.labs.sysdeseng.com[https://alertmanager-openshift-metrics.apps-<student_id>.labs.sysdeseng.com]
+
+An alert should now be indicated on the _Alerts_ page as shown below.
+
+image::images/alertmanager-console.png[]
+
+Notice how the `type=ansible-tower` is prominently displayed.
+
+Now, verify the AlertManager Tower Bridge application has received the webhook and invoked Ansible Tower.
+
+Navigate to the OpenShift web console and login using the _<student_id>-admin_ account using the provided credentials.
+
+link:https://master-<student_id>.labs.sysdeseng.com:8443[https://master-<student_id>.labs.sysdeseng.com:8443]
+
+From the landing page, on the righthand side of the page, select the _openshift-metrics_ project. 
+
+From within the _openshift-metrics_ project, select **Applications** and then **Pods** from the lefthand side navigation. 
+
+Locate and click the _Running_ pod starting with `alertmanager-tower-bridge` and then select the **Logs** tab. When a request is received, details of the alert along with the invocations to Ansible Tower are displayed. The final invocation is the actual request to launch the workflow job template. The response will include an the `id` of the job that was triggered. The presence of this field indicates the invocation was successful and can be used to correlate an action within Ansible Tower.
+
+The final step to verify the status of the **2-Scaleup_OpenShift_on_AWS** workflow job template was invoked expand the OpenShift cluster.
+
+In the web browser, navigate to to Ansible Tower and login if an active session has not been retained
+
+link:https://tower-<student_id>.labs.sysdeseng.com[https://tower-<student_id>.labs.sysdeseng.com] 
+
+Select the **JOBS** link on the navigation bar. Locate and select the ID of the job retrieved previously from the AlertManager Tower Bridge Application. The progress of the workflow job is then displayed
+
+image::images/ansible-tower-scaleup-workflow.png[]
+
+The job will take a few minutes to complete. Monitor the status until the workflow job completes successfully by selecting **Details** on each job as with the initial workflow job used to install the cluster initially.
+
+TIP: Optionally explore the Playbooks that link:https://github.com/sabre1041/managing-ocp-install-beyond/blob/summit2018/aws_add_node.yml[provision] and link:https://github.com/sabre1041/managing-ocp-install-beyond/blob/summit2018/openshift_scaleup_postinstall.yml[configure] this additional node.
+
+image::images/ansible-tower-scaleup-workflow-complete.png[]
+
+== Validate the Expanded Cluster
+
+Once the Tower job is completed, there are multiple methods in which to validate the successful expansion of the OpenShift cluster.
+
+First, as an OpenShift cluster administrator, you can use the OpenShift command line interface from the OpenShift master to view the available nodes and their status.
+
+As the root user on the OpenShift master (_master-<student_id>.labs.sysdeseng.com_), execute the following command to list the available nodes:
+
+.master$
+[source, bash]
+----
+oc get nodes
+----
+
+If successful, you should see three (3) total nodes (1 master and 2 worker nodes) with **Ready** under the _Status_ column, as opposed to (2) total nodes before (1 master and 1 worker nodes).
+
+Execute the following to display the nodes and their associated labels:
+
+Red Hat CloudForms can also be used to confirm the total number of nodes has been expanded to four.
+
+Login to CloudForms and once authenticated, hover over _Compute_, then _Containers_. Finally select **Container Nodes**. Confirm four nodes are displayed.
+
+Finally, with 2 application nodes present and running, return to the Prometheus user interface and select the **Alerts** link at the top. Notice how the alert is no longer active as the number of running application instances has been satisfied
+
+image::images/alertmanager-green-scaleup.png[]
+
+This concludes lab 5.
 
 '''
 
-==== <<../lab4/lab4.adoc#lab4,Previous Lab: Lab 4 - Installing Red Hat CloudForms>>
-==== <<../lab6/lab6.adoc#lab6,Next Lab: Lab 6 - Expanding the OpenShift Container Platform Cluster>>
+==== <<../lab4/lab4.adoc#lab4,Previous Lab: Lab 4 - Prometheus and Grafana>>
+==== <<../lab6/lab6.adoc#lab6,Next Lab: Lab 6 - Installing Red Hat CloudForms>>
 ==== <<../../README.adoc#lab1,Home>>
 
