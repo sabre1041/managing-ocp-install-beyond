@@ -29,7 +29,7 @@ Password: INSTRUCTOR WILL PROVIDE
 
 == Overview
 
-In this lab, we will explore how to handle metrics and visualization of those metrics using OpenShift, link:https://prometheus.io/[Prometheus] and link:https://grafana.com/[Grafana]. We'll do a high level overview of each component, discuss how they interoperate and finally explore the environment to see how to these components together.
+Now that we have an overview of the environment, we are going to switch gears a little. In this lab, we will explore how to handle metrics and visualization of those metrics using OpenShift, link:https://prometheus.io/[Prometheus] and link:https://grafana.com/[Grafana]. We'll do a high level overview of each component, discuss how they interoperate and finally explore the environment to see how to these components together.
 
 === Prometheus
 
@@ -63,18 +63,29 @@ openshift_node_open_ports:
 openshift_prometheus_node_exporter_image_version: "{{ openshift_image_tag }}" 
 ```
 
+Now that we know how Prometheus was deployed, we are going to explore the environment a bit more. From your _master_ host, execute the following commands.
+
 .master$
 [source, bash]
 ----
 $ oc whoami
 ----
 
-Change to the `openshift-metrics` project
+Change to the `openshift-metrics` project and list the pods that are available.
 
 .master$
 [source, bash]
 ----
 oc project openshift-metrics
+oc get pods
+----
+
+We see a list of pods that are running. Now we want to see which containers are actually running in the Prometheus pod. You will see that there are several. Because those containers are running in the same pod, they are gauranteed to land on the same physical OpenShift node.
+
+.master$
+[source, bash]
+----
+$ oc get pods -l app=prometheus -o=custom-columns=NAME:.metadata.name,CONTAINERS:.spec.containers[*].name
 ----
 
 Look at the routes, statefulsets, services and pods assocated with the openshift-metrics namespace.
@@ -85,7 +96,7 @@ Look at the routes, statefulsets, services and pods assocated with the openshift
 oc get all
 ----
 
-Look at the Prometheus ConfigMap as well. ConfigMap's allow us to pass in parameters and configure applications on the fly.
+Look at the Prometheus ConfigMap as well and explore it. ConfigMap's allow us to pass in parameters and configure applications on the fly.
 
 .master$
 [source, bash]
@@ -93,13 +104,7 @@ Look at the Prometheus ConfigMap as well. ConfigMap's allow us to pass in parame
 oc describe configmap prometheus 
 ----
 
-List the containers in the Prometheus pod
 
-.master$
-[source, bash]
-----
-$ oc get pods -l app=prometheus -o=custom-columns=NAME:.metadata.name,CONTAINERS:.spec.containers[*].name
-----
 
 List the routes for Prometheus and open up the web interface. Copy the URL for prometheus and sign in with the user <student_id>-admin.
 
@@ -110,13 +115,17 @@ oc get routes
 ----
 
 
-- Go to web interface and add a graph manually. The credentials are listed in the table at the top of the page. Your route will look something like:
+Now that we have a route to Prometheus, lets go to web interface and add a graph manually and get a feel for that workflow. The credentials are listed in the table at the top of the page. Your route will look something like:
 
 ```
 prometheus-openshift-metrics.apps-<student_id>.labs.sysdeseng.com
 ```
 
-Once in the web UI, the `console` is the default view. Click on `Graph` in the top navigation pane.  Next, click on the `"insert metric at cursor"` dropdown and scroll to `node_memory_MemAvailable`, then click `Execute`. This should create a graph on your screen. Make sure to hover over the lines in the graph and get a sense of what's being offered here. You can continue adding graphs and organizing your dashboard how you want it.
+NOTE: Remember to add an `https://` to your route when you go the the browser.
+
+NOTE: The first time you access Prometheus, you will need to authenticate using your OpenShift credentials. Do that, and authorize the proper access to the Prometheus project.
+
+Once in the web UI, the `console` is the default view. Click on `Graph` in the top navigation pane.  Next, click on the `"insert metric at cursor"` dropdown and scroll to `node_memory_MemAvailable`, then click `Execute`. At this point, you will be on the _Console_ tab. Click on the _Graph_ tab. This should create a graph on your screen. Make sure to hover over the lines in the graph and get a sense of what's being offered here. You can continue adding graphs and organizing your dashboard how you want it.
 
 Once you have created a graph or two, take some time to explore the other options on the top navigation bar: `Alerts`, `Status`, `Help`. In the subsequent lab, we are going to spend some time on `Alerts`.
 
@@ -124,24 +133,27 @@ Once you have created a graph or two, take some time to explore the other option
 
 Now that we have explored some of the capabilities of Prometheus, let's have a look at how we can use Graphana to do more visualization of the data.
 
-Clone the OpenShift Origin repo and change to the Grafana directory. We are going to checkout a known good commit.
+Return to your OpenShift Master node and clone the OpenShift Origin repo and change to the Grafana directory. We are going to checkout a known good commit.
 
 .master$
 [source, bash]
 ----
 cd ~
-git clone --depth 1 https://github.com/openshift/origin.git
+git clone https://github.com/openshift/origin.git
+cd origin
 git checkout 2075da460d166a98eb557fd9f4bfdaebee3659f7
-cd origin/examples/grafana/
+cd examples/grafana/
 ----
 
-Deploy Grafana and locate the route.
+
+Deploy Grafana via the setup script that's included in the OpenShift Origin git repository. Then confirm that Grafana is actually running.
 
 .master$
 [source, bash]
 ----
 ./setup-grafana.sh -n prometheus -p openshift-metrics
-oc project grafana
+oc project 
+oc get all
 oc get routes
 ----
 
@@ -153,13 +165,15 @@ Log in with your OpenShift admin account: <student_id>-admin and the password fr
 
 https://grafana-grafana.apps-<student_id>.labs.sysdeseng.com
 
-In the upper left navigation pane, click the `Home` button and that will expose the `openshift cluster monitoring` link which you should select.
+NOTE: The first time you access Grafana, you will need to authenticate using your OpenShift credentials. Do that, and authorize the proper access to the Grafana project.
 
-image::images/openshift-login.png[]
-IMAGE HERE FOR GRAFANA HOME BUTTON
+In the upper left navigation pane, click the `Home` button.
 
-image::images/openshift-login.png[]
-IMAGE HERE FOR GRAFANA CLUSTER MONITORING LINK
+image::images/grafana-home-button.png[]
+
+That will expose the `openshift cluster monitoring` link which you should select.
+
+image::images/grafana-cluster-monitoring-link.png[]
 
 At this point you have access to quite a few dashboards. Please do feel free to check out `Total Usage` to get a high level overview of available resources. Click on a lot of them and explore. See which metrics you are interested in and think about which metrics and thresholds you would be looking at in your environment.
 
@@ -170,4 +184,3 @@ This concludes lab 4
 ==== <<../lab3/lab3.adoc#lab3,Previous Lab: Lab 3 - Verifying Installation of Red Hat OpenShift Container Platform Using Ansible Tower>>
 ==== <<../lab5/lab5.adoc#lab5,Next Lab: Lab 5 - Expanding the OpenShift Container Platform Cluster>>
 ==== <<../../README.adoc#lab1,Home>>
-
