@@ -102,7 +102,7 @@ Now check out the link:https://docs.openshift.com/container-platform/latest/inst
 .master$
 [source, bash]
 ----
-master$ sudo cat /etc/origin/cloudprovider/aws.conf
+sudo cat /etc/origin/cloudprovider/aws.conf
 
 
 [Global]
