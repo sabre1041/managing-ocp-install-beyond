@@ -1,17 +1,25 @@
-= Lab 6 - Installing Red Hat CloudForms
+= Lab 6 - Expanding the OpenShift Container Platform
 
 == Connectivity Details for This Lab
 
-[options="header" -f cfme-template.yaml
+[options="header"]
 |======================
 | *Item* | *URL* | *Access*
-| OpenShift Container Platform |
-link:https://:master-<student_id>.labs.sysdeseng.com:8443[https://master-<student_id>.labs.sysdeseng.com:8443] |
+| Ansible Tower|
+link:https://tower-<student_id>.labs.sysdeseng.com[https://tower-<student_id>.labs.sysdeseng.com] |
 Username: <student_id> +
 Password: INSTRUCTOR WILL PROVIDE
-| Red Hat CloudForms |
-link:https://cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com] |
-Username: admin +
+| OpenShift Container Platform |
+link:https://master-<student_id>.labs.sysdeseng.com:8443[https://master-<student_id>.labs.sysdeseng.com:8443] |
+Username: <student_id>-admin +
+Password: INSTRUCTOR WILL PROVIDE
+| Prometheus |
+link:https://prometheus-openshift-metrics.apps-<student_id>.labs.sysdeseng.com[https://prometheus-openshift-metrics.apps-<student_id>.labs.sysdeseng.com] |
+Username: <student_id>-admin +
+Password: INSTRUCTOR WILL PROVIDE
+| AlertManager |
+link:https://alertmanager-openshift-metrics.apps-<student_id>.labs.sysdeseng.com[https://alertmanager-openshift-metrics.apps-<student_id>.labs.sysdeseng.com] |
+Username: <student_id>-admin +
 Password: INSTRUCTOR WILL PROVIDE
 | Linux SSH private key
 | link:https://instructor.labs.sysdeseng.com/summit/managing-ocp-install-beyond.pem[https://instructor.labs.sysdeseng.com/summit/managing-ocp-install-beyond.pem]
@@ -25,281 +33,217 @@ Password: INSTRUCTOR WILL PROVIDE
 
 == Overview
 
-Red Hat CloudForms Management Engine (CFME) delivers the insight, control, and automation necessary to address the challenges of managing complex environments. CloudForms is available as a standalone appliance, but is also available as a containerized solution that can be deployed on the OpenShift Container Platform.
+In the prior lab, you developed provisioned the AlertManager/Ansible Tower Bridge application that will be used to aid in the scaling of the OpenShift Container Platform based on the metrics aggregated by Prometheus. In this lab, you will extend that work to dynamically using Prometheus, AlertManager, the AlertManager/Ansible Tower Bridge and finally Ansible Tower.
 
-In this lab, you will deploy a single instance/replica of Red Hat CloudForms to the OpenShift Container Platform cluster and configure the container provider to monitor the OpenShift environment.
+== Scaling the Cluster
 
-=== Deploy Red Hat CloudForms
+With the components in place to integrate AlertManager with Ansible Tower, lets turn our attention into how the cluster can be dynamically scaled. Alerts are sent to AlertManager based on rules that have been defined within Prometheus. The rules and their current status can be viewed from the Prometheus User Interface.
 
-NOTE: If you are repeating this lab due to an issue encountered, consider using <<Appendix B - Script For Deploying CloudForms>>
+Navigate to the Prometheus user interface and login using the "<student_id>-admin" user account
 
-Since Red Hat CloudForms is available as a container, it can be deployed to the OpenShift Container Platform in a few short steps.
+link:https://prometheus-openshift-metrics.apps-<student_id>.labs.sysdeseng.com[https://prometheus-openshift-metrics.apps-<student_id>.labs.sysdeseng.com]
 
-A user with _cluster-admin_ permissions must be used to configure the environment as CloudForms requires access to privileged resources
+On the toolbar, select **Alerts**
 
-First, using the OpenShift Command Line, create a new project called **cloudforms**
+One alert has been defined (_Minimum Number of Application Nodes_). Currently, the status is _Green_, or OK. If you click on the alert, the rule is shown.
 
-.master$
-[source, bash]
-----
-oc new-project cloudforms
-----
+image::images/alertmanager-green.png[]
 
-By creating a new project, the context of the CLI is automatically switched into the _cloudforms_ project:
+The rule validates the number of OpenShift application nodes, or nodes with the label `type=app`.
+
+Using the OpenShift Command Line Tool on the master, you can verify the label associated with the nodes
 
 .master$
 [source, bash]
 ----
-oc config current-context
+oc get nodes --show-labels
 ----
 
-When creating a new project, a set of service accounts are automatically provisioned. These accounts are used when building, deploying and running containers. The _default_ service account is the de facto service account used by pods. Since CloudForms is deployed within a pod and requires access to key metrics in the OpenShift environment along with the host, it must be granted elevated access as a privileged resource. In OpenShift, permissions associated to pods are managed by link:https://docs.openshift.com/container-platform/latest/admin_guide/manage_scc.html[Security Context Constraints] and the service account that is used to run them.
+Notice that only 1 node as denoted with _COMPUTE_ as the "ROLES" has a label with `type=app`. 
 
-Execute the following command to add the default service account in the cloudforms project to the privileged SCC:
+The expression for the  _Mininum Number of Application Nodes_ rule is defined using the link:https://prometheus.io/docs/prometheus/latest/querying/basics/[Prometheus Query Language (PromQL)] as follows:
+
+[source, bash]
+----
+sum(up{job="kubernetes-nodes",type="app"}) < 0
+----
+
+This rule states that the alert will be fired when the number of nodes with the label `type=app` is below 0.
+
+When an alert is triggered, a request is sent to AlertManager, a separate container within the Prometheus pod. AlertManager itself has its own web console for which to interact with the component. Open a new browser tab and navigate to the following location and use the same credentials ("<student_id>-admin") as were used to access Prometheus.
+
+link:https://alertmanager-openshift-metrics.apps-<student_id>.labs.sysdeseng.com[https://alertmanager-openshift-metrics.apps-<student_id>.labs.sysdeseng.com]
+
+
+The landing page will display any active alerts. Since no alerts are currently firing, it will display "No Alerts Found".
+
+Select the **Status** link at the top of the page and scroll down to the _Config_. This is where the the rules for each alert that is received are defined. 
+
+First, locate the _routes_ property. When a alert is received with a label of `type=ansible-tower`, it will instruct the alert to be sent to a _receiver_ with the name `ansible-tower`. In the Prometheus Alert _Minimum Number of Application Nodes_, a series of labels were defined. One of which was `type=ansible-tower`. Since a match will occur in AlertManager, the _ansible-tower_ receiver will be triggered. In the receiver definition, a webhook with a reference to _alertmanager-tower-bridge_ application is configured. Thus, when an alert with the label `type=ansible-tower` is received, a request is sent to the Ansible Tower Bridge application which in turn will invoke the Ansible Tower workflow job to scale up the OpenShift cluster.
+
+Returning to the Prometheus rule again, notice how this rule wil never fire as it is impossible for a count such as this to have a negative number. This was done intentionally during the lab preparation to ensure an alert did not accidentally fire. 
+
+In this lab, the minimum number of application nodes will be modified from 0 to 2, or 1 more than are currently running.
+
+The configuration for Prometheus and AlertManager are defined in ConfigMaps and mounted as volumes into each container. Using the OpenShift CLI, first switch into the `openshift-metrics` project.
 
 .master$
 [source, bash]
 ----
-oc adm policy add-scc-to-user privileged -z cfme-httpd
-oc adm policy add-scc-to-user privileged -z cfme-orchestrator
+oc project openshift-metrics
 ----
 
-Confirm the user is associated to the privileged SCC:
+Now, list all defined ConfigMaps
 
 .master$
 [source, bash]
 ----
-oc get scc privileged -o yaml
+oc get configmaps
 ----
 
-Confirm _system:serviceaccount:cloudforms:default_ is in the result returned.
-
-CloudForms retrieves metrics from applications deployed within OpenShift, and it leverages the data exposed by the onboard metrics infrastructure (Hawkular). Since the platform metrics are deployed in the _openshift-infra_ project and CloudForms is deployed in the cloudforms project, they cannot communicate with each other due to use of the link:https://docs.openshift.com/container-platform/latest/architecture/additional_concepts/sdn.html[multitenant SDN plugin] which isolates each project at a network level.
-
-CloudForms retrieves metrics from applications deployed within OpenShift, and it leverages the data exposed by the onboard metrics infrastructure (Hawkular & Prometheus). Since the platform metrics are deployed in the _openshift-infra_ project and CloudForms is deployed in the cloudforms project, they cannot communicate with each other due to use of the link:https://docs.openshift.com/container-platform/latest/architecture/additional_concepts/sdn.html[multitenant SDN plugin] which isolates each project at a network level.
-
-Fortunately, as a cluster administrator, you can manage the configuration of the pod overlay network to allow traffic to traverse between specific projects or be exposed to all projects. 
-
-==== Instantiate CloudForms Template
-
-The components representing the containerized deployment of Red Hat CloudForms are available as a template and was automatically installed into the OpenShift cluster as part of the installation completed previously.
-
-Deploy and verify the template is available in the OpenShift environment:
+To modify the Prometheus rules, edit the prometheus ConfigMap
 
 .master$
 [source, bash]
 ----
-wget https://gist.githubusercontent.com/ruromero/c9616542f39311223e245074359cc607/raw/d81a3b1fd8b707a6a9dd7702998a1a6fb43feb99/cfme-template.yaml
-
-oc create -f cfme-template.yaml
-template "cloudforms" created
-
-oc get -n openshift template cloudforms
-
-NAME         DESCRIPTION                                    PARAMETERS     OBJECTS
-cloudforms   CloudForms appliance with persistent storage   56 (1 blank)   24
+oc edit configmap prometheus
 ----
 
-The describe operation provides additional details about the teamplate. Execute the following command to execute this action against the CloudForms template:
+Locate the rule that is defined in the key `prometheus.additional.rules`
+
+Modify the expression for the _Minimum Number of Application Nodes_ rule as shown below:
+
+[source, bash]
+----
+sum(up{type="app",job="kubernetes-nodes"}) < 2
+----
+
+One of the benefits of ConfigMaps is that once a change has been made, the resulting value is made available in the pod. 
+
+With the value of the rule file changed, Prometheus can be instructed to reload its own configuration based on the updated values without having to stop the instance or the pod. This can be done by making a request against the API. The easiest method to do so is to obtain a remote session inside the pod.
+
+Execute the following command to access the Prometheus container:
 
 .master$
 [source, bash]
 ----
-oc describe -n openshift template cloudforms
+oc rsh -c prometheus $(oc get pods -l=app=prometheus -o 'jsonpath={.items[0].metadata.name}')
 ----
 
-Notice the different types of information that is displayed including the objects that will be created along with parameters that can be specified.
+Once inside the container, confirm the file mounted in the ConfigMap has been updated.
 
-The persistent storage required by CloudForms will be dynamically provisioned by the link:https://docs.openshift.com/container-platform/3.9/install_config/configuring_aws.html[AWS cloud provider].
+.prometheus container$
+[source, bash]
+----
+cat /etc/prometheus/prometheus.additional.rules
+----
 
-Instantiate the template to deploy Red Hat CloudForms. A parameter called _APPLICATION_MEM_REQ_ will be also specified in order to properly tune the resources for the environment.
+It may take up to 1 minute for the value to change. Continue executing the prior command until a change is detected.
+
+Once the value in the file has changed, to force Prometheus to reload its configuration, execute the following request
+
+.prometheus container$
+[source, bash]
+----
+curl -X POST http://localhost:9090/-/reload
+----
+
+Once complete, the container can be exited.
+
+.prometheus container$
+[source, bash]
+----
+exit
+----
+
+To confirm the configuration was reloaded properly, revisit the Alerts page within Prometheus and reload the page. The updated value of the rule should be showing which will trigger an alert if the number of application nodes is less than 2 instances.
+
+Prometheus scrapes the OpenShift API once every 60 seconds. After the interval has passed, refresh the page again and the alert should turn _yellow_. This indicates the alert is pending:
+
+image::images/alertmanager-yellow.png[]
+
+If you recall in the rule, a _for_ clause was provided which defines that a rule will continue to be checked for a set period of time before firing. This allows a condition to resolve itself without a rule firing (such as a temporary network issue). The alert will stay in this condition for 2 minutes, then the alert wil fire. Refresh the page to see the status of the rule in _FIRING_ status:
+
+image::images/alertmanager-red.png[]
+
+The series of actions described previously should have been executed:
+
+1. Prometheus notifies AlertManager
+2. AlertManager parses the alert, passes it to the receiver and invokes the AlertManager Tower Bridge application
+3. The AlertManager Tower Bridge Application parses the alert and invokes the Workflow Job in Ansible Tower
+4. The Ansible Tower Workflow job runs to completion.
+
+Let's validate that this occurred properly.
+
+First, navigate to the AlertManager console or the tab that was previously open.
+
+link:https://alertmanager-openshift-metrics.apps-<student_id>.labs.sysdeseng.com[https://alertmanager-openshift-metrics.apps-<student_id>.labs.sysdeseng.com]
+
+An alert should now be indicated on the _Alerts_ page as shown below.
+
+image::images/alertmanager-console.png[]
+
+Notice how the `type=ansible-tower` is prominently displayed.
+
+Now, verify the AlertManager Tower Bridge application has received the webhook and invoked Ansible Tower.
+
+Navigate to the OpenShift web console and login using the _<student_id>-admin_ account using the provided credentials.
+
+link:https://master-<student_id>.labs.sysdeseng.com:8443[https://master-<student_id>.labs.sysdeseng.com:8443]
+
+From the landing page, on the righthand side of the page, select the _openshift-metrics_ project. 
+
+From within the _openshift-metrics_ project, select **Applications** and then **Pods** from the lefthand side navigation. 
+
+Locate and click the _Running_ pod starting with `alertmanager-tower-bridge` and then select the **Logs** tab. When a request is received, details of the alert along with the invocations to Ansible Tower are displayed. The final invocation is the actual request to launch the workflow job template. The response will include an the `id` of the job that was triggered. The presence of this field indicates the invocation was successful and can be used to correlate an action within Ansible Tower.
+
+The final step to verify the status of the **2-Scaleup_OpenShift_on_AWS** workflow job template was invoked expand the OpenShift cluster.
+
+In the web browser, navigate to to Ansible Tower and login if an active session has not been retained
+
+link:https://tower-<student_id>.labs.sysdeseng.com[https://tower-<student_id>.labs.sysdeseng.com] 
+
+Select the **JOBS** link on the navigation bar. Locate and select the ID of the job retrieved previously from the AlertManager Tower Bridge Application. The progress of the workflow job is then displayed
+
+image::images/ansible-tower-scaleup-workflow.png[]
+
+The job will take a few minutes to complete. Monitor the status until the workflow job completes successfully by selecting **Details** on each job as with the initial workflow job used to install the cluster initially.
+
+TIP: Optionally explore the Playbooks that link:https://github.com/sabre1041/managing-ocp-install-beyond/blob/summit2018/aws_add_node.yml[provision] and link:https://github.com/sabre1041/managing-ocp-install-beyond/blob/summit2018/openshift_scaleup_postinstall.yml[configure] this additional node.
+
+image::images/ansible-tower-scaleup-workflow-complete.png[]
+
+== Validate the Expanded Cluster
+
+Once the Tower job is completed, there are multiple methods in which to validate the successful expansion of the OpenShift cluster.
+
+First, as an OpenShift cluster administrator, you can use the OpenShift command line interface from the OpenShift master to view the available nodes and their status.
+
+As the root user on the OpenShift master (_master-<student_id>.labs.sysdeseng.com_), execute the following command to list the available nodes:
 
 .master$
 [source, bash]
 ----
-oc new-app -n cloudforms -p APPLICATION_MEM_REQ=3072Mi -f cfme-template.yaml
+oc get nodes
 ----
 
-Red Hat CloudForms will now be deployed into the _cloudforms_ project.
+If successful, you should see three (3) total nodes (1 master and 2 worker nodes) with **Ready** under the _Status_ column, as opposed to (2) total nodes before (1 master and 1 worker nodes).
 
-==== Validating a Successful Deployment
+Execute the following to display the nodes and their associated labels:
 
-There are several steps that can be taken in order to verify the deployment of Red Hat CloudForms in OpenShift.
-First validate that all pods are successfully running by watching the status of the pods.
+Red Hat CloudForms can also be used to confirm the total number of nodes has been expanded to four.
 
-.master$ 
-[source, bash]
-----
-watch oc get pods -n cloudforms
-----
+Login to CloudForms and once authenticated, hover over _Compute_, then _Containers_. Finally select **Container Nodes**. Confirm four nodes are displayed.
 
-Red Hat CloudForms may take up to 5 minutes to start up for the first time as it builds the content of the initial database. When the Memcached, PostgreSQL and CloudForms pods (ones that are not suffixed by "-deploy") have a _Status_ of **Running** and a _Ready_ field of **1/1**, the deployment is complete and successful. A successful deployment is represented below:
+Finally, with 2 application nodes present and running, return to the Prometheus user interface and select the **Alerts** link at the top. Notice how the alert is no longer active as the number of running application instances has been satisfied
 
-[source, bash]
-----
-NAME                 READY     STATUS    RESTARTS   AGE
-cloudforms-0         1/1	Running   0          4m
-httpd-1-tqltv        1/1	Running   0          4m
-memcached-1-7gg4s    1/1	Running   0          4m
-postgresql-1-v5sz2   1/1	Running   0          4m
-----
+image::images/alertmanager-green-scaleup.png[]
 
-Once the deployment is complete, stop the _watch_ command with CTRL+C.
-
-Further validation can be completed using the steps below.
-
-Execute the following command to view the overall status of the pods in the cloudforms project
-
-.master$
-[source, bash]
-----
-oc status -n cloudforms
-----
-
-For full details of the deployed application run
-
-.master$
-[source, bash]
-----
-oc get pods
-oc describe -n cloudforms pod/cloudforms-<pod_name>
-----
-
-Next, in order to validate the cloudforms pod is running with the proper _privileged_ SCC, export the contents and inspect the _openshift.io/scc_ annotation to confirm the _privileged_ value is present:
-
-.master$
-[source, bash]
-----
-oc -n cloudforms get -o yaml pod cloudforms-<pod_name>
-
-...
-metadata:
- annotations:
-  openshift.io/scc: privileged
-...
-----
-
-For more details check events:
-
-.master$
-[source, bash]
-----
-oc -n cloudforms get events
-----
-
-You can also check volumes:
-
-.master$
-[source, bash]
-----
-oc -n cloudforms get pv
-----
-
-NOTE: If for any reason failures are observed, you may need to remove the project and start this section over again.  **Only perform this task if there was an irrecoverable failure. Let and instructor know before doing this.**
-
-==== Accessing the CloudForms User Interface
-
-As part of the template instantiation, a route was created that allows for accessing resources from outside the OpenShift cluster. Execute the following command to locate the name of the route that was created for CloudForms
-
-.master$
-[source, bash]
-----
-oc -n cloudforms get routes
-
-NAME     HOST/PORT                   PATH   SERVICES   PORT   TERMINATION
-cloudforms  cloudforms-cloudforms.apps.example.com       cloudforms  https   passthrough
-----
-
-Open a web browser and navigate securely to the to the hostname retrieved above. This may take a minute or two to completely initialize the web console.
-link:https://httpd-cloudforms.apps-<student-id>.labs.sysdeseng.com[https://httpd-cloudforms.apps-<student-id>.labs.sysdeseng.com]
-
-NOTE: If you get an error such as _Application Not Available_ allow some time for the POD's to start and if they are running; run **oc -n cloudforms get events** to reivew for errors.
-
-Since Red Hat CloudForms in the lab environment uses a self signed certificate, add an exception in the browser to add an exception. Login with the provided credentials.
-
-Once successfully authenticated, you should be taken to the overview page:
-
-image::images/cfme-infrastructure-providers.png[]
-
-==== Configuring the Container Provider
-
-Red Hat CloudForms gathers metrics from infrastructure components through the use of providers. An OpenShift container provider is available that queries the OpenShift API and platform metrics. As part of the OpenShift installation completed previously, cluster metrics were automatically deployed and configured. CloudForms must be configured to consume from each of these resources.
-
-Configure the container provider:
-
-    . Hover your mouse over the **Compute** tab.
-    . Once over the compute tab, additional panes will appear. (do not click anything yet)
-    . Hover over **Containers** and then click on **Providers**.
-    . No container providers are configured by default. Add a new container provider by clicking on **Configuration** (with a gear icon)
-    . Lastly select **Add a new Containers Provider**
-+
-
-image::images/cfme-add-provider.png[]
-
-Start adding a new Container Provider by specifying **OCP** as the name and **OpenShift Container Platform** as the type. Set _Alerts_ to and _Metrics_ to **Prometheus**.
-
-As mentioned previously, there are two endpoints in which CloudForms retrieves metrics from. First, configure the connection details to the OpenShift API. 
-
-Since CloudForms is deployed within OpenShift, we can leverage the internal service associated with API called _kubernetes_ in the default project. Internal service names can be referenced across projects in the form _<service_name>.<namespace>_
-
-Enter **kubernetes.default** in the _hostname_ field and **443** in the _port_ field.
-
-The token field refers to the OAuth token used to authenticate CloudForms to the OpenShift API. The _management-infra_ project is a preconfigured project as part of the OpenShift installation. A service account called management-admin is available that has access to the requisite resources needed by CloudForms. Each service account has an OAuth token associated with its account. 
-
-Execute the following command to retrieve the token.
-
-.master$
-[source, bash]
-----
-oc serviceaccounts get-token -n management-infra management-admin
-----
-
-Copy the value returned into the token fields.
-
-Finally, since the SSL certificates for the OpenShift API are not currently configured within CloudForms, SSL validation would fail. To work around this issue, select the dropdown next to _Security Protocol_ and select **SSL without validation**
-
-Click the **Validate** button to verify the configuration.
-
-image::images/cfme-add-provider-dialog.png[]
-
-Next, click on the **Metrics** tab to configure CloudForms to communicate with the cluster metrics.
-
-Enter **prometheus-openshift-metrics.apps-<student-id>.labs.sysdeseng.com** in the _hostname_ field, **443** in the _port_ field and **SSL without validation** for the _Security Protocol_ dropdown.
-
-image::images/cfme-metrics-dialog.png[]
-
-Click on the **Alerts** tab to configure CloudForms to communicate with the cluster alerts.
-
-Enter **alerts-openshift-metrics.apps-<student-id>.labs.sysdeseng.com** in the _hostname_ field, **443** in the _port_ field and **SSL without validation** for the _Security Protocol_ dropdown.
-
-image::images/cfme-alerts-dialog.png[]
-
-Click **Validate** to confirm the configuration is correct for each.
-
-Finally, click **Add** to add the new container provider.
-
-You have now configured Red Hat CloudForms to retrieve metrics and alerts from OpenShift. It may take a few minutes to data to be displayed.
-
-To force an immediate refresh of the newly added Provider:
- 
-    . Select the **OCP** provider icon
-    . Notice all of the components have 0 items
-    . Now select the **Configuration** drop-down again
-    . Choose **Refresh Items and Relationships**
-    . Hit _F5_ to refresh the browser
-    . Now the Relationships should be populated with data from OpenShift
-    . Navigate to _Compute > Containers > Overview_
-    . Note that the Utilization metrics will not be immediately populated as these are collected and aggregated over a longer period of time.
-+
-
-image::images/cfme-ocp-provider.png[]
-
-Feel free to explore the CloudForms web console as time permits to view additional details exposed from the OpenShift cluster.
-
-This concludes lab 6.
+The OpenShift Container Platform has been successfully scaled to provide additional compute resources for maintain a healthy environment. 
 
 '''
 
-==== <<../lab5/lab5.adoc#lab5,Previous Lab: Lab 5 - Expanding the OpenShift Container Platform Cluster>>
-==== <<../lab7/lab7.adoc#lab7,Next Lab: Lab 7 - Where do we go from here?>>
+==== <<../lab5/lab5.adoc#lab5,Previous Lab: Lab 5 - Building an Ansible Playbook Bundle to Aid in Cluster Management>>
+==== <<../lab7/lab7.adoc#lab6,Next Lab: Lab 7 - Installing Red Hat CloudForms>>
 ==== <<../../README.adoc#lab1,Home>>
+
