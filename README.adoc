@@ -7,6 +7,7 @@
 === <<labs/lab2/lab2.adoc#lab2,Lab 2 - Exploring the Environment>>
 === <<labs/lab3/lab3.adoc#lab3,Lab 3 - Verifying Installation of Red Hat OpenShift Container Platform Using Ansible Tower>>
 === <<labs/lab4/lab4.adoc#lab4,Lab 4 - Prometheus and Grafana>>
-=== <<labs/lab5/lab5.adoc#lab5,Lab 5 - Expanding the OpenShift Container Platform Cluster>>
-=== <<labs/lab6/lab6.adoc#lab6,Lab 6 - Installing Red Hat CloudForms>>
-=== <<labs/lab7/lab7.adoc#lab7,Lab 7 - Where do we go from here?>>
+=== <<labs/lab5/lab5.adoc#lab5,Lab 5 - Building an Ansible Playbook Bundle to Aid in Cluster Management>>
+=== <<labs/lab6/lab6.adoc#lab5,Lab 6 - Expanding the OpenShift Container Platform>>
+=== <<labs/lab7/lab7.adoc#lab7,Lab 7 - Installing Red Hat CloudForms>>
+=== <<labs/lab8/lab8.adoc#lab8,Lab 8 - Where do we go from here?>>
