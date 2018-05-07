@@ -37,6 +37,6 @@ The following resources are available for your reference:
 
 '''
 
-==== <<../lab7/lab7.adoc#lab7,Previous Lab: Lab 7 - Installing Red Hat CloudForms>>
+==== <<../lab7/lab7.adoc#lab7,Previous Lab: Installing Red Hat CloudForms>>
 ==== <<../../README.adoc#lab1,Home>>
 

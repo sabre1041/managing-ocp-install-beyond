@@ -96,5 +96,5 @@ Each component plays a critical role into the overall management of the environm
 
 '''
 
-==== <<../lab1/lab1.adoc#lab1,Next Lab: Lab 1 - Ansible Tower Self-Configure and OCP Install>>
+==== <<../lab1/lab1.adoc#lab1,Next Lab: Ansible Tower Self-Configure and OCP Install>>
 ==== <<../../README.adoc#lab1,Home>>
