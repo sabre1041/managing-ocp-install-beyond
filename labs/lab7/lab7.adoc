@@ -70,12 +70,6 @@ oc get scc privileged -o yaml
 
 Confirm _system:serviceaccount:cloudforms:default_ is in the result returned.
 
-CloudForms retrieves metrics from applications deployed within OpenShift, and it leverages the data exposed by the onboard metrics infrastructure (Hawkular). Since the platform metrics are deployed in the _openshift-infra_ project and CloudForms is deployed in the cloudforms project, they cannot communicate with each other due to use of the link:https://docs.openshift.com/container-platform/latest/architecture/additional_concepts/sdn.html[multitenant SDN plugin] which isolates each project at a network level.
-
-CloudForms retrieves metrics from applications deployed within OpenShift, and it leverages the data exposed by the onboard metrics infrastructure (Hawkular & Prometheus). Since the platform metrics are deployed in the _openshift-infra_ project and CloudForms is deployed in the cloudforms project, they cannot communicate with each other due to use of the link:https://docs.openshift.com/container-platform/latest/architecture/additional_concepts/sdn.html[multitenant SDN plugin] which isolates each project at a network level.
-
-Fortunately, as a cluster administrator, you can manage the configuration of the pod overlay network to allow traffic to traverse between specific projects or be exposed to all projects. 
-
 ==== Instantiate CloudForms Template
 
 The components representing the containerized deployment of Red Hat CloudForms are available as a template and was automatically installed into the OpenShift cluster as part of the installation completed previously.
@@ -85,11 +79,6 @@ Deploy and verify the template is available in the OpenShift environment:
 .master$
 [source, bash]
 ----
-wget https://gist.githubusercontent.com/ruromero/c9616542f39311223e245074359cc607/raw/d81a3b1fd8b707a6a9dd7702998a1a6fb43feb99/cfme-template.yaml
-
-oc create -f cfme-template.yaml
-template "cloudforms" created
-
 oc get -n openshift template cloudforms
 
 NAME         DESCRIPTION                                    PARAMETERS     OBJECTS
@@ -113,7 +102,7 @@ Instantiate the template to deploy Red Hat CloudForms. A parameter called _APPLI
 .master$
 [source, bash]
 ----
-oc new-app -n cloudforms -p APPLICATION_MEM_REQ=3072Mi -f cfme-template.yaml
+oc new-app -n cloudforms -p APPLICATION_MEM_REQ=3072Mi --template=cloudforms
 ----
 
 Red Hat CloudForms will now be deployed into the _cloudforms_ project.
