@@ -13,10 +13,6 @@ Password: INSTRUCTOR WILL PROVIDE
 | link:https://instructor.labs.sysdeseng.com/summit/managing-ocp-install-beyond.pem[https://instructor.labs.sysdeseng.com/summit/managing-ocp-install-beyond.pem]
 | Username: student +
 Password: INSTRUCTOR WILL PROVIDE
-| Windows PuTTY private key
-| link:https://instructor.labs.sysdeseng.com/rhte.ppk[https://instructor.labs.sysdeseng.com/rhte.ppk]
-| Username: student +
-Password: INSTRUCTOR WILL PROVIDE
 |======================
 
 == Overview
@@ -45,12 +41,6 @@ Retrieve the `managing-ocp-install-beyond.pem` key from the instructor server so
 chmod 600 managing-ocp-install-beyond.pem
 ssh -i managing-ocp-install-beyond.pem ec2-user@tower-<student_id>.labs.sysdeseng.com
 ----
-
-* Windows
-
-Install putty on your Windows machine. link:http://www.putty.org/[http://www.putty.org/]
-
-Once installed, use the following instructions to SSH to the Tower instance link:http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html[http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/putty.html].
 
 Once logged into Ansible Tower, explore the CLI.
 
