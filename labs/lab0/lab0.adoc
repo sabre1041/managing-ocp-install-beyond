@@ -1,6 +1,8 @@
 toc::[]
 = Lab 0 - Overview
 
+image::../lab0/images/managing-ocp-overview/1.png[]
+
 image::images/managing-ocp-beyond.png[]
 
 == Abstract

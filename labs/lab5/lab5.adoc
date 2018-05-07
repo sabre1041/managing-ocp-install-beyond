@@ -1,5 +1,7 @@
 = Lab 5 - Building an Ansible Playbook Bundle to Aid in Cluster Management
 
+image::../lab0/images/managing-ocp-overview/6.png[]
+
 == Connectivity Details for This Lab
 
 [options="header"]

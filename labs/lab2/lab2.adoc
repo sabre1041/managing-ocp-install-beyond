@@ -2,6 +2,8 @@
 
 == Connectivity Details for This Lab
 
+image::../lab0/images/managing-ocp-overview/3.png[]
+
 [options="header"]
 |======================
 | *Item* | *URL* | *Access*

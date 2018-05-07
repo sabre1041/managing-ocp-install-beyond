@@ -1,5 +1,7 @@
 = Lab 3 - Reviewing OpenShift Installation
 
+image::../lab0/images/managing-ocp-overview/4.png[]
+
 == Connectivity Details for This Lab
 
 [options="header"]
