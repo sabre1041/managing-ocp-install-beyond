@@ -13,10 +13,6 @@ Password: INSTRUCTOR WILL PROVIDE
 | link:https://instructor.labs.sysdeseng.com/summit/managing-ocp-install-beyond.pem[https://instructor.labs.sysdeseng.com/summit/managing-ocp-install-beyond.pem]
 | Username: student +
 Password: INSTRUCTOR WILL PROVIDE
-| Windows PuTTY private key
-| link:https://instructor.labs.sysdeseng.com/rhte.ppk[https://instructor.labs.sysdeseng.com/rhte.ppk]
-| Username: student +
-Password: INSTRUCTOR WILL PROVIDE
 |======================
 
 == Overview
@@ -58,10 +54,6 @@ The instances are deployed within the AWS environment, login to the OpenShift Ma
 ----
 ssh -i managing-ocp-install-beyond.pem ec2-user@master-<student_id>.labs.sysdeseng.com
 ----
-
-* Windows
-
-Use putty to SSH to the Master instance as _ec2-user_, similar to accesing the Tower instance mentioned in lab2. 
 
 Access to the cluster is available using the _system:admin_ user which has the cluster-admin role. This can be confirmed by executing the following command which should confirm the currently logged in user is _system:admin_
 
