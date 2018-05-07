@@ -25,7 +25,7 @@ Password: INSTRUCTOR WILL PROVIDE
 
 == Overview
 
-Maintaining a healthy cluster is at the heart of any "Day Two" operations of OpenShift. One way to maintain a stable environment is to ensure enough compute resources are available for applications. In this lab, you will realize the benefits DevOps by taking your existing infrastructure knowledge that you have gained thus far and build a custom Ansible Playbook Bundle (APB) that will aid in the dynamic scaling of applications. 
+Maintaining a healthy cluster is at the heart of any "Day Two" operations of OpenShift. One way to maintain a stable environment is to ensure enough compute resources are available for applications. In this lab, you will realize the benefits DevOps by taking your existing infrastructure knowledge that you have gained thus far and build a custom Ansible Playbook Bundle (APB) that will aid in the dynamic scaling of applications.
 
 Over the course of the next two labs, you will create an Ansible Playbook Bundle which will aid in automatically scaling the OpenShift cluster through metrics collected by Prometheus.
 
@@ -37,9 +37,9 @@ The OpenShift Container Platform provides methods for link:https://docs.openshif
 
 The _0-Self-Configure_ job template executed earlier configured a set of templates to automate the process to expand the OpenShift cluster. A workflow job template called **2-Scaleup_OpenShift_on_AWS** was also created as a result. The workflow first creates a new AWS instance and once the instance has been created, the scaleup Ansible playbook will be executed to expand the cluster. Finally, a third job template performs the actions required to finalize the cluster scaleup.
 
-As part of the deployment of Prometheus within OpenShift, another component of the Prometheus ecosystem includes a notification component called link:https://prometheus.io/docs/alerting/alertmanager/[AlertManager]. Alerts can be sent to a variety of endpoints ranging from commercial offerings such as Slack, HipChat and PagerDuty, or to generic endpoints using webhooks. 
+As part of the deployment of Prometheus within OpenShift, another component of the Prometheus ecosystem includes a notification component called link:https://prometheus.io/docs/alerting/alertmanager/[AlertManager]. Alerts can be sent to a variety of endpoints ranging from commercial offerings such as Slack, HipChat and PagerDuty, or to generic endpoints using webhooks.
 
-As mentioned earlier, Ansible Tower features a Rest API for querying resources, including triggering Workflow/Job Templates. 
+As mentioned earlier, Ansible Tower features a Rest API for querying resources, including triggering Workflow/Job Templates.
 
 Unfortunately, the API is not compatible with the webhook notifications being emitted by AlertManager. To support the webhook function of AlertManager to trigger Job templates in Ansible Tower, a new custom "bridge" application has been developed for this lab and deployed to OpenShift through the use of an Ansible Playbook Bundle.
 
@@ -150,7 +150,7 @@ oc login -u system:admin
 
 == Deploying the AlertManager-Tower-Bridge Application
 
-The AlertManager-Tower-Bridge application aid in providing cluster capabilities to dynamically scale the size of the OpenShift. Since the application is loosely tied to the Prometheus ecosystem and specifically AlertManager, it should be deployed alongside Prometheus in the `openshift-metrics` project. Given this project requires elevated rights, the _<student_id>-admin_ should be utilized. 
+The AlertManager-Tower-Bridge application aid in providing cluster capabilities to dynamically scale the size of the OpenShift. Since the application is loosely tied to the Prometheus ecosystem and specifically AlertManager, it should be deployed alongside Prometheus in the `openshift-metrics` project. Given this project requires elevated rights, the _<student_id>-admin_ should be utilized.
 
 Navigate to the OpenShift Web Console and login as the _<student_id>-admin_ user.
 
@@ -181,12 +181,11 @@ Click the **Overview** tab to view the status of the image build and deployment.
 
 image::images/alertmanager-tower-bridge-app-overview.png[]
 
-A running pod similar to the image above indicates the application deployment was successful. 
+A running pod similar to the image above indicates the application deployment was successful.
 
 
 '''
 
 ==== <<../lab4/lab4.adoc#lab4,Previous Lab: Lab 4 - Prometheus and Grafana>>
-==== <<../lab6/lab6.adoc#lab6,Next Lab: Lab 6 - Expanding the OpenShift Container Platform>>
+==== <<../lab6/lab6.adoc#lab6,Next Lab: Lab 6 - Building an Ansible Playbook Bundle to Aid in Cluster Managemen>>
 ==== <<../../README.adoc#lab1,Home>>
-

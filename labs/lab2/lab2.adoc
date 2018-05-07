@@ -86,7 +86,7 @@ Additional job templates relating to scaling the OpenShift environment and termi
 The Job Templates utilize Projects, or collections of Ansible playbooks, that in this lab are sourced from both a Git repository and the local file system on the Ansible Tower instance. To view the projects that are being utilized, select the **PROJECTS** link on the menu bar. Two projects are being leveraged:
 
 * Managing OCP from Install and Beyond - Customized Ansible tooling to perform pre and post installation steps sourced from a Git repository
-* openshift-ansible - Installs and configures the OpenShift Container Platform based on components from the `openshift-ansible-playbooks` rpm installed on the Tower machine 
+* openshift-ansible - Installs and configures the OpenShift Container Platform based on components from the `openshift-ansible-playbooks` rpm installed on the Tower machine
 
 image::images/ansible-tower-projects.png[]
 
@@ -131,6 +131,6 @@ This lab is concluded when the Ansible Tower job is completed successfully.
 
 '''
 
-==== <<../lab1/lab1.adoc#lab1,Previous Lab: Lab 1 - Introduction / Setup>>
-==== <<../lab3/lab3.adoc#lab3,Next Lab: Lab 3 - Verifying Installation of Red Hat OpenShift Container Platform Using Ansible Tower>>
+==== <<../lab1/lab1.adoc#lab1,Previous Lab: Lab 1 - Ansible Tower Self-Configure>>
+==== <<../lab3/lab3.adoc#lab3,Next Lab: Lab 3 - Reviewing OpenShift Installation>>
 ==== <<../../README.adoc#lab1,Home>>
