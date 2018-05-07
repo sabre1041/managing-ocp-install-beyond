@@ -1,4 +1,6 @@
-= Lab 1 - Ansible Tower Self-Configure
+= Lab 1 - Ansible Tower Self-Configure and OCP Install
+
+image::../lab0/images/managing-ocp-overview/2.png[]
 
 == Connectivity Details for This Lab
 

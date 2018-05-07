@@ -2,6 +2,8 @@
 
 == Connectivity Details for This Lab
 
+image::../lab0/images/managing-ocp-overview/3.png[]
+
 [options="header"]
 |======================
 | *Item* | *URL* | *Access*
@@ -131,6 +133,6 @@ This lab is concluded when the Ansible Tower job is completed successfully.
 
 '''
 
-==== <<../lab1/lab1.adoc#lab1,Previous Lab: Lab 1 - Ansible Tower Self-Configure>>
+==== <<../lab1/lab1.adoc#lab1,Previous Lab: Lab 1 - Ansible Tower Self-Configure and OCP Install>>
 ==== <<../lab3/lab3.adoc#lab3,Next Lab: Lab 3 - Reviewing OpenShift Installation>>
 ==== <<../../README.adoc#lab1,Home>>

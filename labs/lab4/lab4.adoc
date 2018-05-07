@@ -1,5 +1,7 @@
 = Lab 4 - Prometheus and Grafana
 
+image::../lab0/images/managing-ocp-overview/5.png[]
+
 == Connectivity Details for This Lab
 
 [options="header"]

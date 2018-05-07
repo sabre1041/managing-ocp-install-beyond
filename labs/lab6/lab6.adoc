@@ -1,5 +1,7 @@
 = Lab 6 - Expanding the OpenShift Container Platform
 
+image::../lab0/images/managing-ocp-overview/7.png[]
+
 == Connectivity Details for This Lab
 
 [options="header"]

@@ -1,5 +1,7 @@
 = Lab 7 - Installing Red Hat CloudForms
 
+image::../lab0/images/managing-ocp-overview/8.png[]
+
 == Connectivity Details for This Lab
 
 [options="header"]
