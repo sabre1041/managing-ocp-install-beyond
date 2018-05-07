@@ -130,7 +130,14 @@ NOTE: If the Prometheus pods fail to start issue the following command on the ma
 sudo systemctl restart atomic-openshift-master-controllers.service atomic-openshift-node.service atomic-openshift-master-api.service
 ----
 
-Once in the web UI, the `console` is the default view. Click on `Graph` in the top navigation pane.  Next, click on the `"insert metric at cursor"` dropdown and scroll to `node_memory_MemAvailable`, then click `Execute`. At this point, you will be on the _Console_ tab. Click on the _Graph_ tab. This should create a graph on your screen. Make sure to hover over the lines in the graph and get a sense of what's being offered here. You can continue adding graphs and organizing your dashboard how you want it.
+Once in the web UI, the `console` is the default view. 
+
+* Click on `Graph` in the top navigation pane.  
+* Next, click on the `"insert metric at cursor"` dropdown and scroll to `node_memory_MemAvailable`, then click `Execute`. 
+* At this point, you will be on the _Console_ tab. 
+* Click on the _Graph_ tab. This should create a graph on your screen. 
+
+Make sure to hover over the lines in the graph and get a sense of what's being offered here. You can continue adding graphs and organizing your dashboard how you want it.
 
 Once you have created a graph or two, take some time to explore the other options on the top navigation bar: `Alerts`, `Status`, `Help`. In the subsequent lab, we are going to spend some time on `Alerts`.
 
