@@ -11,7 +11,7 @@
     web_console_namespace: openshift-web-console
     tmp_configmap_prometheus: /tmp/prometheus-configmap.yml
     tmp_configmap_alertmanager: /tmp/alertmanager-configmap.yml
-    cfme_template: https://raw.githubusercontent.com/openshift/openshift-ansible/release-3.9/roles/openshift_examples/files/examples/v3.9/cfme-templates/cfme-template.yaml
+    cfme_template: https://gist.githubusercontent.com/ruromero/c9616542f39311223e245074359cc607/raw/d81a3b1fd8b707a6a9dd7702998a1a6fb43feb99/cfme-template.yaml
   tasks:
   - name: Update {{ student_id }}-admin user to have cluster-admin privileges
     command: >
