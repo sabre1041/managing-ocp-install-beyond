@@ -1,4 +1,4 @@
-= Lab 1 - Ansible Tower Self-Configure
+= Lab 1 - Ansible Tower Self-Configure and OCP Install
 
 == Connectivity Details for This Lab
 
