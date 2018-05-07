@@ -56,7 +56,7 @@ openshift_prometheus_additional_rules_file: {{ tower_openshift_prometheus_config
 openshift_node_open_ports:
   - service: "Prometheus Node Exporter"
     port: "9100/tcp"
-openshift_prometheus_node_exporter_image_version: "{{ openshift_image_tag }}" 
+openshift_prometheus_node_exporter_image_version: "{{ openshift_image_tag }}"
 ```
 
 Now that we know how Prometheus was deployed, we are going to explore the environment a bit more. From your _master_ host, execute the following commands.
@@ -97,7 +97,7 @@ Look at the Prometheus ConfigMap as well and explore it. ConfigMap's allow us to
 .master$
 [source, bash]
 ----
-oc describe configmap prometheus 
+oc describe configmap prometheus
 ----
 
 
@@ -155,7 +155,7 @@ Deploy Grafana via the setup script that's included in the OpenShift Origin git 
 [source, bash]
 ----
 ./setup-grafana.sh -n prometheus -p openshift-metrics
-oc project 
+oc project
 oc get all
 oc get routes
 ----
@@ -185,5 +185,5 @@ This concludes lab 4
 '''
 
 ==== <<../lab3/lab3.adoc#lab3,Previous Lab: Lab 3 - Verifying Installation of Red Hat OpenShift Container Platform Using Ansible Tower>>
-==== <<../lab5/lab5.adoc#lab5,Next Lab: Lab 5 - Expanding the OpenShift Container Platform Cluster>>
+==== <<../lab5/lab5.adoc#lab5,Next Lab: Lab 5 - Building an Ansible Playbook Bundle>>
 ==== <<../../README.adoc#lab1,Home>>

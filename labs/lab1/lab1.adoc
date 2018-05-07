@@ -1,4 +1,4 @@
-= Lab 1 - Lab Setup
+= Lab 1 - Ansible Tower Self-Configure
 
 == Connectivity Details for This Lab
 
@@ -15,7 +15,7 @@ Welcome! We are going to jump right into the lab implementation and then review 
 
 === Configure Ansible Tower:
 
-Prior to installing the OpenShift Container Platform, Ansible Tower must be configured first. This section will introduce several key benefits for using Ansible Tower over standalone ansible and provide a solid baseline for the rest of the lab session. 
+Prior to installing the OpenShift Container Platform, Ansible Tower must be configured first. This section will introduce several key benefits for using Ansible Tower over standalone ansible and provide a solid baseline for the rest of the lab session.
 
 From a local web browser open https://tower-<student_id>.labs.sysdeseng.com[https://tower-<student_id>.labs.sysdeseng.com] and login using the credentials provided. This will be the tower instance that was assigned to you.
 
@@ -23,9 +23,9 @@ From a local web browser open https://tower-<student_id>.labs.sysdeseng.com[http
 
 image::images/tower-login.png[]
 
-The instance of tower has been minimally configured prior to the lab. The installation of OpenShift does take some time to complete, so we will provide a high level overview of each component we will be configuring until the installation has been initiated, and then circle back afterward for a deeper explanation. 
+The instance of tower has been minimally configured prior to the lab. The installation of OpenShift does take some time to complete, so we will provide a high level overview of each component we will be configuring until the installation has been initiated, and then circle back afterward for a deeper explanation.
 
-A link:http://docs.ansible.com/ansible-tower/latest/html/userguide/projects.html[Project] that references the Git based repository associated with has been configured on the _PROJECTS_ page called _Managing OCP from Install and Beyond_. 
+A link:http://docs.ansible.com/ansible-tower/latest/html/userguide/projects.html[Project] that references the Git based repository associated with has been configured on the _PROJECTS_ page called _Managing OCP from Install and Beyond_.
 
 image::images/tower-project-initial.png[]
 
@@ -37,7 +37,7 @@ A single Job Template called _0-Self-Configure_ is available that will finalize 
 
 image::images/job-template-tower-config.png[]
 
-Track the progress of the job until successful completion. The job configures several aspects of the Ansible Tower. A comprehensive explanation will be covered in the next lab. 
+Track the progress of the job until successful completion. The job configures several aspects of the Ansible Tower. A comprehensive explanation will be covered in the next lab.
 
 Now trigger the deployment of instances to AWS and the installation of OpenShift by scrolling down and selecting the **RocketShip** next to _1-Deploy_OpenShift_on_AWS_ Workflow Job.
 
@@ -47,7 +47,6 @@ The workflow job template takes about 30 minutes to complete. While that is goin
 
 '''
 
-==== <<../lab0/lab0.adoc#lab0,Previous Lab: Lab 0 - Lab Overview>>
-==== <<../lab2/lab2.adoc#lab2,Next Lab: Lab 2 - Exploring the Environment>>
+==== <<../lab0/lab0.adoc#lab0,Previous Lab: Lab 0 - Overview>>
+==== <<../lab2/lab2.adoc#lab2,Next Lab: Lab 2 - Exploring Ansible Tower Environment>>
 ==== <<../../README.adoc#lab1,Home>>
-
