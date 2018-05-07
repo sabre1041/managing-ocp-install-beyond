@@ -188,6 +188,6 @@ A running pod similar to the image above indicates the application deployment wa
 
 '''
 
-==== <<../lab4/lab4.adoc#lab4,Previous Lab: Lab 4 - Prometheus and Grafana>>
-==== <<../lab6/lab6.adoc#lab6,Next Lab: Lab 6 - Building an Ansible Playbook Bundle to Aid in Cluster Managemen>>
+==== <<../lab4/lab4.adoc#lab4,Previous Lab: Prometheus and Grafana>>
+==== <<../lab6/lab6.adoc#lab6,Next Lab: Building an Ansible Playbook Bundle to Aid in Cluster Management>>
 ==== <<../../README.adoc#lab1,Home>>

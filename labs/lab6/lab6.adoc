@@ -241,7 +241,7 @@ The OpenShift Container Platform has been successfully scaled to provide additio
 
 '''
 
-==== <<../lab5/lab5.adoc#lab5,Previous Lab: Lab 5 - Building an Ansible Playbook Bundle to Aid in Cluster Management>>
-==== <<../lab7/lab7.adoc#lab6,Next Lab: Lab 7 - Installing Red Hat CloudForms>>
+==== <<../lab5/lab5.adoc#lab5,Previous Lab: Building an Ansible Playbook Bundle to Aid in Cluster Management>>
+==== <<../lab7/lab7.adoc#lab6,Next Lab: Installing Red Hat CloudForms>>
 ==== <<../../README.adoc#lab1,Home>>
 

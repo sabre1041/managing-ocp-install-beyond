@@ -287,6 +287,6 @@ This concludes lab 7.
 
 '''
 
-==== <<../lab6/lab6.adoc#lab6,Previous Lab: Lab 5 - Expanding the OpenShift Container Platform Cluster>>
-==== <<../lab8/lab8.adoc#lab8,Next Lab: Lab 8 - Where do we go from here?>>
+==== <<../lab6/lab6.adoc#lab6,Previous Lab: Expanding the OpenShift Container Platform Cluster>>
+==== <<../lab8/lab8.adoc#lab8,Next Lab: Where do we go from here?>>
 ==== <<../../README.adoc#lab1,Home>>

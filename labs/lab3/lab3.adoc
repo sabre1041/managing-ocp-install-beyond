@@ -134,6 +134,6 @@ This concludes lab 3
 
 '''
 
-==== <<../lab2/lab2.adoc#lab2,Previous Lab: Lab 2 - Exploring Ansible Tower Environment>>
-==== <<../lab4/lab4.adoc#lab4,Next Lab: Lab 4 - Prometheus and Grafana>>
+==== <<../lab2/lab2.adoc#lab2,Previous Lab: Exploring Ansible Tower Environment>>
+==== <<../lab4/lab4.adoc#lab4,Next Lab: Prometheus and Grafana>>
 ==== <<../../README.adoc#lab1,Home>>
