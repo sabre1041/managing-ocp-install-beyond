@@ -70,7 +70,15 @@ Confirm the user is associated to the privileged SCC:
 oc get scc privileged -o yaml
 ----
 
-Confirm _system:serviceaccount:cloudforms:default_ is in the result returned.
+Confirm the following is returned:
+----
+- system:admin
+- system:serviceaccount:openshift-infra:build-controller
+- system:serviceaccount:management-infra:management-admin
+- system:serviceaccount:management-infra:inspector-admin
+- system:serviceaccount:cloudforms:cfme-httpd
+- system:serviceaccount:cloudforms:cfme-orchestrator
+----
 
 ==== Instantiate CloudForms Template
 
