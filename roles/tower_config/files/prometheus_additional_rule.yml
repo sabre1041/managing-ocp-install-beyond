@@ -3,7 +3,7 @@ groups:
   interval: 30s # defaults to global interval
   rules:
     - alert: Minimum Number of Application Nodes
-      expr: sum(up{type="app",job="kubernetes-nodes"}) < 0
+      expr: sum(up{node_role_kubernetes_io_compute="true",job="kubernetes-nodes"}) < 0
       for: 2m
       labels:
         severity: critical
