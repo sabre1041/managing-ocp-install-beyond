@@ -1,5 +1,6 @@
 ---
 deployment_type: openshift-enterprise
+openshift_release: "{{ openshift_deploy_version | string }}"
 osm_use_cockpit: no
 openshift_master_default_subdomain: apps-{{ student_id }}.{{ domain_name }}
 openshift_master_identity_providers:
@@ -7,29 +8,21 @@ openshift_master_identity_providers:
   login: True
   challenge: True
   kind: HTPasswdPasswordIdentityProvider
-  filename: /etc/origin/master/htpasswd
 openshift_master_htpasswd_users:
-  {{ student_id }}: $apr1$yv51mDpN$bIpurV4keQTUVt8KaXOu.0
-  {{ student_id }}-admin: $apr1$yv51mDpN$bIpurV4keQTUVt8KaXOu.0
+  {{ student_id }}: $apr1$NRjpcXlD$MVo5a7ZcexbHVRfuUkwOr0
+  {{ student_id }}-admin: $apr1$NRjpcXlD$MVo5a7ZcexbHVRfuUkwOr0
 openshift_master_image_policy_config:
   maxImagesBulkImportedPerRepository: 100
 openshift_metrics_install_metrics: yes
 os_sdn_network_plugin_name: redhat/openshift-ovs-multitenant
 osn_storage_plugin_deps: []
 openshift_schedulable: True
-openshift_hosted_router_selector: 'type=infra'
-openshift_hosted_registry_selector: 'type=infra'
-openshift_metrics_selector: "type=infra"
 openshift_cloudprovider_kind: aws
 openshift_master_cluster_hostname: "{{ openshift_master_internal_dns_prefix }}-{{ student_id }}.{{ domain_name }}"
 openshift_master_cluster_public_hostname: "{{ openshift_master_dns_prefix }}-{{ student_id }}.{{ domain_name }}"
 openshift_metrics_cassandra_storage_type: dynamic
 openshift_disable_check: memory_availability,disk_availability
-template_service_broker_selector:
-  type: infra
 openshift_hosted_prometheus_deploy: true
-openshift_prometheus_node_selector:
-  type: infra
 openshift_prometheus_namespace: openshift-metrics
 openshift_prometheus_args:
   - '--storage.tsdb.retention=3d'
@@ -43,7 +36,7 @@ ansible_service_broker_local_registry_whitelist:
 {% raw %}
 openshift_cloudprovider_aws_access_key: "{{ lookup('env','AWS_ACCESS_KEY_ID') }}"
 openshift_cloudprovider_aws_secret_key: "{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
-openshift_node_labels: "{{ ec2_tag_node_labels }}"
+openshift_node_group_name: "{{ ec2_tag_node_group }}"
 openshift_prometheus_node_exporter_image_version: "{{ openshift_image_tag }}"
 {% endraw %}
 
@@ -53,5 +46,10 @@ openshift_master_named_certificates: [{"certfile": "{{ tower_openshift_letsencry
 openshift_hosted_router_certificate: {"certfile": "{{ tower_openshift_letsencrypt_config_dir }}/{{ letsencrypt_crt_filename }}", "keyfile": "{{ tower_openshift_letsencrypt_config_dir }}/{{ letsencrypt_key_filename }}", "cafile": "{{ tower_openshift_letsencrypt_config_dir }}/{{ letsencrypt_ca_filename }}"}
 {% endif %}
 
-# Default Node Selector Cannot be Used Due to Issue With Service Catalog Deployment. Is set during Postinstall playbook
-#osm_default_node_selector: 'type=app'
+osm_default_node_selector: "node-role.kubernetes.io/compute=true"
+openshift_metrics_cassandra_nodeselector:
+  "node-role.kubernetes.io/infra": "true"
+openshift_metrics_hawkular_nodeselector:
+  "node-role.kubernetes.io/infra": "true"
+openshift_metrics_heapster_nodeselector:
+  "node-role.kubernetes.io/infra": "true"

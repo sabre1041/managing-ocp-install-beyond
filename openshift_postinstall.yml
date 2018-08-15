@@ -6,7 +6,7 @@
     templates_to_keep: ['cakephp-mysql-persistent', 'metrics-deployer-template', 'registry-console']
     image_streams_to_keep: ['python', 'php', 'mysql']
     service_catalog_projects_to_annotate: ['kube-service-catalog']
-    default_node_selector: 'type=app'
+    default_node_selector: 'node-role.kubernetes.io/compute=true'
     service_catalog_default_node_selector: 'openshift-infra=apiserver'
     web_console_namespace: openshift-web-console
     tmp_configmap_prometheus: /tmp/prometheus-configmap.yml
@@ -57,10 +57,6 @@
     command: >
       oc apply -n openshift -f {{ cfme_template }}
   
-  - name: Set Default Node Selector
-    become: true
-    lineinfile: dest=/etc/origin/master/master-config.yaml  state=present regexp="defaultNodeSelector" line='  defaultNodeSelector{{ ':' }} {{ default_node_selector }}'
-
   - name: Join Prometheus and Web Console Networks
     command: >
       oc adm pod-network join-projects --to={{ openshift_prometheus_namespace }} {{ web_console_namespace }}
@@ -113,33 +109,3 @@
     command: >
       oc delete pod -n {{ openshift_prometheus_namespace }} -l=app=prometheus
 
-  - name: Locate OpenShift API Server
-    command: >
-      oc whoami --show-server=true
-    register: whoami_result
-  
-  - name: Restart OpenShift Master API
-    become: true
-    systemd:
-      name: atomic-openshift-master-api
-      state: restarted
-
-  - name: Verify API Server
-    become: true
-    command: >
-      curl --silent
-      --cacert /etc/origin/master/ca-bundle.crt
-      {{ whoami_result.stdout }}/healthz/ready
-    args:
-      warn: no
-    register: l_api_available_output
-    until: l_api_available_output.stdout == 'ok'
-    retries: 120
-    delay: 1
-    changed_when: false
-
-  - name: Delete Service Catalog Pods
-    command: >
-      oc delete pods --all -n {{ item}}
-    with_items: "{{ service_catalog_projects_to_annotate }}"
-  

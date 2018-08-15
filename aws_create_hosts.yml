@@ -14,7 +14,7 @@
         image: "{{ item.image }}"
         wait: yes
         instance_tags:
-          "{'Name': '{{ item.name }}-{{ student_id }}.{{ domain_name }}', 'lab_name': '{{ lab_name }}', 'lab_user': '{{ lab_user }}', 'lab_role': '{{ item.meta.node_type }}', 'student_id': '{{ student_id }}', 'node_labels': '{{ item.meta.node_labels | to_json }}', 'kubernetes.io/cluster/{{ student_id }}': '{{ student_id }}'}"
+          "{'Name': '{{ item.name }}-{{ student_id }}.{{ domain_name }}', 'lab_name': '{{ lab_name }}', 'lab_user': '{{ lab_user }}', 'lab_role': '{{ item.meta.node_type }}', 'student_id': '{{ student_id }}', 'node_group': '{{ item.meta.node_group }}', 'kubernetes.io/cluster/{{ student_id }}': '{{ student_id }}'}"
         vpc_subnet_id: "{{ aws_subnet_id }}"
         zone: "{{ aws_az_1 }}"
         assign_public_ip: yes

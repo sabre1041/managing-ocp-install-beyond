@@ -2,7 +2,7 @@
 - name: Enable OpenShift repository
   command: >
     subscription-manager repos
-      --enable="rhel-7-server-ose-{{ openshift_deploy_version }}-rpms"
+      --enable="rhel-7-server-ose-{{ openshift_deploy_version | string }}-rpms"
   ignore_errors: yes
   become: true
 
