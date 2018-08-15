@@ -8,4 +8,13 @@
 - name: Set Tower CLI Password
   command: tower-cli config password {{ tower_password }}
   no_log: True
+
+- name: Generate OpenShift Password
+  command: htpasswd -b -n ocp {{ ocp_password }}
+  register: ocp_htpasswd_result
+  no_log: True
+
+- name: Set OpenShift Password Fact
+  set_fact:
+    ocp_htpasswd: "{{ ocp_htpasswd_result.stdout.split(':')[1] }}"
 ...
