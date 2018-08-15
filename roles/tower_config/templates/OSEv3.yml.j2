@@ -9,8 +9,8 @@ openshift_master_identity_providers:
   challenge: True
   kind: HTPasswdPasswordIdentityProvider
 openshift_master_htpasswd_users:
-  {{ student_id }}: $apr1$NRjpcXlD$MVo5a7ZcexbHVRfuUkwOr0
-  {{ student_id }}-admin: $apr1$NRjpcXlD$MVo5a7ZcexbHVRfuUkwOr0
+  {{ student_id }}: {{ ocp_htpasswd }}
+  {{ student_id }}-admin: {{ ocp_htpasswd }}
 openshift_master_image_policy_config:
   maxImagesBulkImportedPerRepository: 100
 openshift_metrics_install_metrics: yes

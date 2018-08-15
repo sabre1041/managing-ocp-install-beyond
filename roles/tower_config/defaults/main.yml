@@ -254,4 +254,6 @@ letsencrypt_fullchain_filename: letsencrypt-fullchain.crt
 letsencrypt_key_filename: letsencrypt.key
 letsencrypt_ca_filename: letsencrypt.ca
 letsencrypt_crt_filename: letsencrypt.crt
+
+ocp_password: "{{ ocp_password }}"
 ...
