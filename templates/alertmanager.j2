@@ -17,7 +17,9 @@ receivers:
 - name: ansible-tower
   webhook_configs:
     - url: http://alertmanager-tower-bridge:8080
+      send_resolved: false
     - url: http://localhost:9099/topics/alerts
+      send_resolved: false
 - name: alert-buffer-wh
   webhook_configs:
     - url: http://localhost:9099/topics/alerts

@@ -46,7 +46,7 @@ plans:
       - name: GIT_REF
         title: Git Branch
         required: true
-        default: summit2018
+        default: rhte2018
         type: string
 
       - name: CONTEXT_DIR
