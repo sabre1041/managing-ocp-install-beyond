@@ -57,16 +57,16 @@ Using the OpenShift Command Line Tool on the master, you can verify the label as
 oc get nodes --show-labels
 ----
 
-Notice that only 1 node as denoted with _COMPUTE_ as the "ROLES" has a label with `type=app`. 
+Notice that only 1 node as denoted with _COMPUTE_ as the "ROLES" has a label with `node-role.kubernetes.io/compute=true`. Prometheus replaces special characters, such as periods (`.`) and slashes (`/`), with underscores (`_`).
 
 The expression for the  _Mininum Number of Application Nodes_ rule is defined using the link:https://prometheus.io/docs/prometheus/latest/querying/basics/[Prometheus Query Language (PromQL)] as follows:
 
 [source, bash]
 ----
-sum(up{job="kubernetes-nodes",type="app"}) < 0
+sum(up{job="kubernetes-nodes",node_role_kubernetes_io_compute="true"}) < 0
 ----
 
-This rule states that the alert will be fired when the number of nodes with the label `type=app` is below 0.
+This rule states that the alert will be fired when the number of nodes with the label `node.role.kubernetes.io/compute="true"` is below 0.
 
 When an alert is triggered, a request is sent to AlertManager, a separate container within the Prometheus pod. AlertManager itself has its own web console for which to interact with the component. Open a new browser tab and navigate to the following location and use the same credentials ("<student_id>-admin") as were used to access Prometheus.
 
@@ -113,7 +113,7 @@ Modify the expression for the _Minimum Number of Application Nodes_ rule as show
 
 [source, bash]
 ----
-sum(up{type="app",job="kubernetes-nodes"}) < 2
+sum(up{job="kubernetes-nodes",node_role_kubernetes_io_compute="true"}) < 2
 ----
 
 One of the benefits of ConfigMaps is that once a change has been made, the resulting value is made available in the pod. 

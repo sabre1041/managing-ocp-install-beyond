@@ -127,7 +127,7 @@ Push the APB to the OpenShift integrated registry
 .master$
 [source, bash]
 ----
-sudo apb push
+sudo apb push --registry-route=docker-registry.default.svc:5000
 ----
 
 Confirm the APB is available in the Ansible Service broker by listing all registered APB's.
@@ -189,5 +189,5 @@ A running pod similar to the image above indicates the application deployment wa
 '''
 
 ==== <<../lab4/lab4.adoc#lab4,Previous Lab: Prometheus and Grafana>>
-==== <<../lab6/lab6.adoc#lab6,Next Lab: Building an Ansible Playbook Bundle to Aid in Cluster Management>>
+==== <<../lab6/lab6.adoc#lab6,Next Lab: Expanding the OpenShift Container Platform>>
 ==== <<../../README.adoc#lab1,Home>>

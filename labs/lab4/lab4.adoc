@@ -58,7 +58,6 @@ openshift_prometheus_additional_rules_file: {{ tower_openshift_prometheus_config
 openshift_node_open_ports:
   - service: "Prometheus Node Exporter"
     port: "9100/tcp"
-openshift_prometheus_node_exporter_image_version: "{{ openshift_image_tag }}"
 ```
 
 Now that we know how Prometheus was deployed, we are going to explore the environment a bit more. From your _master_ host, execute the following commands.
@@ -122,13 +121,6 @@ NOTE: Remember to add an `https://` to your route when you go the the browser.
 
 NOTE: The first time you access Prometheus, you will need to authenticate using your OpenShift credentials. Do that, and authorize the proper access to the Prometheus project.
 
-NOTE: If the Prometheus pods fail to start issue the following command on the master:
-
-.master$
-[source, bash]
-----
-sudo systemctl restart atomic-openshift-master-controllers.service atomic-openshift-node.service atomic-openshift-master-api.service
-----
 
 Once in the web UI, the `console` is the default view. 
 
@@ -143,7 +135,7 @@ Once you have created a graph or two, take some time to explore the other option
 
 ==== Deploy Grafana
 
-Now that we have explored some of the capabilities of Prometheus, let's have a look at how we can use Graphana to do more visualization of the data.
+Now that we have explored some of the capabilities of Prometheus, let's have a look at how we can use Grafana to do more visualization of the data.
 
 Return to your OpenShift Master node and clone the OpenShift Origin repo and change to the Grafana directory. We are going to checkout a known good commit.
 
@@ -151,9 +143,8 @@ Return to your OpenShift Master node and clone the OpenShift Origin repo and cha
 [source, bash]
 ----
 cd ~
-git clone https://github.com/openshift/origin.git
+git clone --depth 1 https://github.com/openshift/origin.git
 cd origin
-git checkout 2075da460d166a98eb557fd9f4bfdaebee3659f7
 cd examples/grafana/
 ----
 
