@@ -29,9 +29,7 @@ In this lab, you will deploy a single instance/replica of Red Hat CloudForms to 
 
 === Deploy Red Hat CloudForms
 
-NOTE: If you are repeating this lab due to an issue encountered, consider using <<Appendix B - Script For Deploying CloudForms>>
-
-Since Red Hat CloudForms is available as a container, it can be deployed to the OpenShift Container Platform in a few short steps.
+Since Red Hat CloudForms is available as a set of containers, it can be deployed to the OpenShift Container Platform in a few short steps.
 
 A user with _cluster-admin_ permissions must be used to configure the environment as CloudForms requires access to privileged resources
 
@@ -53,69 +51,76 @@ oc config current-context
 
 When creating a new project, a set of service accounts are automatically provisioned. These accounts are used when building, deploying and running containers. The _default_ service account is the de facto service account used by pods. Since CloudForms is deployed within a pod and requires access to key metrics in the OpenShift environment along with the host, it must be granted elevated access as a privileged resource. In OpenShift, permissions associated to pods are managed by link:https://docs.openshift.com/container-platform/latest/admin_guide/manage_scc.html[Security Context Constraints] and the service account that is used to run them.
 
-Execute the following command to add the default service account in the cloudforms project to the privileged SCC:
+Execute the following commands to add the service accounts in the cloudforms project to the privileged SCC:
 
 .master$
 [source, bash]
 ----
-oc adm policy add-scc-to-user privileged -z cfme-httpd
-oc adm policy add-scc-to-user privileged -z cfme-orchestrator
+oc adm policy add-scc-to-user anyuid system:serviceaccount:cloudforms:cfme-anyuid
+oc adm policy add-scc-to-user anyuid system:serviceaccount:cloudforms:cfme-orchestrator
+oc adm policy add-scc-to-user anyuid system:serviceaccount:cloudforms:cfme-httpd
+oc adm policy add-scc-to-user privileged system:serviceaccount:cloudforms:cfme-privileged
 ----
 
-Confirm the user is associated to the privileged SCC:
+Verify the SCCs are added correctly to the service accounts and project:
 
 .master$
 [source, bash]
 ----
-oc get scc privileged -o yaml
+oc describe scc anyuid | grep Users
 ----
 
 Confirm the following is returned:
 ----
-- system:admin
-- system:serviceaccount:openshift-infra:build-controller
-- system:serviceaccount:management-infra:management-admin
-- system:serviceaccount:management-infra:inspector-admin
-- system:serviceaccount:cloudforms:cfme-httpd
-- system:serviceaccount:cloudforms:cfme-orchestrator
+Users:					system:serviceaccount:cloudforms:cfme-anyuid,system:serviceaccount:cloudforms:cfme-orchestrator,system:serviceaccount:cloudforms:cfme-httpd
 ----
 
-==== Instantiate CloudForms Template
-
-The components representing the containerized deployment of Red Hat CloudForms are available as a template and was automatically installed into the OpenShift cluster as part of the installation completed previously.
-
-Deploy and verify the template is available in the OpenShift environment:
+Add the view and edit roles to the cfme-orchestrator service account: 
 
 .master$
 [source, bash]
 ----
-oc get -n openshift template cloudforms
+oc policy add-role-to-user view system:serviceaccount:cloudforms:cfme-orchestrator -n cloudforms
+oc policy add-role-to-user edit system:serviceaccount:cloudforms:cfme-orchestrator -n cloudforms
+----
+
+==== Instantiate CloudForms
+
+CloudForms currently ships with OpenShift Container Platform 3.10 which greatly simplifies the deployment.
+
+The persistent storage required by CloudForms will be dynamically provisioned by the link:https://docs.openshift.com/container-platform/3.10/install_config/configuring_aws.html[AWS cloud provider].
+
+In order to instantiate cloudforms, first configure the CloudForms template.  For this lab we will use the default settings:
+
+.master$
+[source, bash]
+----
+cd /usr/share/ansible/openshift-ansible/roles/openshift_examples/files/examples/v3.10/cfme-templates
+oc create -f cfme-template.yaml
+----
+
+Verify the template is available with your project:
+
+.master$
+[source, bash]
+----
+oc get templates
 
 NAME         DESCRIPTION                                    PARAMETERS     OBJECTS
-cloudforms   CloudForms appliance with persistent storage   56 (1 blank)   24
+cloudforms   CloudForms appliance with persistent storage   56 (1 blank)   26
 ----
 
-The describe operation provides additional details about the teamplate. Execute the following command to execute this action against the CloudForms template:
+Finally we will initiate the CloudForms deployment with one custom setting, _APPLICATION_DOMAIN_=cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com
+
+This will allow connectivity to the CloudForms appliance outside of the OpenShift environment.
 
 .master$
 [source, bash]
 ----
-oc describe -n openshift template cloudforms
+oc new-app --template=cloudforms -p APPLICATION_DOMAIN=cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com
 ----
 
-Notice the different types of information that is displayed including the objects that will be created along with parameters that can be specified.
-
-The persistent storage required by CloudForms will be dynamically provisioned by the link:https://docs.openshift.com/container-platform/3.9/install_config/configuring_aws.html[AWS cloud provider].
-
-Instantiate the template to deploy Red Hat CloudForms. A parameter called _APPLICATION_MEM_REQ_ will be also specified in order to properly tune the resources for the environment.
-
-.master$
-[source, bash]
-----
-oc new-app -n cloudforms -p APPLICATION_MEM_REQ=3072Mi --template=cloudforms
-----
-
-Red Hat CloudForms will now be deployed into the _cloudforms_ project.
+Red Hat CloudForms is now deployed into the _cloudforms_ project.
 
 ==== Validating a Successful Deployment
 
@@ -133,10 +138,10 @@ Red Hat CloudForms may take up to 5 minutes to start up for the first time as it
 [source, bash]
 ----
 NAME                 READY     STATUS    RESTARTS   AGE
-cloudforms-0         1/1	Running   0          4m
-httpd-1-tqltv        1/1	Running   0          4m
-memcached-1-7gg4s    1/1	Running   0          4m
-postgresql-1-v5sz2   1/1	Running   0          4m
+cloudforms-0         1/1       Running   0          5m
+httpd-1-tmnv9        1/1       Running   0          5m
+memcached-1-j2xj9    1/1       Running   0          5m
+postgresql-1-trssj   1/1       Running   0          5m
 ----
 
 Once the deployment is complete, stop the _watch_ command with CTRL+C.
@@ -151,27 +156,13 @@ Execute the following command to view the overall status of the pods in the clou
 oc status -n cloudforms
 ----
 
-For full details of the deployed application run
+For full details of the deployed application run:
 
 .master$
 [source, bash]
 ----
 oc get pods
 oc describe -n cloudforms pod/cloudforms-<pod_name>
-----
-
-Next, in order to validate the cloudforms pod is running with the proper _privileged_ SCC, export the contents and inspect the _openshift.io/scc_ annotation to confirm the _privileged_ value is present:
-
-.master$
-[source, bash]
-----
-oc -n cloudforms get -o yaml pod cloudforms-<pod_name>
-
-...
-metadata:
- annotations:
-  openshift.io/scc: privileged
-...
 ----
 
 For more details check events:
@@ -201,12 +192,12 @@ As part of the template instantiation, a route was created that allows for acces
 ----
 oc -n cloudforms get routes
 
-NAME     HOST/PORT                   PATH   SERVICES   PORT   TERMINATION
-cloudforms  cloudforms-cloudforms.apps.example.com       cloudforms  https   passthrough
+NAME      HOST/PORT                                                  PATH        SERVICES   PORT      TERMINATION     WILDCARD
+httpd     cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com             httpd      http      edge/Redirect   None
 ----
 
 Open a web browser and navigate securely to the to the hostname retrieved above. This may take a minute or two to completely initialize the web console.
-link:https://httpd-cloudforms.apps-<student-id>.labs.sysdeseng.com[https://httpd-cloudforms.apps-<student-id>.labs.sysdeseng.com]
+link:https://cloudforms-cloudforms.apps-<student-id>.labs.sysdeseng.com[https://cloudforms-cloudforms.apps-<student-id>.labs.sysdeseng.com]
 
 NOTE: If you get an error such as _Application Not Available_ allow some time for the POD's to start and if they are running; run **oc -n cloudforms get events** to reivew for errors.
 
@@ -259,13 +250,13 @@ image::images/cfme-add-provider-dialog.png[]
 
 Next, click on the **Metrics** tab to configure CloudForms to communicate with the cluster metrics.
 
-Enter **prometheus-openshift-metrics.apps-<student-id>.labs.sysdeseng.com** in the _hostname_ field, **443** in the _port_ field and **SSL without validation** for the _Security Protocol_ dropdown.
+Enter **prometheus-openshift-metrics.apps-<student_id>.labs.sysdeseng.com** in the _hostname_ field, **443** in the _port_ field and **SSL without validation** for the _Security Protocol_ dropdown.
 
 image::images/cfme-metrics-dialog.png[]
 
 Click on the **Alerts** tab to configure CloudForms to communicate with the cluster alerts.
 
-Enter **alerts-openshift-metrics.apps-<student-id>.labs.sysdeseng.com** in the _hostname_ field, **443** in the _port_ field and **SSL without validation** for the _Security Protocol_ dropdown.
+Enter **alerts-openshift-metrics.apps-<student_id>.labs.sysdeseng.com** in the _hostname_ field, **443** in the _port_ field and **SSL without validation** for the _Security Protocol_ dropdown.
 
 image::images/cfme-alerts-dialog.png[]
 
