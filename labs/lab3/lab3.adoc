@@ -100,7 +100,7 @@ sudo cat /etc/origin/cloudprovider/aws.conf
 
 
 [Global]
-Zone = us-west-1a
+Zone = us-east-2a
 ----
 
 The cloud provider integration file tells OpenShift how to interact with AWS. You can see that it’s doing so via the AWS API which leverages the AWS credentials that were created prior to your going through the lab. This integration between OpenShift and AWS enable capabilities like dynamic storage provisioning for applications. Cloud Provider configurations are specific to each provider, for example, you also have cloud provider configurations for OpenStack, Azure, VMware, etc…
