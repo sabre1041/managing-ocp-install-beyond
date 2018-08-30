@@ -73,7 +73,7 @@ image::images/ansible-tower-overview.png[]
 
 ====== Job Templates
 
-First, let's review the workflow job template that was just executed to provision the OpenShift Container Platform. This workflow template consists of three chained job templates:
+First, let's review the workflow job template that was just executed to provision the OpenShift Container Platform. This workflow template consists of four chained job templates:
 
 * 1-Deploy_OpenShift_on_AWS - Overall workflow template that ties the job templates together
 * Deploy-1-Provision - Job template that by provisions two AWS instances, a master and a node
