@@ -114,7 +114,7 @@ sudo docker images
 
 The final step in the Ansible Playbook Bundle creation process is to push the image from the local machine to OpenShift's internal registry. In order to communicate with the registry, an authenticated user to the platform must be used as they contain an OAuth token needed to facilitate the communication.
 
-Login as the "<student_id>-admin" user which has elevated cluster privileges:
+Login as the **<student_id>-admin** user which has elevated cluster privileges:
 
 .master$
 [source, bash]
@@ -152,9 +152,9 @@ oc login -u system:admin
 
 == Deploying the AlertManager-Tower-Bridge Application
 
-The AlertManager-Tower-Bridge application aid in providing cluster capabilities to dynamically scale the size of the OpenShift. Since the application is loosely tied to the Prometheus ecosystem and specifically AlertManager, it should be deployed alongside Prometheus in the `openshift-metrics` project. Given this project requires elevated rights, the _<student_id>-admin_ should be utilized.
+The AlertManager-Tower-Bridge application aid in providing cluster capabilities to dynamically scale the size of the OpenShift. Since the application is loosely tied to the Prometheus ecosystem and specifically AlertManager, it should be deployed alongside Prometheus in the `openshift-metrics` project. Given this project requires elevated rights, the **<student_id>-admin** account should be utilized.
 
-Navigate to the OpenShift Web Console and login as the _<student_id>-admin_ user.
+Navigate to the OpenShift Web Console and login as the **<student_id>-admin** user.
 
 link:https://master-<student_id>.labs.sysdeseng.com:8443[https://master-<student_id>.labs.sysdeseng.com:8443]
 
