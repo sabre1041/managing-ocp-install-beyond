@@ -120,6 +120,8 @@ This will allow connectivity to the CloudForms appliance outside of the OpenShif
 oc new-app --template=cloudforms -p APPLICATION_DOMAIN=cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com
 ----
 
+NOTE: There may be a failure message indicated for deployment. This can be ignored and is caused by the service accounts and SCC's being previously added/created.
+
 Red Hat CloudForms is now deployed into the _cloudforms_ project.
 
 ==== Validating a Successful Deployment
