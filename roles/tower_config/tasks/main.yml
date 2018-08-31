@@ -19,6 +19,9 @@
   when: tower_cli_credentials_config|bool == true
   tags: auth
 
+- import_tasks: openshift_auth.yml
+  tags: openshift_auth
+
 - import_tasks: user.yml
   when: tower_user_add|bool == true
   tags: user
