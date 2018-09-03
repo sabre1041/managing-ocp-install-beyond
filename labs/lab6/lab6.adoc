@@ -37,7 +37,7 @@ In the prior lab, you developed provisioned the AlertManager/Ansible Tower Bridg
 
 With the components in place to integrate AlertManager with Ansible Tower, lets turn our attention into how the cluster can be dynamically scaled. Alerts are sent to AlertManager based on rules that have been defined within Prometheus. The rules and their current status can be viewed from the Prometheus User Interface.
 
-Navigate to the Prometheus user interface and login using the "<student_id>-admin" user account
+Navigate to the Prometheus user interface and login using the **<student_id>-admin** user account
 
 link:https://prometheus-openshift-metrics.apps-<student_id>.labs.sysdeseng.com[https://prometheus-openshift-metrics.apps-<student_id>.labs.sysdeseng.com]
 
@@ -68,7 +68,7 @@ sum(up{job="kubernetes-nodes",node_role_kubernetes_io_compute="true"}) < 0
 
 This rule states that the alert will be fired when the number of nodes with the label `node.role.kubernetes.io/compute="true"` is below 0.
 
-When an alert is triggered, a request is sent to AlertManager, a separate container within the Prometheus pod. AlertManager itself has its own web console for which to interact with the component. Open a new browser tab and navigate to the following location and use the same credentials ("<student_id>-admin") as were used to access Prometheus.
+When an alert is triggered, a request is sent to AlertManager, a separate container within the Prometheus pod. AlertManager itself has its own web console for which to interact with the component. Open a new browser tab and navigate to the following location and use the same credentials **<student_id>-admin** as were used to access Prometheus.
 
 link:https://alertmanager-openshift-metrics.apps-<student_id>.labs.sysdeseng.com[https://alertmanager-openshift-metrics.apps-<student_id>.labs.sysdeseng.com]
 
@@ -113,7 +113,7 @@ Modify the expression for the _Minimum Number of Application Nodes_ rule as show
 
 [source, bash]
 ----
-sum(up{job="kubernetes-nodes",node_role_kubernetes_io_compute="true"}) < 2
+sum(up{node_role_kubernetes_io_compute="true",job="kubernetes-nodes"}) < 2
 ----
 
 One of the benefits of ConfigMaps is that once a change has been made, the resulting value is made available in the pod. 
@@ -185,7 +185,7 @@ Notice how the `type=ansible-tower` is prominently displayed.
 
 Now, verify the AlertManager Tower Bridge application has received the webhook and invoked Ansible Tower.
 
-Navigate to the OpenShift web console and login using the _<student_id>-admin_ account using the provided credentials.
+Navigate to the OpenShift web console and login using the **<student_id>-admin** account using the provided credentials.
 
 link:https://master-<student_id>.labs.sysdeseng.com:8443[https://master-<student_id>.labs.sysdeseng.com:8443]
 

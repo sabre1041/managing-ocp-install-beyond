@@ -103,7 +103,7 @@ oc describe configmap prometheus
 
 
 
-List the routes for Prometheus and open up the web interface. Copy the URL for prometheus and sign in with the user <student_id>-admin.
+List the routes for Prometheus and open up the web interface. Copy the URL for prometheus and sign in with the user **<student_id>-admin**.
 
 .master$
 [source, bash]
@@ -119,7 +119,7 @@ prometheus-openshift-metrics.apps-<student_id>.labs.sysdeseng.com
 
 NOTE: Remember to add an `https://` to your route when you go the the browser.
 
-NOTE: The first time you access Prometheus, you will need to authenticate using your OpenShift credentials. Do that, and authorize the proper access to the Prometheus project.
+NOTE: The first time you access Prometheus, you will need to authenticate using your **<student_id>-admin** OpenShift credentials. Do that, and authorize the proper access to the Prometheus project.
 
 
 Once in the web UI, the `console` is the default view. 
@@ -164,7 +164,7 @@ To close out here, a new project has been created along with the accompanying re
 
 === Explore Grafana
 
-Log in with your OpenShift admin account: <student_id>-admin and the password from your instructor.
+Log in with your OpenShift admin account: **<student_id>-admin** and the password from your instructor.
 
 https://grafana-grafana.apps-<student_id>.labs.sysdeseng.com
 
