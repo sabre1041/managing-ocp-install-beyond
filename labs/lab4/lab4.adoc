@@ -168,8 +168,6 @@ Log in with your OpenShift admin account: **<student_id>-admin** and the passwor
 
 https://grafana-grafana.apps-<student_id>.labs.sysdeseng.com
 
-NOTE: The first time you access Grafana, you will need to authenticate using your OpenShift credentials. Do that, and authorize the proper access to the Grafana project.
-
 In the upper left navigation pane, click the `Home` button.
 
 image::images/grafana-home-button.png[]
