@@ -121,7 +121,7 @@ By defining the AWS cloud provider, the OpenShift installer automatically config
 oc describe storageclass gp2
 ----
 
-Notice that the provisioner is the gp2/ebs provisioner and the `is-default-class` is set to **'true'**. The usage of the _is-default-class_ annotation defines a link:https://docs.openshift.com/container-platform/3.6/install_config/storage_examples/storage_classes_dynamic_provisioning.html#example2[Default Storage Class] that will automatically provision instances when a link:https://docs.openshift.com/container-platform/latest/architecture/additional_concepts/storage.html#persistent-volume-claims[Persistent Volume Claim] is created.
+Notice that the provisioner is the gp2/ebs provisioner and the `is-default-class` is set to **'yes'**. The usage of the _is-default-class_ annotation defines a link:https://docs.openshift.com/container-platform/3.6/install_config/storage_examples/storage_classes_dynamic_provisioning.html#example2[Default Storage Class] that will automatically provision instances when a link:https://docs.openshift.com/container-platform/latest/architecture/additional_concepts/storage.html#persistent-volume-claims[Persistent Volume Claim] is created.
 
 You can use the OpenShift Command line tool as a user with cluster administrator role to access the entire set of configurations for the platform as time permits.
 

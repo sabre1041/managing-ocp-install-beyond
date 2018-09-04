@@ -227,12 +227,6 @@ oc get nodes
 
 If successful, you should see three (3) total nodes (1 master and 2 worker nodes) with **Ready** under the _Status_ column, as opposed to (2) total nodes before (1 master and 1 worker nodes).
 
-Execute the following to display the nodes and their associated labels:
-
-Red Hat CloudForms can also be used to confirm the total number of nodes has been expanded to four.
-
-Login to CloudForms and once authenticated, hover over _Compute_, then _Containers_. Finally select **Container Nodes**. Confirm four nodes are displayed.
-
 Finally, with 2 application nodes present and running, return to the Prometheus user interface and select the **Alerts** link at the top. Notice how the alert is no longer active as the number of running application instances has been satisfied
 
 image::images/alertmanager-green-scaleup.png[]

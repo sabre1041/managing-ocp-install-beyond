@@ -203,7 +203,7 @@ link:https://cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com[https://
 
 NOTE: If you get an error such as _Application Not Available_ allow some time for the POD's to start and if they are running; run **oc -n cloudforms get events** to reivew for errors.
 
-Since Red Hat CloudForms in the lab environment uses a self signed certificate, add an exception in the browser to add an exception. Login with the provided credentials.
+Since Red Hat CloudForms in the lab environment uses a self signed certificate, add an exception in the browser to add an exception. Login with the default CloudForms credentials **(admin/smartvm)**.
 
 Once successfully authenticated, you should be taken to the overview page:
 
@@ -226,6 +226,8 @@ image::images/cfme-add-provider.png[]
 
 Start adding a new Container Provider by specifying **OCP** as the name and **OpenShift Container Platform** as the type. Set _Alerts_ to and _Metrics_ to **Prometheus**.
 
+Since the SSL certificates for the OpenShift API are not currently configured within CloudForms, SSL validation would fail. To work around this issue, select the dropdown next to _Security Protocol_ and select **SSL without validation**
+
 As mentioned previously, there are two endpoints in which CloudForms retrieves metrics from. First, configure the connection details to the OpenShift API. 
 
 Since CloudForms is deployed within OpenShift, we can leverage the internal service associated with API called _kubernetes_ in the default project. Internal service names can be referenced across projects in the form _<service_name>.<namespace>_
@@ -243,8 +245,6 @@ oc serviceaccounts get-token -n management-infra management-admin
 ----
 
 Copy the value returned into the token fields.
-
-Finally, since the SSL certificates for the OpenShift API are not currently configured within CloudForms, SSL validation would fail. To work around this issue, select the dropdown next to _Security Protocol_ and select **SSL without validation**
 
 Click the **Validate** button to verify the configuration.
 

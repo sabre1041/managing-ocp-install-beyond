@@ -125,7 +125,7 @@ NOTE: The first time you access Prometheus, you will need to authenticate using 
 Once in the web UI, the `console` is the default view. 
 
 * Click on `Graph` in the top navigation pane.  
-* Next, click on the `"insert metric at cursor"` dropdown and scroll to `node_memory_MemAvailable`, then click `Execute`. 
+* Next, click on the `"insert metric at cursor"` dropdown and scroll to `node_memory_MemAvailable_bytes`, then click `Execute`. 
 * At this point, you will be on the _Console_ tab. 
 * Click on the _Graph_ tab. This should create a graph on your screen. 
 
@@ -167,8 +167,6 @@ To close out here, a new project has been created along with the accompanying re
 Log in with your OpenShift admin account: **<student_id>-admin** and the password from your instructor.
 
 https://grafana-grafana.apps-<student_id>.labs.sysdeseng.com
-
-NOTE: The first time you access Grafana, you will need to authenticate using your OpenShift credentials. Do that, and authorize the proper access to the Grafana project.
 
 In the upper left navigation pane, click the `Home` button.
 
