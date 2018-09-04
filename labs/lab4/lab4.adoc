@@ -125,7 +125,7 @@ NOTE: The first time you access Prometheus, you will need to authenticate using 
 Once in the web UI, the `console` is the default view. 
 
 * Click on `Graph` in the top navigation pane.  
-* Next, click on the `"insert metric at cursor"` dropdown and scroll to `node_memory_MemAvailable`, then click `Execute`. 
+* Next, click on the `"insert metric at cursor"` dropdown and scroll to `node_memory_MemAvailable_bytes`, then click `Execute`. 
 * At this point, you will be on the _Console_ tab. 
 * Click on the _Graph_ tab. This should create a graph on your screen. 
 
