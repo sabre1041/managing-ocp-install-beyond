@@ -203,7 +203,7 @@ link:https://cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com[https://
 
 NOTE: If you get an error such as _Application Not Available_ allow some time for the POD's to start and if they are running; run **oc -n cloudforms get events** to reivew for errors.
 
-Since Red Hat CloudForms in the lab environment uses a self signed certificate, add an exception in the browser to add an exception. Login with the provided credentials.
+Since Red Hat CloudForms in the lab environment uses a self signed certificate, add an exception in the browser to add an exception. Login with the default CloudForms credentials **(admin/smartvm)**.
 
 Once successfully authenticated, you should be taken to the overview page:
 
