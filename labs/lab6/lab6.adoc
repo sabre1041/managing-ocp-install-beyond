@@ -193,7 +193,7 @@ From the landing page, on the righthand side of the page, select the _openshift-
 
 From within the _openshift-metrics_ project, select **Applications** and then **Pods** from the lefthand side navigation. 
 
-Locate and click the _Running_ pod starting with `alertmanager-tower-bridge` and then select the **Logs** tab. When a request is received, details of the alert along with the invocations to Ansible Tower are displayed. The final invocation is the actual request to launch the workflow job template. The response will include an the `id` of the job that was triggered. The presence of this field indicates the invocation was successful and can be used to correlate an action within Ansible Tower.
+Locate and click the _Running_ pod starting with `alertmanager-tower-bridge` and then select the **Logs** tab. When a request is received, details of the alert along with the invocations to Ansible Tower are displayed. The final invocation is the actual request to launch the workflow job template. The response will include the `id` of the job that was triggered. The presence of this field indicates the invocation was successful and can be used to correlate an action within Ansible Tower.
 
 The final step to verify the status of the **2-Scaleup_OpenShift_on_AWS** workflow job template was invoked expand the OpenShift cluster.
 
