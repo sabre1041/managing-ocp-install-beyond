@@ -198,7 +198,7 @@ NAME      HOST/PORT                                                  PATH       
 httpd     cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com             httpd      http      edge/Redirect   None
 ----
 
-Open a web browser and navigate securely to the to the hostname retrieved above. This may take a minute or two to completely initialize the web console.
+Open a web browser and navigate securely to the hostname retrieved above. This may take a minute or two to completely initialize the web console.
 link:https://cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com[https://cloudforms-cloudforms.apps-<student_id>.labs.sysdeseng.com]
 
 NOTE: If you get an error such as _Application Not Available_ allow some time for the POD's to start and if they are running; run **oc -n cloudforms get events** to reivew for errors.
