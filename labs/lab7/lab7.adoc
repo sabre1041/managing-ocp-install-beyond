@@ -266,7 +266,7 @@ Click **Validate** to confirm the configuration is correct for each.
 
 Finally, click **Add** to add the new container provider.
 
-You have now configured Red Hat CloudForms to retrieve metrics and alerts from OpenShift. It may take a few minutes to data to be displayed.
+You have now configured Red Hat CloudForms to retrieve metrics and alerts from OpenShift. It may take a few minutes for data to be displayed.
 
 To force an immediate refresh of the newly added Provider:
  
