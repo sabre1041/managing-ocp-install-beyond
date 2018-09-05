@@ -183,7 +183,7 @@ You can also check volumes:
 oc -n cloudforms get pv
 ----
 
-NOTE: If for any reason failures are observed, you may need to remove the project and start this section over again.  **Only perform this task if there was an irrecoverable failure. Let and instructor know before doing this.**
+NOTE: If for any reason failures are observed, you may need to remove the project and start this section over again.  **Only perform this task if there was an irrecoverable failure. Let an instructor know before doing this.**
 
 ==== Accessing the CloudForms User Interface
 
