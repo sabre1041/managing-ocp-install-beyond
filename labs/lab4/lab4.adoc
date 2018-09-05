@@ -31,7 +31,7 @@ Now that we have an overview of the environment, we are going to switch gears a 
 
 === Prometheus
 
-From the website: "Prometheus is an open-source systems monitoring and alerting toolkit originally built at SoundCloud". Prometheus has gained in popularity over the past couple of years and has native integration with OpenShift which enables us to leverage it's powerful capabilities to gain insight into our clusters. Prometheus is a project in the Cloud Native Computing Foundation. As all admins and developers know, Day 1 operations of installation and configuration are fun, but the fun really starts on Day 2.  Keeping an eye on our performance and making sure the cluster is functioning properly is easier with the right tools. That's where Prometheus comes in.
+From the website: "Prometheus is an open-source systems monitoring and alerting toolkit originally built at SoundCloud". Prometheus has gained in popularity over the past couple of years and has native integration with OpenShift which enables us to leverage its powerful capabilities to gain insight into our clusters. Prometheus is a project in the Cloud Native Computing Foundation. As all admins and developers know, Day 1 operations of installation and configuration are fun, but the fun really starts on Day 2.  Keeping an eye on our performance and making sure the cluster is functioning properly is easier with the right tools. That's where Prometheus comes in.
 
 === OpenShift
 
