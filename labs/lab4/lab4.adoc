@@ -27,7 +27,7 @@ Password: INSTRUCTOR WILL PROVIDE
 
 == Overview
 
-Now that we have an overview of the environment, we are going to switch gears a little. In this lab, we will explore how to handle metrics and visualization of those metrics using OpenShift, link:https://prometheus.io/[Prometheus] and link:https://grafana.com/[Grafana]. We'll do a high level overview of each component, discuss how they interoperate and finally explore the environment to see how to these components together.
+Now that we have an overview of the environment, we are going to switch gears a little. In this lab, we will explore how to handle metrics and visualization of those metrics using OpenShift, link:https://prometheus.io/[Prometheus] and link:https://grafana.com/[Grafana]. We'll do a high level overview of each component, discuss how they interoperate and finally explore the environment to see how to use these components together.
 
 === Prometheus
 
