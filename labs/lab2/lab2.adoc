@@ -77,9 +77,8 @@ First, let's review the workflow job template that was just executed to provisio
 
 * 1-Deploy_OpenShift_on_AWS - Overall workflow template that ties the job templates together
 * Deploy-1-Provision - Job template that provisions two AWS instances, a master and a node
-* Deploy-2-Prerequisites - Job template that installs OCP prerequisites onto the AWS instances
-* Deploy-3-Install - Job template that installs the OpenShift Container Platform on the instances provisioned previously
-* Deploy-4-Post-Install - Job template that customizes the OpenShift cluster for the lab
+* Deploy-2-Install - Job template that installs the OpenShift Container Platform on the instances provisioned previously
+* Deploy-3-Post-Install - Job template that customizes the OpenShift cluster for the lab
 
 Additional job templates relating to scaling the OpenShift environment and terminating the AWS instances have also been configured. A portion of these will be discussed in subsequent labs.
 

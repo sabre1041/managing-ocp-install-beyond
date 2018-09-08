@@ -47,7 +47,7 @@ One alert has been defined (_Minimum Number of Application Nodes_). Currently, t
 
 image::images/alertmanager-green.png[]
 
-The rule validates the number of OpenShift application nodes, or nodes with the label `type=app`.
+The rule validates the number of OpenShift application nodes, or nodes with the label `node-role.kubernetes.io/compute=true`.
 
 Using the OpenShift Command Line Tool on the master, you can verify the label associated with the nodes
 
@@ -79,7 +79,7 @@ Select the **Status** link at the top of the page and scroll down to the _Config
 
 First, locate the _routes_ property. When a alert is received with a label of `type=ansible-tower`, it will instruct the alert to be sent to a _receiver_ with the name `ansible-tower`. In the Prometheus Alert _Minimum Number of Application Nodes_, a series of labels were defined. One of which was `type=ansible-tower`. Since a match will occur in AlertManager, the _ansible-tower_ receiver will be triggered. In the receiver definition, a webhook with a reference to _alertmanager-tower-bridge_ application is configured. Thus, when an alert with the label `type=ansible-tower` is received, a request is sent to the Ansible Tower Bridge application which in turn will invoke the Ansible Tower workflow job to scale up the OpenShift cluster.
 
-Returning to the Prometheus rule again, notice how this rule wil never fire as it is impossible for a count such as this to have a negative number. This was done intentionally during the lab preparation to ensure an alert did not accidentally fire. 
+Returning to the Prometheus rule again, notice how this rule will never fire as it is impossible for a count such as this to have a negative number. This was done intentionally during the lab preparation to ensure an alert did not accidentally fire.
 
 In this lab, the minimum number of application nodes will be modified from 0 to 2, or 1 more than are currently running.
 
